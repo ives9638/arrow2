@@ -184,10 +184,10 @@ assert_eq!(array.len(), 3)
 <li>A logical type (<code>DataType::Int32</code>)</li>
 <li>Data</li>
 </ol>
-<p>Its main difference vs a <code>Vec&lt;Option&lt;T&gt;&gt;</code> are:</p>
+<p>The main differences from a <code>Vec&lt;Option&lt;T&gt;&gt;</code> are:</p>
 <ul>
 <li>Its data is layed out in memory as a <code>Buffer&lt;T&gt;</code> and a <code>Option&lt;Bitmap&gt;</code>.</li>
-<li><code>PrimitivArray&lt;T&gt;</code> has an associated logical datatype.</li>
+<li>It has an associated logical datatype.</li>
 </ul>
 <p>The first difference allows interoperability with Arrow's ecosystem and efficient SIMD operations (we will re-visit this below); the second difference is that it allows semantic meaning to the array. In the example</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use arrow2::array::Primitive;
@@ -250,7 +250,44 @@ let array = &amp;array as &amp;dyn Array;
 let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unwrap();
 <span class="boring">}
 </span></code></pre></pre>
-<p>There is a many to one relationship between <code>DataType</code> and a physical type (like <code>i32</code>). These are typically encapsulated on <code>match</code> patterns.</p>
+<p>There is a many to one relationship between <code>DataType</code> and an Array (i.e. a physical representation). These are typically encapsulated on <code>match</code> patterns. The relationship is the following:</p>
+<table><thead><tr><th>DataType</th><th>PhysicalType</th></tr></thead><tbody>
+<tr><td>UInt8</td><td>PrimitiveArray<u8></td></tr>
+<tr><td>UInt16</td><td>PrimitiveArray<u16></td></tr>
+<tr><td>UInt32</td><td>PrimitiveArray<u32></td></tr>
+<tr><td>UInt64</td><td>PrimitiveArray<u64></td></tr>
+<tr><td>Int8</td><td>PrimitiveArray<i8></td></tr>
+<tr><td>Int16</td><td>PrimitiveArray<i16></td></tr>
+<tr><td>Int32</td><td>PrimitiveArray<i32></td></tr>
+<tr><td>Int64</td><td>PrimitiveArray<i64></td></tr>
+<tr><td>Float32</td><td>PrimitiveArray<f32></td></tr>
+<tr><td>Float64</td><td>PrimitiveArray<f64></td></tr>
+<tr><td>Date32</td><td>PrimitiveArray<i32></td></tr>
+<tr><td>Date64</td><td>PrimitiveArray<i64></td></tr>
+<tr><td>Time32(_)</td><td>PrimitiveArray<i32></td></tr>
+<tr><td>Time64(_)</td><td>PrimitiveArray<i64></td></tr>
+<tr><td>Timestamp(<em>,</em>)</td><td>PrimitiveArray<i64></td></tr>
+<tr><td>Interval(YearMonth)</td><td>PrimitiveArray<i32></td></tr>
+<tr><td>Interval(DayTime)</td><td>PrimitiveArray&lt;days_ms&gt;</td></tr>
+<tr><td>Duration(_)</td><td>PrimitiveArray<i64></td></tr>
+<tr><td>Binary</td><td>BinaryArray<i32></td></tr>
+<tr><td>LargeBinary</td><td>BinaryArray<i64></td></tr>
+<tr><td>Utf8</td><td>Utf8Array<i32></td></tr>
+<tr><td>LargeUtf8</td><td>Utf8Array<i64></td></tr>
+<tr><td>List</td><td>ListArray<i32></td></tr>
+<tr><td>LargeList</td><td>ListArray<i64></td></tr>
+<tr><td>FixedSizeBinary(_)</td><td>FixedSizeBinaryArray</td></tr>
+<tr><td>FixedSizeList(<em>,</em>)</td><td>FixedSizeListArray</td></tr>
+<tr><td>Struct(_)</td><td>StructArray</td></tr>
+<tr><td>Dictionary(UInt8,_)</td><td>DictionaryArray<u8></td></tr>
+<tr><td>Dictionary(UInt16,_)</td><td>DictionaryArray<u16></td></tr>
+<tr><td>Dictionary(UInt32,_)</td><td>DictionaryArray<u32></td></tr>
+<tr><td>Dictionary(UInt64,_)</td><td>DictionaryArray<u64></td></tr>
+<tr><td>Dictionary(Int8,_)</td><td>DictionaryArray<i8></td></tr>
+<tr><td>Dictionary(Int16,_)</td><td>DictionaryArray<i16></td></tr>
+<tr><td>Dictionary(Int32,_)</td><td>DictionaryArray<i32></td></tr>
+<tr><td>Dictionary(Int64,_)</td><td>DictionaryArray<i64></td></tr>
+</tbody></table>
 <h2 id="from-iterator"><a class="header" href="#from-iterator">From Iterator</a></h2>
 <p>In the code above, we've introduced how to create an array from an iterator.
 These APIs are avaiable for all Arrays, and they are highly suitable to efficiently

@@ -176,11 +176,9 @@ does not use <code>Vec</code>, and instead has its own containers to store data,
 <p>Due to their intrinsic imutability, each container has a corresponding mutable (and non-sharable) variant:</p>
 <ul>
 <li><code>MutableBuffer&lt;T&gt;</code></li>
-<li><code>Buffer&lt;T&gt;</code></li>
 <li><code>MutableBitmap</code></li>
-<li><code>Bitmap</code></li>
 </ul>
-<p>Some examples:</p>
+<p>Let's see how these structures are used.</p>
 <p>Create a new <code>Buffer&lt;u32&gt;</code>:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use arrow2::buffer::Buffer;
 </span><span class="boring">fn main() {
