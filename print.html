@@ -366,14 +366,16 @@ fn float_operator(array: &amp;dyn Array) -&gt; Result&lt;Box&lt;dyn Array&gt;, S
         DataType::Float32 =&gt; {
             let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;f32&gt;&gt;().unwrap();
             // let array = f32-specific operator
+            let array = array.clone();
             Ok(Box::new(array))
         }
         DataType::Float64 =&gt; {
             let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;f64&gt;&gt;().unwrap();
             // let array = f64-specific operator
+            let array = array.clone();
             Ok(Box::new(array))
         }
-        _ =&gt; Err(&quot;This operator is only valid for float point.&quot;),
+        _ =&gt; Err(&quot;This operator is only valid for float point.&quot;.to_string()),
     }
 }
 <span class="boring">}
