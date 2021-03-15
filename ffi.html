@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>The arrow format - arrow 2 documentation</title>
+        <title>Foreign interfaces - arrow 2 documentation</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html" class="active"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html" class="active"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -163,26 +163,61 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="arrow"><a class="header" href="#arrow">Arrow</a></h1>
-<p><a href="https://arrow.apache.org/">Arrow</a> as in-memory columnar format for modern analytics that natively supports the concept of a null value, nested structs, and many others.</p>
-<p>It has an IPC protocol (based on flat buffers) and a stable C-represented ABI for intra-process communication via foreign interfaces (FFI).</p>
-<p>The arrow format recommends allocating memory along cache lines to leverage modern archtectures,
-as well as using a shared memory model that enables multi-threading.</p>
+                        <h1 id="foreign-interfaces"><a class="header" href="#foreign-interfaces">Foreign Interfaces</a></h1>
+<p>One of the hallmarks of the Arrow format is that its in-memory representation has a specification, which allows languages to share data structures via foreign interfaces
+at zero cost (i.e. via pointers). This is known as the <a href="https://arrow.apache.org/docs/format/CDataInterface.html">C Data interface</a>.</p>
+<p>Currently, this crate supports importing from and exporting to all non-nested DataTypes.</p>
+<h2 id="export"><a class="header" href="#export">Export</a></h2>
+<p>The API to export an <code>Array</code> is as follows:</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
+use arrow2::array::{Array, Primitive};
+use arrow2::datatypes::DataType;
+use arrow2::ffi::ArrowArray;
+
+<span class="boring">fn main() {
+</span>// Example of an array:
+let array = [Some(1), None, Some(123)]
+    .iter()
+    .collect::&lt;Primitive&lt;i32&gt;&gt;()
+    .to(DataType::Int32);
+// create a struct from it with the API to export it.
+let array = ArrowArray::try_from(Arc::new(array))?;
+
+// export; these are `ArrowArray` and `ArrowSchema` of the C data interface
+let (array, schema) = ArrowArray::into_raw(array);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Note that this leaks memory iff the consumers of these
+pointers do not <code>release</code> them according to the <a href="https://arrow.apache.org/docs/format/CDataInterface.html#release-callback-semantics-for-consumers">member allocation</a>.</p>
+<h2 id="import"><a class="header" href="#import">Import</a></h2>
+<p>The API to import works similarly:</p>
+<pre><code class="language-rust ignore">use arrow2::array::Array;
+use arrow2::ffi::ArrowArray;
+
+// these are `ArrowArray` and `ArrowSchema` of the C data interface
+let array = unsafe { ArrowArray::try_from_raw(array, schema) }?;
+
+let array = Box::&lt;dyn Array&gt;::try_from(array)?;
+</code></pre>
+<p>Note that this assumes that <code>array</code> and <code>schema</code> are valid pointers and
+that the data on it is also layed out according to the c data interface.
+This is impossible to prove at neither compile nor run-time and is thus
+intrinsically <code>unsafe</code>.</p>
+<p>Soundness here relies on the producer creating <code>array</code> and <code>schema</code> that
+follow the c data interface specification.
+In particular, if the producer reports an array length larger than what its buffer
+was allocated for, it will cause this crate to read out of bounds.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
                         
-                            <a rel="prev" href="index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="high_level.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
                         
 
-                        
-                            <a rel="next" href="low_level.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
                         
 
                         <div style="clear: both"></div>
@@ -192,15 +227,11 @@ as well as using a shared memory model that enables multi-threading.</p>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
                 
-                    <a rel="prev" href="index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="high_level.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
-                
-                    <a rel="next" href="low_level.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
                 
             </nav>
 

@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html" class="active"><strong aria-hidden="true">4.</strong> High level API</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html" class="active"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -250,7 +250,7 @@ let array = &amp;array as &amp;dyn Array;
 let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unwrap();
 <span class="boring">}
 </span></code></pre></pre>
-<p>There is a many to one relationship between <code>DataType</code> and an Array (i.e. a physical representation). These are typically encapsulated on <code>match</code> patterns. The relationship is the following:</p>
+<p>There is a many to one relationship between <code>DataType</code> and an Array (i.e. a physical representation). The relationship is the following:</p>
 <table><thead><tr><th>DataType</th><th>PhysicalType</th></tr></thead><tbody>
 <tr><td>UInt8</td><td>PrimitiveArray<u8></td></tr>
 <tr><td>UInt16</td><td>PrimitiveArray<u16></td></tr>
@@ -288,8 +288,32 @@ let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unw
 <tr><td>Dictionary(Int32,_)</td><td>DictionaryArray<i32></td></tr>
 <tr><td>Dictionary(Int64,_)</td><td>DictionaryArray<i64></td></tr>
 </tbody></table>
+<p>In this context, a common pattern to write operators that receive <code>&amp;dyn Array</code> is:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use arrow2::datatypes::DataType;
+use arrow2::array::{Array, PrimitiveArray};
+
+fn float_operator(array: &amp;dyn Array) -&gt; Result&lt;Box&lt;dyn Array&gt;, String&gt; {
+    match array.data_type() {
+        DataType::Float32 =&gt; {
+            let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;f32&gt;&gt;().unwrap();
+            // let array = f32-specific operator
+            Ok(Box::new(array))
+        }
+        DataType::Float64 =&gt; {
+            let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;f64&gt;&gt;().unwrap();
+            // let array = f64-specific operator
+            Ok(Box::new(array))
+        }
+        _ =&gt; Err(&quot;This operator is only valid for float point.&quot;),
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="from-iterator"><a class="header" href="#from-iterator">From Iterator</a></h2>
-<p>In the code above, we've introduced how to create an array from an iterator.
+<p>In the examples above, we've introduced how to create an array from an iterator.
 These APIs are avaiable for all Arrays, and they are highly suitable to efficiently
 create them. In this section we will go a bit more in detail about these operations,
 and how to make them even more efficient.</p>
@@ -322,8 +346,8 @@ for item in array.iter() {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>Like <code>FromIterator</code>, this crate contains two sets of APIs to iterate over data. Let's say
-that you have an array <code>array: &amp;PrimitiveArray&lt;T&gt;</code>. The following applies:</p>
+<p>Like <code>FromIterator</code>, this crate contains two sets of APIs to iterate over data. Given
+an array <code>array: &amp;PrimitiveArray&lt;T&gt;</code>, the following applies:</p>
 <ol>
 <li>If you need to iterate over <code>Option&lt;T&gt;</code>, use <code>array.iter()</code></li>
 <li>If you can operate over the values and validity independently, use <code>array.values() -&gt; &amp;[T]</code> and <code>array.validity() -&gt; &amp;Option&lt;Bitmap&gt;</code></li>
@@ -388,6 +412,10 @@ and cloned its validity. This approach is suitable for operations whose branchin
                         
 
                         
+                            <a rel="next" href="ffi.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
 
                         <div style="clear: both"></div>
                     </nav>
@@ -401,6 +429,10 @@ and cloned its validity. This approach is suitable for operations whose branchin
                     </a>
                 
 
+                
+                    <a rel="next" href="ffi.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
                 
             </nav>
 

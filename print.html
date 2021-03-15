@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -180,8 +180,7 @@ Rust implementation of that crate. It currently offers most functionality with t
 <p>The arrow format recommends allocating memory along cache lines to leverage modern archtectures,
 as well as using a shared memory model that enables multi-threading.</p>
 <h1 id="low-end-api"><a class="header" href="#low-end-api">Low end API</a></h1>
-<p>The starting point of this crate is the idea that data must be stored in memory in a specific arrangement to be interoperable with Arrow's ecosystem. With this in mind, this crate
-does not use <code>Vec</code>, and instead has its own containers to store data, including to share and consume it via FFI.</p>
+<p>The starting point of this crate is the idea that data must be stored in memory in a specific arrangement to be interoperable with Arrow's ecosystem. With this in mind, this crate does not use <code>Vec</code>, and instead has its own containers to store data, including to share and consume it via FFI.</p>
 <p>The most important design decision of this crate is that contiguous regions are shared via an <code>Arc</code>. In this context, the operation of slicing a memory region is <code>O(1)</code> because it corresponds to changing an offset and length. The tradeoff is that once under and <code>Arc</code>, memory regions are imutable.</p>
 <p>The second important aspect is that Arrow has two main types of data buffers: bitmaps, whose offsets are measured in bits, and byte types (such as <code>i23</code>), whose offsets are measured in bytes. With this in mind, this crate has 2 main types of containers of contiguous memory regions:</p>
 <ul>
@@ -317,7 +316,7 @@ let array = &amp;array as &amp;dyn Array;
 let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unwrap();
 <span class="boring">}
 </span></code></pre></pre>
-<p>There is a many to one relationship between <code>DataType</code> and an Array (i.e. a physical representation). These are typically encapsulated on <code>match</code> patterns. The relationship is the following:</p>
+<p>There is a many to one relationship between <code>DataType</code> and an Array (i.e. a physical representation). The relationship is the following:</p>
 <table><thead><tr><th>DataType</th><th>PhysicalType</th></tr></thead><tbody>
 <tr><td>UInt8</td><td>PrimitiveArray<u8></td></tr>
 <tr><td>UInt16</td><td>PrimitiveArray<u16></td></tr>
@@ -355,8 +354,32 @@ let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unw
 <tr><td>Dictionary(Int32,_)</td><td>DictionaryArray<i32></td></tr>
 <tr><td>Dictionary(Int64,_)</td><td>DictionaryArray<i64></td></tr>
 </tbody></table>
+<p>In this context, a common pattern to write operators that receive <code>&amp;dyn Array</code> is:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use arrow2::datatypes::DataType;
+use arrow2::array::{Array, PrimitiveArray};
+
+fn float_operator(array: &amp;dyn Array) -&gt; Result&lt;Box&lt;dyn Array&gt;, String&gt; {
+    match array.data_type() {
+        DataType::Float32 =&gt; {
+            let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;f32&gt;&gt;().unwrap();
+            // let array = f32-specific operator
+            Ok(Box::new(array))
+        }
+        DataType::Float64 =&gt; {
+            let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;f64&gt;&gt;().unwrap();
+            // let array = f64-specific operator
+            Ok(Box::new(array))
+        }
+        _ =&gt; Err(&quot;This operator is only valid for float point.&quot;),
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
 <h2 id="from-iterator"><a class="header" href="#from-iterator">From Iterator</a></h2>
-<p>In the code above, we've introduced how to create an array from an iterator.
+<p>In the examples above, we've introduced how to create an array from an iterator.
 These APIs are avaiable for all Arrays, and they are highly suitable to efficiently
 create them. In this section we will go a bit more in detail about these operations,
 and how to make them even more efficient.</p>
@@ -389,8 +412,8 @@ for item in array.iter() {
 }
 <span class="boring">}
 </span></code></pre></pre>
-<p>Like <code>FromIterator</code>, this crate contains two sets of APIs to iterate over data. Let's say
-that you have an array <code>array: &amp;PrimitiveArray&lt;T&gt;</code>. The following applies:</p>
+<p>Like <code>FromIterator</code>, this crate contains two sets of APIs to iterate over data. Given
+an array <code>array: &amp;PrimitiveArray&lt;T&gt;</code>, the following applies:</p>
 <ol>
 <li>If you need to iterate over <code>Option&lt;T&gt;</code>, use <code>array.iter()</code></li>
 <li>If you can operate over the values and validity independently, use <code>array.values() -&gt; &amp;[T]</code> and <code>array.validity() -&gt; &amp;Option&lt;Bitmap&gt;</code></li>
@@ -443,6 +466,50 @@ where
 and cloned its validity. This approach is suitable for operations whose branching off is more expensive than operating over all values. If the operation is expensive, then using <code>Primitive::&lt;O&gt;::from_trusted_len_iter</code> is likely faster.</p>
 </li>
 </ol>
+<h1 id="foreign-interfaces"><a class="header" href="#foreign-interfaces">Foreign Interfaces</a></h1>
+<p>One of the hallmarks of the Arrow format is that its in-memory representation has a specification, which allows languages to share data structures via foreign interfaces
+at zero cost (i.e. via pointers). This is known as the <a href="https://arrow.apache.org/docs/format/CDataInterface.html">C Data interface</a>.</p>
+<p>Currently, this crate supports importing from and exporting to all non-nested DataTypes.</p>
+<h2 id="export"><a class="header" href="#export">Export</a></h2>
+<p>The API to export an <code>Array</code> is as follows:</p>
+<pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
+use arrow2::array::{Array, Primitive};
+use arrow2::datatypes::DataType;
+use arrow2::ffi::ArrowArray;
+
+<span class="boring">fn main() {
+</span>// Example of an array:
+let array = [Some(1), None, Some(123)]
+    .iter()
+    .collect::&lt;Primitive&lt;i32&gt;&gt;()
+    .to(DataType::Int32);
+// create a struct from it with the API to export it.
+let array = ArrowArray::try_from(Arc::new(array))?;
+
+// export; these are `ArrowArray` and `ArrowSchema` of the C data interface
+let (array, schema) = ArrowArray::into_raw(array);
+<span class="boring">}
+</span></code></pre></pre>
+<p>Note that this leaks memory iff the consumers of these
+pointers do not <code>release</code> them according to the <a href="https://arrow.apache.org/docs/format/CDataInterface.html#release-callback-semantics-for-consumers">member allocation</a>.</p>
+<h2 id="import"><a class="header" href="#import">Import</a></h2>
+<p>The API to import works similarly:</p>
+<pre><code class="language-rust ignore">use arrow2::array::Array;
+use arrow2::ffi::ArrowArray;
+
+// these are `ArrowArray` and `ArrowSchema` of the C data interface
+let array = unsafe { ArrowArray::try_from_raw(array, schema) }?;
+
+let array = Box::&lt;dyn Array&gt;::try_from(array)?;
+</code></pre>
+<p>Note that this assumes that <code>array</code> and <code>schema</code> are valid pointers and
+that the data on it is also layed out according to the c data interface.
+This is impossible to prove at neither compile nor run-time and is thus
+intrinsically <code>unsafe</code>.</p>
+<p>Soundness here relies on the producer creating <code>array</code> and <code>schema</code> that
+follow the c data interface specification.
+In particular, if the producer reports an array length larger than what its buffer
+was allocated for, it will cause this crate to read out of bounds.</p>
 
                     </main>
 
