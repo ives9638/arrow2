@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -588,6 +588,88 @@ whether to read batches in sequence or in parallel, or whether IO supports multi
 <p>In the code above, <code>parser</code> and <code>infer</code> allow for customization: they declare
 how rows of bytes should be infered (into a logical type), and processed (into a value of said type). They offer good default options, but you can customize the inference and parsing to your own needs. You can also of course decide to parse everything into memory as <code>Utf8Array</code> and delay
 any data transformation.</p>
+<h1 id="write-csv"><a class="header" href="#write-csv">Write CSV</a></h1>
+<p>When compiled with feature <code>io_csv</code>, you can use this crate to write CSV files.</p>
+<p>This crate relies on <a href="https://crates.io/crates/csv">the crate csv</a> to write well-formed CSV files, which your code should also depend on.</p>
+<p>The following example writes a batch as a CSV file with default configuration:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use csv::WriterBuilder;
+use arrow2::io::csv::write;
+use arrow2::record_batch::RecordBatch;
+use arrow2::error::Result;
+
+fn write(path: &amp;str, batches: &amp;[RecordBatch]) -&gt; Result&lt;()&gt; {
+    let writer = &amp;mut WriterBuilder::new().from_path(path)?;
+
+    write::write_header(writer, batches[0].schema())?;
+
+    let options = write::SerializeOptions::default();
+    batches.iter().try_for_each(|batch| {
+        write::write_batch(writer, batch, &amp;options)
+    })
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h2 id="parallelism"><a class="header" href="#parallelism">Parallelism</a></h2>
+<p>This crate exposes functionality to decouple serialization from writing.</p>
+<p>In the example above, the serialization and writing to a file is done syncronously.
+However, these typically deal with different bounds: serialization is often CPU bounded, while writing is often IO bounded. We can trade-off these through a higher memory usage.</p>
+<p>Suppose that we know that we are getting CPU-bounded at serialization, and would like to offload that workload to other threads, at the cost of a higher memory usage. We would achieve this as follows (two batches for simplicity):</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc;
+use std::thread;
+
+use csv::{WriterBuilder, ByteRecord};
+use arrow2::io::csv::write;
+use arrow2::record_batch::RecordBatch;
+use arrow2::error::Result;
+
+fn parallel_write(path: &amp;str, batches: [RecordBatch; 2]) -&gt; Result&lt;()&gt; {
+    let options = write::SerializeOptions::default();
+
+    // write a header
+    let writer = &amp;mut WriterBuilder::new().from_path(path)?;
+    write::write_header(writer, batches[0].schema())?;
+
+    // prepare a channel to send serialized records from threads
+    let (tx, rx): (Sender&lt;_&gt;, Receiver&lt;_&gt;) = mpsc::channel();
+    let mut children = Vec::new();
+
+    for id in 0..2 {
+        // The sender endpoint can be copied
+        let thread_tx = tx.clone();
+
+        let options = options.clone();
+        let batch = batches[id].clone();  // note: this is cheap
+        let child = thread::spawn(move || {
+            let records = write::serialize(&amp;batch, &amp;options).unwrap();
+            thread_tx.send(records).unwrap();
+        });
+
+        children.push(child);
+    }
+
+    for _ in 0..2 {
+        // block: assumes that the order of batches matter.
+        let records = rx.recv().unwrap();
+        records.iter().try_for_each(|record| {
+            writer.write_byte_record(record)
+        })?
+    }
+
+    for child in children {
+        child.join().expect(&quot;child thread panicked&quot;);
+    }
+
+    Ok(())
+}
+<span class="boring">}
+</span></code></pre></pre>
 
                     </main>
 
