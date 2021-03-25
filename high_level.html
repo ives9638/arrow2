@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>High level API - arrow 2 documentation</title>
+        <title>High level API - arrow2 documentation</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html" class="active"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html" class="active"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/index.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -127,7 +127,7 @@
                         
                     </div>
 
-                    <h1 class="menu-title">arrow 2 documentation</h1>
+                    <h1 class="menu-title">arrow2 documentation</h1>
 
                     <div class="right-buttons">
                         
@@ -166,7 +166,7 @@
                         <h1 id="high-end-api"><a class="header" href="#high-end-api">High end API</a></h1>
 <p>The simplest way to think about an arrow <code>Array</code> is that it represents 
 <code>Vec&lt;Option&lt;T&gt;&gt;</code> and has a logical type associated with it.</p>
-<p>Probably the simplest array in this crate is <code>PrimitiveArray&lt;T&gt;</code>. It can be constructed
+<p>Probably the most simple array in this crate is <code>PrimitiveArray&lt;T&gt;</code>. It can be constructed
 from an iterator as follows:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use arrow2::array::{Array, PrimitiveArray, Primitive};
 </span><span class="boring">use arrow2::datatypes::DataType;
@@ -186,10 +186,10 @@ assert_eq!(array.len(), 3)
 </ol>
 <p>The main differences from a <code>Vec&lt;Option&lt;T&gt;&gt;</code> are:</p>
 <ul>
-<li>Its data is layed out in memory as a <code>Buffer&lt;T&gt;</code> and a <code>Option&lt;Bitmap&gt;</code>.</li>
+<li>Its data is layed out in memory as a <code>Buffer&lt;T&gt;</code> and an <code>Option&lt;Bitmap&gt;</code>.</li>
 <li>It has an associated logical datatype.</li>
 </ul>
-<p>The first difference allows interoperability with Arrow's ecosystem and efficient SIMD operations (we will re-visit this below); the second difference is that it allows semantic meaning to the array. In the example</p>
+<p>The first difference allows interoperability with Arrow's ecosystem and efficient SIMD operations (we will re-visit this below); the second difference is that it gives semantic meaning to the array. In the example</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use arrow2::array::Primitive;
 </span><span class="boring">use arrow2::datatypes::DataType;
 </span><span class="boring">fn main() {
@@ -234,7 +234,7 @@ let a: ListArray&lt;i32&gt; = data
 let inner: &amp;Arc&lt;dyn Array&gt; = a.values();
 <span class="boring">}
 </span></code></pre></pre>
-<p>Note how we have not specified the the inner type explicitely in the signature <code>ListArray&lt;i32&gt;</code>.
+<p>Note how we have not specified the inner type explicitly in the signature <code>ListArray&lt;i32&gt;</code>.
 Instead, <code>ListArray</code> has an inner <code>Array</code> representing all its values (available via <code>.values()</code>).</p>
 <h3 id="downcast-and-as_any"><a class="header" href="#downcast-and-as_any">Downcast and <code>as_any</code></a></h3>
 <p>Given a trait object <code>&amp;dyn Array</code>, we know its logical type via <code>Array::data_type()</code> and can use it to downcast the array to its concrete type:</p>
@@ -250,7 +250,7 @@ let array = &amp;array as &amp;dyn Array;
 let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unwrap();
 <span class="boring">}
 </span></code></pre></pre>
-<p>There is a many to one relationship between <code>DataType</code> and an Array (i.e. a physical representation). The relationship is the following:</p>
+<p>There is a many-to-one relationship between <code>DataType</code> and an Array (i.e. a physical representation). The relationship is the following:</p>
 <table><thead><tr><th><code>DataType</code></th><th><code>PhysicalType</code></th></tr></thead><tbody>
 <tr><td><code>UInt8</code></td><td><code>PrimitiveArray&lt;u8&gt;</code></td></tr>
 <tr><td><code>UInt16</code></td><td><code>PrimitiveArray&lt;u16&gt;</code></td></tr>
@@ -316,10 +316,10 @@ fn float_operator(array: &amp;dyn Array) -&gt; Result&lt;Box&lt;dyn Array&gt;, S
 </span></code></pre></pre>
 <h2 id="from-iterator"><a class="header" href="#from-iterator">From Iterator</a></h2>
 <p>In the examples above, we've introduced how to create an array from an iterator.
-These APIs are avaiable for all Arrays, and they are highly suitable to efficiently
+These APIs are available for all Arrays, and they are highly suitable to efficiently
 create them. In this section we will go a bit more in detail about these operations,
 and how to make them even more efficient.</p>
-<p>This crate's APIs are generally split in two parts: whether an operation leverages contiguous memory regions or whether it does not.</p>
+<p>This crate's APIs are generally split into two parts: whether an operation leverages contiguous memory regions or whether it does not.</p>
 <p>If yes, then use:</p>
 <ul>
 <li><code>Buffer::from_iter</code></li>

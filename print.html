@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>arrow 2 documentation</title>
+        <title>arrow2 documentation</title>
         
         <meta name="robots" content="noindex" />
         
@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/index.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -129,7 +129,7 @@
                         
                     </div>
 
-                    <h1 class="menu-title">arrow 2 documentation</h1>
+                    <h1 class="menu-title">arrow2 documentation</h1>
 
                     <div class="right-buttons">
                         
@@ -168,27 +168,27 @@
                         <h1 id="arrow2"><a class="header" href="#arrow2">Arrow2</a></h1>
 <p>Arrow2 is a Rust library that implements data structures and functionality enabling
 interoperability with the arrow format.</p>
-<p>The typical use-case for this library is to perform CPU and memory-intensive analytics in a format that supports heterogeneous data strutures, null values, and IPC and FFI interfaces across languages.</p>
-<p>Arrow2 is divided in two main parts: a <a href="./low_end.html">low-end API</a> to efficiently
+<p>The typical use-case for this library is to perform CPU and memory-intensive analytics in a format that supports heterogeneous data structures, null values, and IPC and FFI interfaces across languages.</p>
+<p>Arrow2 is divided into two main parts: a <a href="./low_end.html">low-end API</a> to efficiently
 operate with contiguous memory regions, and a <a href="./high_end.html">high-end API</a> to operate with
 arrow arrays, logical types, schemas, etc.</p>
 <p>This repo started as an experiment forked from the Apache arrow project to offer a transmute-free
 Rust implementation of that crate. It currently offers most functionality with the notable exception of reading and writing to and from parquet.</p>
 <h1 id="arrow"><a class="header" href="#arrow">Arrow</a></h1>
-<p><a href="https://arrow.apache.org/">Arrow</a> as in-memory columnar format for modern analytics that natively supports the concept of a null value, nested structs, and many others.</p>
+<p><a href="https://arrow.apache.org/">Arrow</a> is an in-memory columnar format for modern analytics that natively supports the concept of a null value, nested structs, and many others.</p>
 <p>It has an IPC protocol (based on flat buffers) and a stable C-represented ABI for intra-process communication via foreign interfaces (FFI).</p>
-<p>The arrow format recommends allocating memory along cache lines to leverage modern archtectures,
+<p>The arrow format recommends allocating memory along cache lines to leverage modern architectures,
 as well as using a shared memory model that enables multi-threading.</p>
 <h1 id="low-end-api"><a class="header" href="#low-end-api">Low end API</a></h1>
-<p>The starting point of this crate is the idea that data must be stored in memory in a specific arrangement to be interoperable with Arrow's ecosystem. With this in mind, this crate does not use <code>Vec</code>, and instead has its own containers to store data, including to share and consume it via FFI.</p>
-<p>The most important design decision of this crate is that contiguous regions are shared via an <code>Arc</code>. In this context, the operation of slicing a memory region is <code>O(1)</code> because it corresponds to changing an offset and length. The tradeoff is that once under and <code>Arc</code>, memory regions are imutable.</p>
+<p>The starting point of this crate is the idea that data must be stored in memory in a specific arrangement to be interoperable with Arrow's ecosystem. With this in mind, this crate does not use <code>Vec</code> but instead has its own containers to store data, including sharing and consuming it via FFI.</p>
+<p>The most important design decision of this crate is that contiguous regions are shared via an <code>Arc</code>. In this context, the operation of slicing a memory region is <code>O(1)</code> because it corresponds to changing an offset and length. The tradeoff is that once under an <code>Arc</code>, memory regions are immutable.</p>
 <p>The second important aspect is that Arrow has two main types of data buffers: bitmaps, whose offsets are measured in bits, and byte types (such as <code>i23</code>), whose offsets are measured in bytes. With this in mind, this crate has 2 main types of containers of contiguous memory regions:</p>
 <ul>
-<li><code>Buffer&lt;T&gt;</code>: handle contigous memory regions of type T whose offsets are measured in items</li>
-<li><code>Bitmap</code>: handle contigous memory regions of bits whose offsets are measured in bits</li>
+<li><code>Buffer&lt;T&gt;</code>: handle contiguous memory regions of type T whose offsets are measured in items</li>
+<li><code>Bitmap</code>: handle contiguous memory regions of bits whose offsets are measured in bits</li>
 </ul>
 <p>These hold <em>all</em> data-related memory in this crate.</p>
-<p>Due to their intrinsic imutability, each container has a corresponding mutable (and non-sharable) variant:</p>
+<p>Due to their intrinsic immutability, each container has a corresponding mutable (and non-sharable) variant:</p>
 <ul>
 <li><code>MutableBuffer&lt;T&gt;</code></li>
 <li><code>MutableBitmap</code></li>
@@ -232,7 +232,7 @@ assert_eq!(y.as_slice()[50], 100);
 <h1 id="high-end-api"><a class="header" href="#high-end-api">High end API</a></h1>
 <p>The simplest way to think about an arrow <code>Array</code> is that it represents 
 <code>Vec&lt;Option&lt;T&gt;&gt;</code> and has a logical type associated with it.</p>
-<p>Probably the simplest array in this crate is <code>PrimitiveArray&lt;T&gt;</code>. It can be constructed
+<p>Probably the most simple array in this crate is <code>PrimitiveArray&lt;T&gt;</code>. It can be constructed
 from an iterator as follows:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use arrow2::array::{Array, PrimitiveArray, Primitive};
 </span><span class="boring">use arrow2::datatypes::DataType;
@@ -252,10 +252,10 @@ assert_eq!(array.len(), 3)
 </ol>
 <p>The main differences from a <code>Vec&lt;Option&lt;T&gt;&gt;</code> are:</p>
 <ul>
-<li>Its data is layed out in memory as a <code>Buffer&lt;T&gt;</code> and a <code>Option&lt;Bitmap&gt;</code>.</li>
+<li>Its data is layed out in memory as a <code>Buffer&lt;T&gt;</code> and an <code>Option&lt;Bitmap&gt;</code>.</li>
 <li>It has an associated logical datatype.</li>
 </ul>
-<p>The first difference allows interoperability with Arrow's ecosystem and efficient SIMD operations (we will re-visit this below); the second difference is that it allows semantic meaning to the array. In the example</p>
+<p>The first difference allows interoperability with Arrow's ecosystem and efficient SIMD operations (we will re-visit this below); the second difference is that it gives semantic meaning to the array. In the example</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use arrow2::array::Primitive;
 </span><span class="boring">use arrow2::datatypes::DataType;
 </span><span class="boring">fn main() {
@@ -300,7 +300,7 @@ let a: ListArray&lt;i32&gt; = data
 let inner: &amp;Arc&lt;dyn Array&gt; = a.values();
 <span class="boring">}
 </span></code></pre></pre>
-<p>Note how we have not specified the the inner type explicitely in the signature <code>ListArray&lt;i32&gt;</code>.
+<p>Note how we have not specified the inner type explicitly in the signature <code>ListArray&lt;i32&gt;</code>.
 Instead, <code>ListArray</code> has an inner <code>Array</code> representing all its values (available via <code>.values()</code>).</p>
 <h3 id="downcast-and-as_any"><a class="header" href="#downcast-and-as_any">Downcast and <code>as_any</code></a></h3>
 <p>Given a trait object <code>&amp;dyn Array</code>, we know its logical type via <code>Array::data_type()</code> and can use it to downcast the array to its concrete type:</p>
@@ -316,7 +316,7 @@ let array = &amp;array as &amp;dyn Array;
 let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unwrap();
 <span class="boring">}
 </span></code></pre></pre>
-<p>There is a many to one relationship between <code>DataType</code> and an Array (i.e. a physical representation). The relationship is the following:</p>
+<p>There is a many-to-one relationship between <code>DataType</code> and an Array (i.e. a physical representation). The relationship is the following:</p>
 <table><thead><tr><th><code>DataType</code></th><th><code>PhysicalType</code></th></tr></thead><tbody>
 <tr><td><code>UInt8</code></td><td><code>PrimitiveArray&lt;u8&gt;</code></td></tr>
 <tr><td><code>UInt16</code></td><td><code>PrimitiveArray&lt;u16&gt;</code></td></tr>
@@ -382,10 +382,10 @@ fn float_operator(array: &amp;dyn Array) -&gt; Result&lt;Box&lt;dyn Array&gt;, S
 </span></code></pre></pre>
 <h2 id="from-iterator"><a class="header" href="#from-iterator">From Iterator</a></h2>
 <p>In the examples above, we've introduced how to create an array from an iterator.
-These APIs are avaiable for all Arrays, and they are highly suitable to efficiently
+These APIs are available for all Arrays, and they are highly suitable to efficiently
 create them. In this section we will go a bit more in detail about these operations,
 and how to make them even more efficient.</p>
-<p>This crate's APIs are generally split in two parts: whether an operation leverages contiguous memory regions or whether it does not.</p>
+<p>This crate's APIs are generally split into two parts: whether an operation leverages contiguous memory regions or whether it does not.</p>
 <p>If yes, then use:</p>
 <ul>
 <li><code>Buffer::from_iter</code></li>
@@ -488,7 +488,7 @@ let array = [Some(1), None, Some(123)]
 // create a struct from it with the API to export it.
 let array = ArrowArray::try_from(Arc::new(array))?;
 
-// export; these are `ArrowArray` and `ArrowSchema` of the C data interface
+// export: these are `ArrowArray` and `ArrowSchema` of the C data interface
 let (array, schema) = ArrowArray::into_raw(array);
 <span class="boring">}
 </span></code></pre></pre>
@@ -512,17 +512,20 @@ intrinsically <code>unsafe</code>.</p>
 follow the c data interface specification.
 In particular, if the producer reports an array length larger than what its buffer
 was allocated for, it will cause this crate to read out of bounds.</p>
+<h1 id="io"><a class="header" href="#io">IO</a></h1>
+<p>Arrow2 currently supports 2 main formats, JSON and CSV, both read and write.</p>
+<p>This guide currently describes <a href="io/./csv_reader.html">reading from CSV</a>.</p>
 <h1 id="csv-reader"><a class="header" href="#csv-reader">CSV reader</a></h1>
 <p>When compiled with feature <code>io_csv</code>, you can use this crate to read CSV files.
 This crate makes minimal assumptions on how you want to read a CSV, and offers a large degree of customization to it, along with a useful default.</p>
 <h2 id="background"><a class="header" href="#background">Background</a></h2>
 <p>There are two CPU-intensive tasks in reading a CSV file:</p>
 <ul>
-<li>split the CSV file in rows, which includes parsing quotes and delimiters, and is necessary to <code>seek</code> to a given row.</li>
+<li>split the CSV file into rows, which includes parsing quotes and delimiters, and is necessary to <code>seek</code> to a given row.</li>
 <li>parse a set of CSV rows (bytes) into a <code>RecordBatch</code>.</li>
 </ul>
 <p>Parsing bytes into values is more expensive than interpreting lines. As such, it is generally advantageous to have multiple readers of a single file that scan different parts of the file (within IO constraints).</p>
-<p>This crate relies on <a href="https://crates.io/crates/csv">the crate csv</a> to scan and seek CSV files, and your code also needs such a dependency. With that said, <code>arrow2</code> makes no assumptions as to how to efficiently read the CSV: as a single reader per file or multiple readers.</p>
+<p>This crate relies on <a href="https://crates.io/crates/csv">the crate <code>csv</code></a> to scan and seek CSV files, and your code also needs such a dependency. With that said, <code>arrow2</code> makes no assumptions as to how to efficiently read the CSV: as a single reader per file or multiple readers.</p>
 <p>As an example, the following infers the schema and reads a CSV by re-using the same reader:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
@@ -544,54 +547,16 @@ fn read_path(path: &amp;str) -&gt; Result&lt;()&gt; {
 <span class="boring">}
 </span></code></pre></pre>
 <h2 id="orchestration-and-parallelization"><a class="header" href="#orchestration-and-parallelization">Orchestration and parallelization</a></h2>
-<p>Because <code>csv</code>'s API is syncronous, the functions above represent the &quot;minimal unit of syncronous work&quot;. It is up to you to decide how you want to read the file efficiently:
+<p>Because <code>csv</code>'s API is synchronous, the functions above represent the &quot;minimal unit of synchronous work&quot;. It is up to you to decide how you want to read the file efficiently:
 whether to read batches in sequence or in parallel, or whether IO supports multiple readers per file.</p>
 <h2 id="customization"><a class="header" href="#customization">Customization</a></h2>
 <p>In the code above, <code>parser</code> and <code>infer</code> allow for customization: they declare
-how rows of bytes should be infered (into a logical type), and processed (into a value of said type). They offer good default options, but you can customize the inference and parsing to your own needs. You can also of course decide to parse everything into memory as <code>Utf8Array</code> and delay
-any data transformation.</p>
-<h1 id="csv-reader-1"><a class="header" href="#csv-reader-1">CSV reader</a></h1>
-<p>When compiled with feature <code>io_csv</code>, you can use this crate to read CSV files.
-This crate makes minimal assumptions on how you want to read a CSV, and offers a large degree of customization to it, along with a useful default.</p>
-<h2 id="background-1"><a class="header" href="#background-1">Background</a></h2>
-<p>There are two CPU-intensive tasks in reading a CSV file:</p>
-<ul>
-<li>split the CSV file in rows, which includes parsing quotes and delimiters, and is necessary to <code>seek</code> to a given row.</li>
-<li>parse a set of CSV rows (bytes) into a <code>RecordBatch</code>.</li>
-</ul>
-<p>Parsing bytes into values is more expensive than interpreting lines. As such, it is generally advantageous to have multiple readers of a single file that scan different parts of the file (within IO constraints).</p>
-<p>This crate relies on <a href="https://crates.io/crates/csv">the crate csv</a> to scan and seek CSV files, and your code also needs such a dependency. With that said, <code>arrow2</code> makes no assumptions as to how to efficiently read the CSV: as a single reader per file or multiple readers.</p>
-<p>As an example, the following infers the schema and reads a CSV by re-using the same reader:</p>
-<pre><pre class="playground"><code class="language-rust">
-<span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>use csv::ReaderBuilder;
-use arrow2::io::csv::{infer_schema, read_batch, infer, DefaultParser};
-use arrow2::error::Result;
-
-fn read_path(path: &amp;str) -&gt; Result&lt;()&gt; {
-    let mut reader = ReaderBuilder::new().from_path(path)?;
-    let parser = DefaultParser::default();
-
-    let schema = infer_schema(&amp;mut reader, None, true, &amp;infer)?;
-
-    // 0: start from
-    // 100: up to (max batch size)
-    let batch = read_batch(&amp;mut reader, &amp;parser, 0, 100, schema, None)?;
-}
-<span class="boring">}
-</span></code></pre></pre>
-<h2 id="orchestration-and-parallelization-1"><a class="header" href="#orchestration-and-parallelization-1">Orchestration and parallelization</a></h2>
-<p>Because <code>csv</code>'s API is syncronous, the functions above represent the &quot;minimal unit of syncronous work&quot;. It is up to you to decide how you want to read the file efficiently:
-whether to read batches in sequence or in parallel, or whether IO supports multiple readers per file.</p>
-<h2 id="customization-1"><a class="header" href="#customization-1">Customization</a></h2>
-<p>In the code above, <code>parser</code> and <code>infer</code> allow for customization: they declare
-how rows of bytes should be infered (into a logical type), and processed (into a value of said type). They offer good default options, but you can customize the inference and parsing to your own needs. You can also of course decide to parse everything into memory as <code>Utf8Array</code> and delay
+how rows of bytes should be inferred (into a logical type), and processed (into a value of said type). They offer good default options, but you can customize the inference and parsing to your own needs. You can also of course decide to parse everything into memory as <code>Utf8Array</code> and delay
 any data transformation.</p>
 <h1 id="write-csv"><a class="header" href="#write-csv">Write CSV</a></h1>
 <p>When compiled with feature <code>io_csv</code>, you can use this crate to write CSV files.</p>
 <p>This crate relies on <a href="https://crates.io/crates/csv">the crate csv</a> to write well-formed CSV files, which your code should also depend on.</p>
-<p>The following example writes a batch as a CSV file with default configuration:</p>
+<p>The following example writes a batch as a CSV file with the default configuration:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -614,7 +579,7 @@ fn write(path: &amp;str, batches: &amp;[RecordBatch]) -&gt; Result&lt;()&gt; {
 </span></code></pre></pre>
 <h2 id="parallelism"><a class="header" href="#parallelism">Parallelism</a></h2>
 <p>This crate exposes functionality to decouple serialization from writing.</p>
-<p>In the example above, the serialization and writing to a file is done syncronously.
+<p>In the example above, the serialization and writing to a file is done synchronously.
 However, these typically deal with different bounds: serialization is often CPU bounded, while writing is often IO bounded. We can trade-off these through a higher memory usage.</p>
 <p>Suppose that we know that we are getting CPU-bounded at serialization, and would like to offload that workload to other threads, at the cost of a higher memory usage. We would achieve this as follows (two batches for simplicity):</p>
 <pre><pre class="playground"><code class="language-rust">
