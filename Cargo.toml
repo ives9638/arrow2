@@ -42,7 +42,7 @@ base64 = { version = "0.13.0", optional = true }
 
 [dependencies.parquet2]
 git = "https://github.com/jorgecarleitao/parquet2"
-rev = "fb65dcaf7d02c7e0bcf8ec0aa85d3fe0cb0630c6"
+rev = "acc47631dac90135a2c9294c9b6ddd04873eabfd"
 default-features = false
 features = ["snappy", "gzip", "lz4", "zstd", "brotli"]
 optional = true
@@ -62,6 +62,7 @@ io_ipc = ["flatbuffers"]
 io_json_integration = ["io_json", "hex"]
 # base64 + io_ipc because arrow schemas are stored as base64-encoded ipc format.
 io_parquet = ["parquet2", "io_ipc", "base64"]
+io_parquet_compression = ["parquet2/snappy", "parquet2/gzip", "parquet2/lz4", "parquet2/zstd", "parquet2/brotli"]
 benchmarks = ["rand"]
 
 [package.metadata.cargo-all-features]
