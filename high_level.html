@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>High level API - arrow2 documentation</title>
+        <title>High-level API - arrow2 documentation</title>
         
         
 
@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html" class="active"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/index.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low-level API</a></li><li class="chapter-item expanded "><a href="high_level.html" class="active"><strong aria-hidden="true">4.</strong> High-level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/index.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -163,8 +163,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="high-end-api"><a class="header" href="#high-end-api">High end API</a></h1>
-<p>The simplest way to think about an arrow <code>Array</code> is that it represents 
+                        <h1 id="high-level-api"><a class="header" href="#high-level-api">High-level API</a></h1>
+<p>The simplest way to think about an arrow <code>Array</code> is that it represents
 <code>Vec&lt;Option&lt;T&gt;&gt;</code> and has a logical type associated with it.</p>
 <p>Probably the most simple array in this crate is <code>PrimitiveArray&lt;T&gt;</code>. It can be constructed
 from an iterator as follows:</p>
@@ -359,7 +359,7 @@ an array <code>array: &amp;PrimitiveArray&lt;T&gt;</code>, the following applies
 <p>There is one last API that is worth mentioning, and that is <code>Bitmap::chunks</code>. When performing
 bitwise operations, it is often more performant to operate on chunks of bits instead of single bits. <code>chunks</code> offers a <code>TrustedLen</code> of <code>u64</code> with the bits + an extra <code>u64</code> remainder. We expose two functions, <code>unary(Bitmap, Fn) -&gt; Bitmap</code> and <code>binary(Bitmap, Bitmap, Fn) -&gt; Bitmap</code> that use this API to efficiently perform bitmap operations.</p>
 <h2 id="vectorized-operations"><a class="header" href="#vectorized-operations">Vectorized operations</a></h2>
-<p>One of the main advantages of the arrow format and its memory layout is that 
+<p>One of the main advantages of the arrow format and its memory layout is that
 it often enables SIMD. For example, an unary operation <code>op</code> on a <code>PrimitiveArray</code> is likely auto-vectorized on the following code:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]

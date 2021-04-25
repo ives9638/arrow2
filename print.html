@@ -97,7 +97,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/index.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="index.html"><strong aria-hidden="true">1.</strong> Arrow2</a></li><li class="chapter-item expanded "><a href="arrow.html"><strong aria-hidden="true">2.</strong> The arrow format</a></li><li class="chapter-item expanded "><a href="low_level.html"><strong aria-hidden="true">3.</strong> Low-level API</a></li><li class="chapter-item expanded "><a href="high_level.html"><strong aria-hidden="true">4.</strong> High-level API</a></li><li class="chapter-item expanded "><a href="ffi.html"><strong aria-hidden="true">5.</strong> Foreign interfaces</a></li><li class="chapter-item expanded "><a href="io/index.html"><strong aria-hidden="true">6.</strong> IO</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="io/csv_reader.html"><strong aria-hidden="true">6.1.</strong> Read CSV</a></li><li class="chapter-item expanded "><a href="io/csv_write.html"><strong aria-hidden="true">6.2.</strong> Write CSV</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -169,8 +169,8 @@
 <p>Arrow2 is a Rust library that implements data structures and functionality enabling
 interoperability with the arrow format.</p>
 <p>The typical use-case for this library is to perform CPU and memory-intensive analytics in a format that supports heterogeneous data structures, null values, and IPC and FFI interfaces across languages.</p>
-<p>Arrow2 is divided into two main parts: a <a href="./low_end.html">low-end API</a> to efficiently
-operate with contiguous memory regions, and a <a href="./high_end.html">high-end API</a> to operate with
+<p>Arrow2 is divided into two main parts: a <a href="./low_level.html">low-level API</a> to efficiently
+operate with contiguous memory regions, and a <a href="./high_level.html">high-level API</a> to operate with
 arrow arrays, logical types, schemas, etc.</p>
 <p>This repo started as an experiment forked from the Apache arrow project to offer a transmute-free
 Rust implementation of that crate. It currently offers most functionality with the notable exception of reading and writing to and from parquet.</p>
@@ -179,7 +179,7 @@ Rust implementation of that crate. It currently offers most functionality with t
 <p>It has an IPC protocol (based on flat buffers) and a stable C-represented ABI for intra-process communication via foreign interfaces (FFI).</p>
 <p>The arrow format recommends allocating memory along cache lines to leverage modern architectures,
 as well as using a shared memory model that enables multi-threading.</p>
-<h1 id="low-end-api"><a class="header" href="#low-end-api">Low end API</a></h1>
+<h1 id="low-level-api"><a class="header" href="#low-level-api">Low-level API</a></h1>
 <p>The starting point of this crate is the idea that data must be stored in memory in a specific arrangement to be interoperable with Arrow's ecosystem. With this in mind, this crate does not use <code>Vec</code> but instead has its own containers to store data, including sharing and consuming it via FFI.</p>
 <p>The most important design decision of this crate is that contiguous regions are shared via an <code>Arc</code>. In this context, the operation of slicing a memory region is <code>O(1)</code> because it corresponds to changing an offset and length. The tradeoff is that once under an <code>Arc</code>, memory regions are immutable.</p>
 <p>The second important aspect is that Arrow has two main types of data buffers: bitmaps, whose offsets are measured in bits, and byte types (such as <code>i23</code>), whose offsets are measured in bytes. With this in mind, this crate has 2 main types of containers of contiguous memory regions:</p>
@@ -216,7 +216,7 @@ assert_eq!(x.as_slice(), &amp;[0.0, 1.0, 2.0]);
 <span class="boring">}
 </span></code></pre></pre>
 <p>In this context, <code>MutableBuffer</code> is the closest API to rust's <code>Vec</code>.</p>
-<p>The following demonstrates how to efficiently 
+<p>The following demonstrates how to efficiently
 perform an operation from an iterator of <a href="https://doc.rust-lang.org/std/iter/trait.TrustedLen.html">TrustedLen</a>:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use std::iter::FromIterator;
 </span><span class="boring">use arrow2::buffer::{Buffer, MutableBuffer};
@@ -229,8 +229,8 @@ assert_eq!(y.as_slice()[50], 100);
 </span></code></pre></pre>
 <p>Using <code>from_trusted_len_iter</code> often causes the compiler to auto-vectorize.</p>
 <p>We will now see how these containers are used in higher-level structures: Arrays.</p>
-<h1 id="high-end-api"><a class="header" href="#high-end-api">High end API</a></h1>
-<p>The simplest way to think about an arrow <code>Array</code> is that it represents 
+<h1 id="high-level-api"><a class="header" href="#high-level-api">High-level API</a></h1>
+<p>The simplest way to think about an arrow <code>Array</code> is that it represents
 <code>Vec&lt;Option&lt;T&gt;&gt;</code> and has a logical type associated with it.</p>
 <p>Probably the most simple array in this crate is <code>PrimitiveArray&lt;T&gt;</code>. It can be constructed
 from an iterator as follows:</p>
@@ -425,7 +425,7 @@ an array <code>array: &amp;PrimitiveArray&lt;T&gt;</code>, the following applies
 <p>There is one last API that is worth mentioning, and that is <code>Bitmap::chunks</code>. When performing
 bitwise operations, it is often more performant to operate on chunks of bits instead of single bits. <code>chunks</code> offers a <code>TrustedLen</code> of <code>u64</code> with the bits + an extra <code>u64</code> remainder. We expose two functions, <code>unary(Bitmap, Fn) -&gt; Bitmap</code> and <code>binary(Bitmap, Bitmap, Fn) -&gt; Bitmap</code> that use this API to efficiently perform bitmap operations.</p>
 <h2 id="vectorized-operations"><a class="header" href="#vectorized-operations">Vectorized operations</a></h2>
-<p>One of the main advantages of the arrow format and its memory layout is that 
+<p>One of the main advantages of the arrow format and its memory layout is that
 it often enables SIMD. For example, an unary operation <code>op</code> on a <code>PrimitiveArray</code> is likely auto-vectorized on the following code:</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
