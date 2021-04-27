@@ -200,7 +200,7 @@ let array = unsafe { ArrowArray::try_from_raw(array, schema) }?;
 let array = Box::&lt;dyn Array&gt;::try_from(array)?;
 </code></pre>
 <p>Note that this assumes that <code>array</code> and <code>schema</code> are valid pointers and
-that the data on it is also layed out according to the c data interface.
+that the data on it is also laid out according to the c data interface.
 This is impossible to prove at neither compile nor run-time and is thus
 intrinsically <code>unsafe</code>.</p>
 <p>Soundness here relies on the producer creating <code>array</code> and <code>schema</code> that

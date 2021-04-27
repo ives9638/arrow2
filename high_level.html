@@ -186,7 +186,7 @@ assert_eq!(array.len(), 3)
 </ol>
 <p>The main differences from a <code>Vec&lt;Option&lt;T&gt;&gt;</code> are:</p>
 <ul>
-<li>Its data is layed out in memory as a <code>Buffer&lt;T&gt;</code> and an <code>Option&lt;Bitmap&gt;</code>.</li>
+<li>Its data is laid out in memory as a <code>Buffer&lt;T&gt;</code> and an <code>Option&lt;Bitmap&gt;</code>.</li>
 <li>It has an associated logical datatype.</li>
 </ul>
 <p>The first difference allows interoperability with Arrow's ecosystem and efficient SIMD operations (we will re-visit this below); the second difference is that it gives semantic meaning to the array. In the example</p>
@@ -213,7 +213,7 @@ let dates = Primitive::&lt;i32&gt;::from(&amp;[Some(1), None]).to(DataType::Date
 </ul>
 <h2 id="dynamic-array"><a class="header" href="#dynamic-array">Dynamic Array</a></h2>
 <p>There is a more powerful aspect of arrow arrays, and that is that they all
-implement the trait <code>Array</code> and can be casted to <code>&amp;dyn Array</code>, i.e. they can be turned into
+implement the trait <code>Array</code> and can be cast to <code>&amp;dyn Array</code>, i.e. they can be turned into
 a trait object. This enables arrays to have types that are dynamic in nature.
 <code>ListArray&lt;i32&gt;</code> is an example of a nested (dynamic) array:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use std::sync::Arc;
@@ -262,16 +262,17 @@ let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unw
 <tr><td><code>Int64</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Float32</code></td><td><code>PrimitiveArray&lt;f32&gt;</code></td></tr>
 <tr><td><code>Float64</code></td><td><code>PrimitiveArray&lt;f64&gt;</code></td></tr>
+<tr><td><code>Decimal(_,_)</code></td><td><code>PrimitiveArray&lt;i128&gt;</code></td></tr>
 <tr><td><code>Date32</code></td><td><code>PrimitiveArray&lt;i32&gt;</code></td></tr>
 <tr><td><code>Date64</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Time32(_)</code></td><td><code>PrimitiveArray&lt;i32&gt;</code></td></tr>
 <tr><td><code>Time64(_)</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Timestamp(_,_)</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Interval(YearMonth)</code></td><td><code>PrimitiveArray&lt;i32&gt;</code></td></tr>
-<tr><td><code>Interval(DayTime) </code></td><td><code>PrimitiveArray&lt;days_ms&gt;</code></td></tr>
+<tr><td><code>Interval(DayTime)</code></td><td><code>PrimitiveArray&lt;days_ms&gt;</code></td></tr>
 <tr><td><code>Duration(_)</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
-<tr><td><code>Binary</code></td><td><code>BinaryArray&lt;i32&gt; </code></td></tr>
-<tr><td><code>LargeBinary</code></td><td><code>BinaryArray&lt;i64&gt; </code></td></tr>
+<tr><td><code>Binary</code></td><td><code>BinaryArray&lt;i32&gt;</code></td></tr>
+<tr><td><code>LargeBinary</code></td><td><code>BinaryArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Utf8</code></td><td><code>Utf8Array&lt;i32&gt;</code></td></tr>
 <tr><td><code>LargeUtf8</code></td><td><code>Utf8Array&lt;i64&gt;</code></td></tr>
 <tr><td><code>List</code></td><td><code>ListArray&lt;i32&gt;</code></td></tr>
@@ -284,9 +285,9 @@ let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unw
 <tr><td><code>Dictionary(UInt32,_)</code></td><td><code>DictionaryArray&lt;u32&gt;</code></td></tr>
 <tr><td><code>Dictionary(UInt64,_)</code></td><td><code>DictionaryArray&lt;u64&gt;</code></td></tr>
 <tr><td><code>Dictionary(Int8,_)</code></td><td><code>DictionaryArray&lt;i8&gt;</code></td></tr>
-<tr><td><code>Dictionary(Int16,_) </code></td><td><code>DictionaryArray&lt;i16&gt;</code></td></tr>
-<tr><td><code>Dictionary(Int32,_) </code></td><td><code>DictionaryArray&lt;i32&gt;</code></td></tr>
-<tr><td><code>Dictionary(Int64,_) </code></td><td><code>DictionaryArray&lt;i64&gt;</code></td></tr>
+<tr><td><code>Dictionary(Int16,_)</code></td><td><code>DictionaryArray&lt;i16&gt;</code></td></tr>
+<tr><td><code>Dictionary(Int32,_)</code></td><td><code>DictionaryArray&lt;i32&gt;</code></td></tr>
+<tr><td><code>Dictionary(Int64,_)</code></td><td><code>DictionaryArray&lt;i64&gt;</code></td></tr>
 </tbody></table>
 <p>In this context, a common pattern to write operators that receive <code>&amp;dyn Array</code> is:</p>
 <pre><pre class="playground"><code class="language-rust">

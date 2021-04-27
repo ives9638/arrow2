@@ -174,7 +174,7 @@ operate with contiguous memory regions, and a <a href="./high_level.html">high-l
 arrow arrays, logical types, schemas, etc.</p>
 <p>This repo started as an experiment forked from the Apache arrow project to offer a transmute-free
 Rust implementation of that crate. It currently offers most functionality with the notable exception of reading and writing to and from parquet.</p>
-<h1 id="arrow"><a class="header" href="#arrow">Arrow</a></h1>
+<h1 id="the-arrow-format"><a class="header" href="#the-arrow-format">The arrow format</a></h1>
 <p><a href="https://arrow.apache.org/">Arrow</a> is an in-memory columnar format for modern analytics that natively supports the concept of a null value, nested structs, and many others.</p>
 <p>It has an IPC protocol (based on flat buffers) and a stable C-represented ABI for intra-process communication via foreign interfaces (FFI).</p>
 <p>The arrow format recommends allocating memory along cache lines to leverage modern architectures,
@@ -182,13 +182,13 @@ as well as using a shared memory model that enables multi-threading.</p>
 <h1 id="low-level-api"><a class="header" href="#low-level-api">Low-level API</a></h1>
 <p>The starting point of this crate is the idea that data must be stored in memory in a specific arrangement to be interoperable with Arrow's ecosystem. With this in mind, this crate does not use <code>Vec</code> but instead has its own containers to store data, including sharing and consuming it via FFI.</p>
 <p>The most important design decision of this crate is that contiguous regions are shared via an <code>Arc</code>. In this context, the operation of slicing a memory region is <code>O(1)</code> because it corresponds to changing an offset and length. The tradeoff is that once under an <code>Arc</code>, memory regions are immutable.</p>
-<p>The second important aspect is that Arrow has two main types of data buffers: bitmaps, whose offsets are measured in bits, and byte types (such as <code>i23</code>), whose offsets are measured in bytes. With this in mind, this crate has 2 main types of containers of contiguous memory regions:</p>
+<p>The second important aspect is that Arrow has two main types of data buffers: bitmaps, whose offsets are measured in bits, and byte types (such as <code>i32</code>), whose offsets are measured in bytes. With this in mind, this crate has 2 main types of containers of contiguous memory regions:</p>
 <ul>
 <li><code>Buffer&lt;T&gt;</code>: handle contiguous memory regions of type T whose offsets are measured in items</li>
 <li><code>Bitmap</code>: handle contiguous memory regions of bits whose offsets are measured in bits</li>
 </ul>
 <p>These hold <em>all</em> data-related memory in this crate.</p>
-<p>Due to their intrinsic immutability, each container has a corresponding mutable (and non-sharable) variant:</p>
+<p>Due to their intrinsic immutability, each container has a corresponding mutable (and non-shareable) variant:</p>
 <ul>
 <li><code>MutableBuffer&lt;T&gt;</code></li>
 <li><code>MutableBitmap</code></li>
@@ -252,7 +252,7 @@ assert_eq!(array.len(), 3)
 </ol>
 <p>The main differences from a <code>Vec&lt;Option&lt;T&gt;&gt;</code> are:</p>
 <ul>
-<li>Its data is layed out in memory as a <code>Buffer&lt;T&gt;</code> and an <code>Option&lt;Bitmap&gt;</code>.</li>
+<li>Its data is laid out in memory as a <code>Buffer&lt;T&gt;</code> and an <code>Option&lt;Bitmap&gt;</code>.</li>
 <li>It has an associated logical datatype.</li>
 </ul>
 <p>The first difference allows interoperability with Arrow's ecosystem and efficient SIMD operations (we will re-visit this below); the second difference is that it gives semantic meaning to the array. In the example</p>
@@ -279,7 +279,7 @@ let dates = Primitive::&lt;i32&gt;::from(&amp;[Some(1), None]).to(DataType::Date
 </ul>
 <h2 id="dynamic-array"><a class="header" href="#dynamic-array">Dynamic Array</a></h2>
 <p>There is a more powerful aspect of arrow arrays, and that is that they all
-implement the trait <code>Array</code> and can be casted to <code>&amp;dyn Array</code>, i.e. they can be turned into
+implement the trait <code>Array</code> and can be cast to <code>&amp;dyn Array</code>, i.e. they can be turned into
 a trait object. This enables arrays to have types that are dynamic in nature.
 <code>ListArray&lt;i32&gt;</code> is an example of a nested (dynamic) array:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">use std::sync::Arc;
@@ -328,16 +328,17 @@ let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unw
 <tr><td><code>Int64</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Float32</code></td><td><code>PrimitiveArray&lt;f32&gt;</code></td></tr>
 <tr><td><code>Float64</code></td><td><code>PrimitiveArray&lt;f64&gt;</code></td></tr>
+<tr><td><code>Decimal(_,_)</code></td><td><code>PrimitiveArray&lt;i128&gt;</code></td></tr>
 <tr><td><code>Date32</code></td><td><code>PrimitiveArray&lt;i32&gt;</code></td></tr>
 <tr><td><code>Date64</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Time32(_)</code></td><td><code>PrimitiveArray&lt;i32&gt;</code></td></tr>
 <tr><td><code>Time64(_)</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Timestamp(_,_)</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Interval(YearMonth)</code></td><td><code>PrimitiveArray&lt;i32&gt;</code></td></tr>
-<tr><td><code>Interval(DayTime) </code></td><td><code>PrimitiveArray&lt;days_ms&gt;</code></td></tr>
+<tr><td><code>Interval(DayTime)</code></td><td><code>PrimitiveArray&lt;days_ms&gt;</code></td></tr>
 <tr><td><code>Duration(_)</code></td><td><code>PrimitiveArray&lt;i64&gt;</code></td></tr>
-<tr><td><code>Binary</code></td><td><code>BinaryArray&lt;i32&gt; </code></td></tr>
-<tr><td><code>LargeBinary</code></td><td><code>BinaryArray&lt;i64&gt; </code></td></tr>
+<tr><td><code>Binary</code></td><td><code>BinaryArray&lt;i32&gt;</code></td></tr>
+<tr><td><code>LargeBinary</code></td><td><code>BinaryArray&lt;i64&gt;</code></td></tr>
 <tr><td><code>Utf8</code></td><td><code>Utf8Array&lt;i32&gt;</code></td></tr>
 <tr><td><code>LargeUtf8</code></td><td><code>Utf8Array&lt;i64&gt;</code></td></tr>
 <tr><td><code>List</code></td><td><code>ListArray&lt;i32&gt;</code></td></tr>
@@ -350,9 +351,9 @@ let array = array.as_any().downcast_ref::&lt;PrimitiveArray&lt;i32&gt;&gt;().unw
 <tr><td><code>Dictionary(UInt32,_)</code></td><td><code>DictionaryArray&lt;u32&gt;</code></td></tr>
 <tr><td><code>Dictionary(UInt64,_)</code></td><td><code>DictionaryArray&lt;u64&gt;</code></td></tr>
 <tr><td><code>Dictionary(Int8,_)</code></td><td><code>DictionaryArray&lt;i8&gt;</code></td></tr>
-<tr><td><code>Dictionary(Int16,_) </code></td><td><code>DictionaryArray&lt;i16&gt;</code></td></tr>
-<tr><td><code>Dictionary(Int32,_) </code></td><td><code>DictionaryArray&lt;i32&gt;</code></td></tr>
-<tr><td><code>Dictionary(Int64,_) </code></td><td><code>DictionaryArray&lt;i64&gt;</code></td></tr>
+<tr><td><code>Dictionary(Int16,_)</code></td><td><code>DictionaryArray&lt;i16&gt;</code></td></tr>
+<tr><td><code>Dictionary(Int32,_)</code></td><td><code>DictionaryArray&lt;i32&gt;</code></td></tr>
+<tr><td><code>Dictionary(Int64,_)</code></td><td><code>DictionaryArray&lt;i64&gt;</code></td></tr>
 </tbody></table>
 <p>In this context, a common pattern to write operators that receive <code>&amp;dyn Array</code> is:</p>
 <pre><pre class="playground"><code class="language-rust">
@@ -505,7 +506,7 @@ let array = unsafe { ArrowArray::try_from_raw(array, schema) }?;
 let array = Box::&lt;dyn Array&gt;::try_from(array)?;
 </code></pre>
 <p>Note that this assumes that <code>array</code> and <code>schema</code> are valid pointers and
-that the data on it is also layed out according to the c data interface.
+that the data on it is also laid out according to the c data interface.
 This is impossible to prove at neither compile nor run-time and is thus
 intrinsically <code>unsafe</code>.</p>
 <p>Soundness here relies on the producer creating <code>array</code> and <code>schema</code> that
