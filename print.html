@@ -470,9 +470,19 @@ and cloned its validity. This approach is suitable for operations whose branchin
 </li>
 </ol>
 <h1 id="foreign-interfaces"><a class="header" href="#foreign-interfaces">Foreign Interfaces</a></h1>
-<p>One of the hallmarks of the Arrow format is that its in-memory representation has a specification, which allows languages to share data structures via foreign interfaces
-at zero cost (i.e. via pointers). This is known as the <a href="https://arrow.apache.org/docs/format/CDataInterface.html">C Data interface</a>.</p>
-<p>Currently, this crate supports importing from and exporting to all non-nested DataTypes.</p>
+<p>One of the hallmarks of the Arrow format is that its in-memory representation
+has a specification, which allows languages to share data
+structures via foreign interfaces at zero cost (i.e. via pointers).
+This is known as the <a href="https://arrow.apache.org/docs/format/CDataInterface.html">C Data interface</a>.</p>
+<p>This crate supports importing from and exporting to most of <code>DataType</code>s.
+Types currently not supported:</p>
+<ul>
+<li><code>FixedSizeBinary</code></li>
+<li><code>Union</code></li>
+<li><code>Dictionary</code></li>
+<li><code>FixedSizeList</code></li>
+<li><code>Null</code></li>
+</ul>
 <h2 id="export"><a class="header" href="#export">Export</a></h2>
 <p>The API to export an <code>Array</code> is as follows:</p>
 <pre><pre class="playground"><code class="language-rust">use std::sync::Arc;
@@ -486,33 +496,36 @@ let array = [Some(1), None, Some(123)]
     .iter()
     .collect::&lt;Primitive&lt;i32&gt;&gt;()
     .to(DataType::Int32);
-// create a struct from it with the API to export it.
-let array = ArrowArray::try_from(Arc::new(array))?;
 
-// export: these are `ArrowArray` and `ArrowSchema` of the C data interface
-let (array, schema) = ArrowArray::into_raw(array);
+// export the array.
+let ffi_array = ffi::export_to_c(Arc::new(array))?;
+
+// these are mutable pointers to `ArrowArray` and `ArrowSchema` of the C data interface
+let (array_ptr, schema_ptr) = ffi_array.references();
 <span class="boring">}
 </span></code></pre></pre>
-<p>Note that this leaks memory iff the consumers of these
-pointers do not <code>release</code> them according to the <a href="https://arrow.apache.org/docs/format/CDataInterface.html#release-callback-semantics-for-consumers">member allocation</a>.</p>
 <h2 id="import"><a class="header" href="#import">Import</a></h2>
 <p>The API to import works similarly:</p>
-<pre><code class="language-rust ignore">use arrow2::array::Array;
-use arrow2::ffi::ArrowArray;
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use arrow2::array::Array;
+use arrow2::ffi;
 
-// these are `ArrowArray` and `ArrowSchema` of the C data interface
-let array = unsafe { ArrowArray::try_from_raw(array, schema) }?;
+let array = Arc::new(ffi::create_empty());
 
-let array = Box::&lt;dyn Array&gt;::try_from(array)?;
-</code></pre>
-<p>Note that this assumes that <code>array</code> and <code>schema</code> are valid pointers and
-that the data on it is also laid out according to the c data interface.
-This is impossible to prove at neither compile nor run-time and is thus
-intrinsically <code>unsafe</code>.</p>
-<p>Soundness here relies on the producer creating <code>array</code> and <code>schema</code> that
-follow the c data interface specification.
-In particular, if the producer reports an array length larger than what its buffer
-was allocated for, it will cause this crate to read out of bounds.</p>
+// non-owned mutable pointers.
+let (array_ptr, schema_ptr) = array.references();
+
+// write to the pointers using any C data interface exporter
+
+// consume it to a `Box&lt;dyn Array&gt;`
+let array = ffi::try_from(array)?;
+<span class="boring">}
+</span></code></pre></pre>
+<p>This assumes that the exporter writes to <code>array_ptr</code> and <code>schema_ptr</code> 
+according to the c data interface. This is an intrinsically <code>unsafe</code> operation.
+Failing to do so results in UB.</p>
 <h1 id="io"><a class="header" href="#io">IO</a></h1>
 <p>Arrow2 currently supports 2 main formats, JSON and CSV, both read and write.</p>
 <p>This guide currently describes <a href="io/./csv_reader.html">reading from CSV</a>.</p>
