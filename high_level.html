@@ -181,7 +181,7 @@ assert_eq!(array.len(), 3)
 <p>A <code>PrimitiveArray</code> has 3 components:</p>
 <ol>
 <li>A physical type (<code>i32</code>)</li>
-<li>A logical type (<code>DataType::Int32</code>)</li>
+<li>A logical type (e.g. <code>DataType::Int32</code>)</li>
 <li>Data</li>
 </ol>
 <p>The main differences from a <code>Vec&lt;Option&lt;T&gt;&gt;</code> are:</p>
@@ -198,6 +198,15 @@ let dates = Primitive::&lt;i32&gt;::from(&amp;[Some(1), None]).to(DataType::Date
 <span class="boring">}
 </span></code></pre></pre>
 <p><code>ints</code> and <code>dates</code> have the same in-memory representation but different logic representations (e.g. dates are usually represented as a string).</p>
+<p>Some physical types (e.g. <code>i32</code>) have a &quot;natural&quot; logical <code>DataType</code> (e.g. <code>DataType::Int32</code>).
+These types support a more compact notation:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">use arrow2::array::{Array, PrimitiveArray, Primitive};
+</span><span class="boring">use arrow2::datatypes::DataType;
+</span><span class="boring">fn main() {
+</span>let array: PrimitiveArray&lt;i32&gt; = [Some(1), None, Some(123)].iter().collect();
+assert_eq!(array.len(), 3)
+<span class="boring">}
+</span></code></pre></pre>
 <p>The following arrays are supported:</p>
 <ul>
 <li><code>NullArray</code> (just holds nulls)</li>
