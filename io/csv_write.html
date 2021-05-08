@@ -170,13 +170,12 @@
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use csv::WriterBuilder;
-use arrow2::io::csv::write;
+</span>use arrow2::io::csv::write;
 use arrow2::record_batch::RecordBatch;
 use arrow2::error::Result;
 
-fn write(path: &amp;str, batches: &amp;[RecordBatch]) -&gt; Result&lt;()&gt; {
-    let writer = &amp;mut WriterBuilder::new().from_path(path)?;
+fn write_batch(path: &amp;str, batches: &amp;[RecordBatch]) -&gt; Result&lt;()&gt; {
+    let writer = &amp;mut write::WriterBuilder::new().from_path(path)?;
 
     write::write_header(writer, batches[0].schema())?;
 
@@ -199,7 +198,6 @@ However, these typically deal with different bounds: serialization is often CPU 
 use std::sync::mpsc;
 use std::thread;
 
-use csv::{WriterBuilder, ByteRecord};
 use arrow2::io::csv::write;
 use arrow2::record_batch::RecordBatch;
 use arrow2::error::Result;
@@ -208,7 +206,7 @@ fn parallel_write(path: &amp;str, batches: [RecordBatch; 2]) -&gt; Result&lt;()&
     let options = write::SerializeOptions::default();
 
     // write a header
-    let writer = &amp;mut WriterBuilder::new().from_path(path)?;
+    let writer = &amp;mut write::WriterBuilder::new().from_path(path)?;
     write::write_header(writer, batches[0].schema())?;
 
     // prepare a channel to send serialized records from threads

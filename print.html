@@ -553,19 +553,18 @@ This crate makes minimal assumptions on how you want to read a CSV, and offers a
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use csv::ReaderBuilder;
-use arrow2::io::csv::{infer_schema, read_batch, infer, DefaultParser};
+</span>use arrow2::io::csv::read;
 use arrow2::error::Result;
 
 fn read_path(path: &amp;str) -&gt; Result&lt;()&gt; {
-    let mut reader = ReaderBuilder::new().from_path(path)?;
-    let parser = DefaultParser::default();
+    let mut reader = read::ReaderBuilder::new().from_path(path)?;
+    let parser = read::DefaultParser::default();
 
-    let schema = infer_schema(&amp;mut reader, None, true, &amp;infer)?;
+    let schema = read::infer_schema(&amp;mut reader, None, true, &amp;infer)?;
 
     // 0: start from
     // 100: up to (max batch size)
-    let batch = read_batch(&amp;mut reader, &amp;parser, 0, 100, schema, None)?;
+    let batch = read::read_batch(&amp;mut reader, &amp;parser, 0, 100, schema, None)?;
 }
 <span class="boring">}
 </span></code></pre></pre>
@@ -583,13 +582,12 @@ any data transformation.</p>
 <pre><pre class="playground"><code class="language-rust">
 <span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>use csv::WriterBuilder;
-use arrow2::io::csv::write;
+</span>use arrow2::io::csv::write;
 use arrow2::record_batch::RecordBatch;
 use arrow2::error::Result;
 
-fn write(path: &amp;str, batches: &amp;[RecordBatch]) -&gt; Result&lt;()&gt; {
-    let writer = &amp;mut WriterBuilder::new().from_path(path)?;
+fn write_batch(path: &amp;str, batches: &amp;[RecordBatch]) -&gt; Result&lt;()&gt; {
+    let writer = &amp;mut write::WriterBuilder::new().from_path(path)?;
 
     write::write_header(writer, batches[0].schema())?;
 
@@ -612,7 +610,6 @@ However, these typically deal with different bounds: serialization is often CPU 
 use std::sync::mpsc;
 use std::thread;
 
-use csv::{WriterBuilder, ByteRecord};
 use arrow2::io::csv::write;
 use arrow2::record_batch::RecordBatch;
 use arrow2::error::Result;
@@ -621,7 +618,7 @@ fn parallel_write(path: &amp;str, batches: [RecordBatch; 2]) -&gt; Result&lt;()&
     let options = write::SerializeOptions::default();
 
     // write a header
-    let writer = &amp;mut WriterBuilder::new().from_path(path)?;
+    let writer = &amp;mut write::WriterBuilder::new().from_path(path)?;
     write::write_header(writer, batches[0].schema())?;
 
     // prepare a channel to send serialized records from threads
