@@ -173,7 +173,10 @@ interoperability with the arrow format.</p>
 operate with contiguous memory regions, and a <a href="./high_level.html">high-level API</a> to operate with
 arrow arrays, logical types, schemas, etc.</p>
 <p>This repo started as an experiment forked from the Apache arrow project to offer a transmute-free
-Rust implementation of that crate. It currently offers most functionality with the notable exception of reading and writing to and from parquet.</p>
+Rust implementation of that crate.</p>
+<h2 id="cargo-features"><a class="header" href="#cargo-features">Cargo features</a></h2>
+<p>This crate has a significant number of cargo features to reduce compilation times and dependencies blowup.
+There is also a feature <code>simd</code>, that requires the nightly channel, that produces more explicit SIMD instructions via <a href="https://github.com/rust-lang/packed_simd"><code>packed_simd</code></a>.</p>
 <h1 id="the-arrow-format"><a class="header" href="#the-arrow-format">The arrow format</a></h1>
 <p><a href="https://arrow.apache.org/">Arrow</a> is an in-memory columnar format for modern analytics that natively supports the concept of a null value, nested structs, and many others.</p>
 <p>It has an IPC protocol (based on flat buffers) and a stable C-represented ABI for intra-process communication via foreign interfaces (FFI).</p>
