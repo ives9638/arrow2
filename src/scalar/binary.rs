@@ -2,6 +2,9 @@ use crate::{array::*, buffer::Buffer, datatypes::DataType};
 
 use super::Scalar;
 
+use crate::api::IValue::types::IValue;
+use std::any::Any;
+use std::ops::{Add, Div, Mul, Sub};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -25,8 +28,12 @@ impl<O: Offset> BinaryScalar<O> {
     }
 
     #[inline]
-    pub fn value(&self) -> &[u8] {
-        self.value.as_slice()
+    pub fn value(&self) -> Option<&[u8]> {
+        if self.is_valid() {
+            Some(self.value.as_slice())
+        } else {
+            None
+        }
     }
 }
 
@@ -48,7 +55,7 @@ impl<O: Offset> Scalar for BinaryScalar<O> {
             &DataType::Binary
         }
     }
-
+    #[inline]
     fn to_boxed_array(&self, length: usize) -> Box<dyn Array> {
         if self.is_valid {
             let item_length = O::from_usize(self.value.len()).unwrap(); // verified at `new`
@@ -64,6 +71,39 @@ impl<O: Offset> Scalar for BinaryScalar<O> {
             Box::new(BinaryArray::<O>::new_null(length))
         }
     }
+    #[inline]
+    fn into_value(self) -> IValue
+    where
+        Self: Sized,
+    {
+        IValue(Arc::new(self))
+    }
+    #[inline]
+    fn remainder(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
 
+    fn Sub(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
 
+    fn Add(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Div(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Mul(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Max(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Min(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
 }

@@ -2,6 +2,9 @@ use crate::{array::*, bitmap::Bitmap, datatypes::DataType};
 
 use super::Scalar;
 
+use crate::api::IValue::types::IValue;
+use std::any::Any;
+use std::ops::Add;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -9,7 +12,6 @@ pub struct BooleanScalar {
     value: bool,
     is_valid: bool,
     phantom: std::marker::PhantomData<bool>,
-
 }
 
 impl BooleanScalar {
@@ -24,8 +26,12 @@ impl BooleanScalar {
     }
 
     #[inline]
-    pub fn value(&self) -> bool {
-        self.value
+    pub fn value(&self) -> Option<bool> {
+        if self.is_valid() {
+            Some(self.value)
+        } else {
+            None
+        }
     }
 }
 
@@ -53,5 +59,37 @@ impl Scalar for BooleanScalar {
         }
     }
 
+    fn into_value(self) -> IValue
+    where
+        Self: Sized,
+    {
+        IValue(Arc::new(self))
+    }
+    fn remainder(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
 
+    fn Sub(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Add(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Div(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Mul(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Max(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Min(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
 }
