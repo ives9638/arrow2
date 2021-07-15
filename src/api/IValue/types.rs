@@ -13,21 +13,6 @@ pub type IDate64 = PrimitiveScalar<i64>;
 
 pub struct IValue(pub Arc<dyn Scalar>);
 
-pub trait IntoV {
-    fn into_value(self) -> IValue
-    where
-        Self: Sized;
-}
-macro_rules! impl_dyn_IValue {
-    ($ca: ident) => {
-        impl IntoV for $ca {
-            fn into_value(self) -> IValue {
-                IValue(Arc::new(self))
-            }
-        }
-    };
-}
 
-impl_dyn_IValue!(I32);
-impl_dyn_IValue!(I64);
-impl_dyn_IValue!(IStr);
+
+
