@@ -76,6 +76,7 @@ mod tests {
 
     #[test]
     fn test_concat_incompatible_datatypes() {
+
         let re = concatenate(&[
             &Int64Array::from(vec![Some(-1), Some(2), None]),
             &Utf8Array::<i32>::from(&vec![Some("hello"), Some("bar"), Some("world")]),

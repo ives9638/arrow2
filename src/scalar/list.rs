@@ -8,9 +8,8 @@ use crate::{
 };
 
 use super::Scalar;
-use std::ops::Add;
 use crate::api::IValue::types::IValue;
-
+use std::ops::Add;
 
 /// The scalar equivalent of [`ListArray`]. Like [`ListArray`], this struct holds a dynamically-typed
 /// [`Array`]. The only difference is that this has only one element.
@@ -84,7 +83,10 @@ impl<O: Offset> Scalar for ListScalar<O> {
         }
     }
 
-    fn into_value(self) -> IValue where Self: Sized {
+    fn into_value(self) -> IValue
+    where
+        Self: Sized,
+    {
         IValue(Arc::new(self))
     }
     fn remainder(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
@@ -115,4 +117,3 @@ impl<O: Offset> Scalar for ListScalar<O> {
         todo!()
     }
 }
-

@@ -12,7 +12,3 @@ pub type IDate32 = PrimitiveScalar<i32>;
 pub type IDate64 = PrimitiveScalar<i64>;
 
 pub struct IValue(pub Arc<dyn Scalar>);
-
-
-
-

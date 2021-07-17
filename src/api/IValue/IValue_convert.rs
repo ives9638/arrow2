@@ -1,8 +1,7 @@
-use crate::api::IValue::types::{IBool, IStr, IValue, I32, I64, I8};
+use crate::api::IValue::types::*;
 
 macro_rules! Native_for_IValue {
     ($ca: ident,$cb:ident ) => {
-
         impl Into<Option<$ca>> for IValue {
             fn into(self) -> Option<$ca> {
                 let q = self.0.as_ref().as_any().downcast_ref::<$cb>();
