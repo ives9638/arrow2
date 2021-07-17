@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::{array::*, datatypes::*, types::days_ms};
+use crate::{array::*, datatypes::*};
 
 mod primitive;
 pub use primitive::*;
@@ -16,7 +16,7 @@ mod null;
 
 use super::error::*;
 use crate::api::IValue::types::{IStr, IValue, I32};
-use crate::api::IValue::IValue_arithmetics::Operator;
+use crate::api::IValue::IValue_arithmetics::ScalarOperator;
 use crate::bitmap::Bitmap;
 use crate::buffer::Buffer;
 use crate::datatypes::DataType::{Duration, Int32, Interval, Time32, Time64, Timestamp};
@@ -48,7 +48,7 @@ fn new_scalar_test() {
     let data = vec![Some(1), None, Some(10)];
     let bb = vec![Some("a"), None, Some("c")];
     let a = I32::new(DataType::Int32, Some(23));
-    let b = I32::new(DataType::Int32, None);
+    let b = I32::new(DataType::Int32, Some(2));
 
     let cc = a.into_value();
     let vv = b.into_value();

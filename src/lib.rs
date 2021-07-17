@@ -11,16 +11,16 @@ pub mod types;
 
 #[cfg(feature = "compute")]
 pub mod compute;
+pub mod datatypes;
 pub mod io;
 pub mod record_batch;
 pub mod temporal_conversions;
-pub mod datatypes;
 
 pub mod ffi;
 pub mod util;
 
 // so that documentation gets test
+mod api;
 #[cfg(any(test, doctest))]
 mod docs;
-mod api;
 mod scalar;

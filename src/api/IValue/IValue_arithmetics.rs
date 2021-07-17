@@ -1,8 +1,9 @@
 use super::super::super::error::*;
 use crate::api::IValue::types::IValue;
-use crate::scalar::PrimitiveScalar;
-use std::ops::Add;
-pub trait Operator {
+use crate::datatypes::DataType;
+
+pub trait ScalarOperator {
+    fn data_type(&self) -> &DataType;
     fn remainder(&self, rhs: &IValue) -> Result<IValue>;
     fn Sub(&self, rhs: &IValue) -> Result<IValue>;
     fn Add(&self, rhs: &IValue) -> Result<IValue>;
@@ -11,7 +12,11 @@ pub trait Operator {
     fn Max(&self, rhs: &IValue) -> Result<IValue>;
     fn Min(&self, rhs: &IValue) -> Result<IValue>;
 }
-impl Operator for IValue {
+impl ScalarOperator for IValue {
+    fn data_type(&self) -> &DataType {
+        self.0.data_type()
+    }
+
     #[inline]
     fn remainder(&self, rhs: &IValue) -> Result<IValue> {
         self.0.remainder(rhs.0.as_ref())

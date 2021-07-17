@@ -2,10 +2,10 @@ use crate::{array::*, datatypes::DataType};
 
 use super::Scalar;
 
-use std::sync::Arc;
-use std::ops::Add;
-use std::any::Any;
 use crate::api::IValue::types::IValue;
+use std::any::Any;
+use std::ops::Add;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct NullScalar {
@@ -15,7 +15,9 @@ pub struct NullScalar {
 impl NullScalar {
     #[inline]
     pub fn new() -> Self {
-        Self { phantom: std::marker::PhantomData}
+        Self {
+            phantom: std::marker::PhantomData,
+        }
     }
 }
 
@@ -49,7 +51,10 @@ impl Scalar for NullScalar {
     fn remainder(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
         todo!()
     }
-    fn into_value(self) -> IValue where Self: Sized {
+    fn into_value(self) -> IValue
+    where
+        Self: Sized,
+    {
         IValue(Arc::new(self))
     }
 
