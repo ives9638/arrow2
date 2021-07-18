@@ -100,7 +100,7 @@ impl<
         Ok(r.into_value())
     }
 
-    fn Sub(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Sub(&self, rhs: &dyn Scalar) -> Result<IValue> {
         let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
         let r = match (self.value(), obj.value()) {
             (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a - b)),
@@ -109,7 +109,7 @@ impl<
         Ok(r.into_value())
     }
 
-    fn Add(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Add(&self, rhs: &dyn Scalar) -> Result<IValue> {
         let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
         let r = match (self.value(), obj.value()) {
             (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a + b)),
@@ -118,7 +118,7 @@ impl<
         Ok(r.into_value())
     }
 
-    fn Div(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Div(&self, rhs: &dyn Scalar) -> Result<IValue> {
         let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
         let r = match (self.value(), obj.value()) {
             (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a / b)),
@@ -127,7 +127,7 @@ impl<
         Ok(r.into_value())
     }
 
-    fn Mul(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Mul(&self, rhs: &dyn Scalar) -> Result<IValue> {
         let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
         let r = match (self.value(), obj.value()) {
             (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a * b)),
@@ -136,7 +136,7 @@ impl<
         Ok(r.into_value())
     }
 
-    fn Max(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Max(&self, rhs: &dyn Scalar) -> Result<IValue> {
         let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
         let r = match (self.value(), obj.value()) {
             (Some(a), Some(b)) => {
@@ -148,7 +148,7 @@ impl<
         Ok(r.into_value())
     }
 
-    fn Min(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Min(&self, rhs: &dyn Scalar) -> Result<IValue> {
         let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
         let r = match (self.value(), obj.value()) {
             (Some(a), Some(b)) => {
