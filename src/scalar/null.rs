@@ -48,37 +48,35 @@ impl Scalar for NullScalar {
         Box::new(NullArray::from_data(length))
     }
 
-    fn remainder(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
-    fn into_value(self) -> IValue
-    where
-        Self: Sized,
-    {
-        IValue(Arc::new(self))
-    }
-
-    fn Sub(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+    fn into_value(self) -> IValue where Self: Sized {
         todo!()
     }
 
-    fn Add(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+    fn remainder(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
         todo!()
     }
 
-    fn Div(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+    fn Sub(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
         todo!()
     }
 
-    fn Mul(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+    fn Add(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
         todo!()
     }
 
-    fn Max(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+    fn Div(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
         todo!()
     }
 
-    fn Min(&self, rhs: &Scalar) -> crate::error::Result<IValue> {
+    fn Mul(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Max(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
+        todo!()
+    }
+
+    fn Min(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
         todo!()
     }
 }

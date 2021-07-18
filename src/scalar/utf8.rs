@@ -79,15 +79,17 @@ impl<O: Offset> Scalar for Utf8Scalar<O> {
     {
         IValue(Arc::new(self))
     }
-    fn remainder(&self, rhs: &Scalar) -> Result<IValue> {
+
+    fn remainder(&self, rhs: &dyn Scalar) -> Result<IValue> {
         todo!()
     }
 
-    fn Sub(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Sub(&self, rhs: &dyn Scalar) -> Result<IValue> {
         todo!()
     }
 
-    fn Add(&self, rhs: &Scalar) -> Result<IValue> {
+
+    fn Add(&self, rhs: &dyn Scalar) -> Result<IValue> {
         let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
         match (self.value(), obj.value()) {
             (Some(a), Some(b)) => {
@@ -108,19 +110,19 @@ impl<O: Offset> Scalar for Utf8Scalar<O> {
         }
     }
 
-    fn Div(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Div(&self, rhs: &dyn Scalar) -> Result<IValue> {
         todo!()
     }
 
-    fn Mul(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Mul(&self, rhs: &dyn Scalar) -> Result<IValue> {
         todo!()
     }
 
-    fn Max(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Max(&self, rhs: &dyn Scalar) -> Result<IValue> {
         todo!()
     }
 
-    fn Min(&self, rhs: &Scalar) -> Result<IValue> {
+    fn Min(&self, rhs: &dyn Scalar) -> Result<IValue> {
         todo!()
     }
 }
