@@ -17,7 +17,6 @@ impl ScalarOperator for IValue {
         self.0.data_type()
     }
 
-    #[inline]
     fn remainder(&self, rhs: &IValue) -> Result<IValue> {
         self.0.remainder(rhs.0.as_ref())
     }
