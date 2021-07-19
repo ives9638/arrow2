@@ -17,6 +17,7 @@ macro_rules! Native_for_IValue {
 Native_for_IValue!(i32, I32);
 Native_for_IValue!(i64, I64);
 Native_for_IValue!(i8, I8);
+Native_for_IValue!(i16, I16);
 Native_for_IValue!(bool, IBool);
 
 impl Into<String> for IValue {
