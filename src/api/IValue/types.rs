@@ -8,7 +8,6 @@ pub type I64 = PrimitiveScalar<i64>;
 pub type IStr = Utf8Scalar<i32>;
 pub type IText = Utf8Scalar<i64>;
 pub type IBool = BooleanScalar;
-pub type IDate32 = PrimitiveScalar<i32>;
-pub type IDate64 = PrimitiveScalar<i64>;
+
 
 pub struct IValue(pub Arc<dyn Scalar>);
