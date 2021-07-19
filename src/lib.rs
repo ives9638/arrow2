@@ -20,7 +20,8 @@ pub mod ffi;
 pub mod util;
 
 // so that documentation gets test
-mod api;
+pub mod api;
 #[cfg(any(test, doctest))]
 mod docs;
-mod scalar;
+pub mod scalar;
+

@@ -1,2 +1,2 @@
-mod IArray;
+pub mod IArray;
 pub mod IValue;
