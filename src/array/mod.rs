@@ -32,6 +32,7 @@ use crate::{
 pub trait Array: std::fmt::Debug + Send + Sync {
     fn as_any(&self) -> &dyn Any;
 
+    fn into_data_column(&self) -> DataColumn ;
     /// The length of the [`Array`]. Every array has a length corresponding to the number of
     /// elements (slots).
     fn len(&self) -> usize;
@@ -89,7 +90,7 @@ pub trait Array: std::fmt::Debug + Send + Sync {
     /// This function panics iff `offset + length >= self.len()`.
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array>;
 
-    fn get_value(&self,idx:usize) -> IValue ;
+    fn get_value(&self, idx: usize) -> IValue;
 }
 
 /// A trait describing a mutable array; i.e. an array whose values can be changed.
@@ -522,7 +523,8 @@ mod tests {
 }
 
 // backward compatibility
-use std::sync::Arc;
+use crate::api::columns::DataColumn;
 use crate::api::IValue::IValue;
+use std::sync::Arc;
 
 pub type ArrayRef = Arc<dyn Array>;

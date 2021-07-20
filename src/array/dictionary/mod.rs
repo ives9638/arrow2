@@ -13,6 +13,7 @@ pub use mutable::*;
 
 use super::{ffi::ToFfi, new_empty_array, primitive::PrimitiveArray, Array};
 use crate::api::IValue::IValue;
+use crate::api::columns::DataColumn;
 
 
 /// Trait denoting [`NativeType`]s that can be used as keys of a dictionary.
@@ -114,7 +115,9 @@ impl<K: DictionaryKey> Array for DictionaryArray<K> {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-
+    fn into_data_column(&self) -> DataColumn {
+        DataColumn::Array(Arc::new(self.clone()))
+    }
     #[inline]
     fn len(&self) -> usize {
         self.keys.len()

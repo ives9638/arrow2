@@ -11,6 +11,8 @@ use crate::scalar::{BooleanScalar, Scalar};
 pub use iterator::*;
 pub use mutable::*;
 use crate::api::IValue::IValue;
+use crate::api::prelude::Arc;
+use crate::api::columns::DataColumn;
 
 /// A [`BooleanArray`] is arrow's equivalent to `Vec<Option<bool>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable booleans.
@@ -97,7 +99,9 @@ impl Array for BooleanArray {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-
+    fn into_data_column(&self) -> DataColumn {
+        DataColumn::Array(Arc::new(self.clone()))
+    }
     #[inline]
     fn len(&self) -> usize {
         self.values.len()

@@ -18,6 +18,7 @@ pub use iterator::*;
 mod mutable;
 pub use mutable::*;
 use crate::api::IValue::IValue;
+use crate::api::columns::DataColumn;
 
 #[derive(Debug, Clone)]
 pub struct ListArray<O: Offset> {
@@ -157,7 +158,9 @@ impl<O: Offset> Array for ListArray<O> {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-
+    fn into_data_column(&self) -> DataColumn {
+        DataColumn::Array(Arc::new(self.clone()))
+    }
     #[inline]
     fn len(&self) -> usize {
         self.offsets.len() - 1

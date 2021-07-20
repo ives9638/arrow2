@@ -14,6 +14,8 @@ pub use iterator::*;
 pub use mutable::*;
 use crate::api::IValue::IValue;
 use crate::scalar::{Utf8Scalar, Scalar};
+use crate::api::columns::DataColumn;
+use std::sync::Arc;
 
 /// A [`Utf8Array`] is arrow's equivalent of `Vec<Option<String>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable strings.
@@ -165,7 +167,9 @@ impl<O: Offset> Array for Utf8Array<O> {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-
+    fn into_data_column(&self) -> DataColumn {
+        DataColumn::Array(Arc::new(self.clone()))
+    }
     #[inline]
     fn len(&self) -> usize {
         self.offsets.len() - 1

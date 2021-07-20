@@ -17,6 +17,8 @@ mod mutable;
 use crate::api::IValue::IValue;
 use crate::scalar::{PrimitiveScalar, Scalar};
 pub use mutable::*;
+use crate::api::columns::DataColumn;
+use std::sync::Arc;
 
 /// A [`PrimitiveArray`] is arrow's equivalent to `Vec<Option<T: NativeType>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable slots,
@@ -137,7 +139,9 @@ impl<T: NativeType> Array for PrimitiveArray<T> {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-
+    fn into_data_column(&self) -> DataColumn {
+        DataColumn::Array(Arc::new(self.clone()))
+    }
     #[inline]
     fn len(&self) -> usize {
         self.values.len()

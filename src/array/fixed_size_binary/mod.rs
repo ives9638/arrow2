@@ -6,6 +6,8 @@ mod iterator;
 mod mutable;
 pub use mutable::*;
 use crate::api::IValue::IValue;
+use crate::api::columns::DataColumn;
+use crate::api::prelude::Arc;
 
 
 #[derive(Debug, Clone)]
@@ -105,7 +107,9 @@ impl Array for FixedSizeBinaryArray {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-
+    fn into_data_column(&self) -> DataColumn {
+        DataColumn::Array(Arc::new(self.clone()))
+    }
     #[inline]
     fn len(&self) -> usize {
         self.values.len() / self.size as usize

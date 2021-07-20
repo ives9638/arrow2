@@ -10,9 +10,11 @@ mod iterator;
 pub use iterator::*;
 mod from;
 mod mutable;
+use crate::api::columns::DataColumn;
+use crate::api::prelude::Arc;
+use crate::api::IValue::IValue;
 use crate::scalar::{BinaryScalar, Scalar};
 pub use mutable::*;
-use crate::api::IValue::IValue;
 
 #[derive(Debug, Clone)]
 pub struct BinaryArray<O: Offset> {
@@ -103,6 +105,10 @@ impl<O: Offset> Array for BinaryArray<O> {
     #[inline]
     fn as_any(&self) -> &dyn std::any::Any {
         self
+    }
+
+    fn into_data_column(&self) -> DataColumn {
+       todo!()
     }
 
     #[inline]

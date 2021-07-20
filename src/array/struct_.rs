@@ -9,6 +9,7 @@ use crate::{
 
 use super::{ffi::ToFfi, new_empty_array, new_null_array, Array, FromFfi};
 use crate::api::IValue::IValue;
+use crate::api::columns::DataColumn;
 
 #[derive(Debug, Clone)]
 pub struct StructArray {
@@ -92,7 +93,9 @@ impl Array for StructArray {
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }
-
+    fn into_data_column(&self) -> DataColumn {
+        DataColumn::Array(Arc::new(self.clone()))
+    }
     #[inline]
     fn len(&self) -> usize {
         self.values[0].len()
