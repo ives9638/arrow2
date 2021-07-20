@@ -2,7 +2,7 @@ use crate::{array::*, datatypes::DataType};
 
 use super::Scalar;
 
-use crate::api::IValue::types::IValue;
+use crate::api::IValue::IValue;
 use std::any::Any;
 use std::ops::Add;
 use std::sync::Arc;
@@ -52,31 +52,5 @@ impl Scalar for NullScalar {
         todo!()
     }
 
-    fn remainder(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
 
-    fn Sub(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
-
-    fn Add(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
-
-    fn Div(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
-
-    fn Mul(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
-
-    fn Max(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
-
-    fn Min(&self, rhs: &dyn Scalar) -> crate::error::Result<IValue> {
-        todo!()
-    }
 }

@@ -12,6 +12,8 @@ mod iterator;
 mod mutable;
 pub use iterator::*;
 pub use mutable::*;
+use crate::api::IValue::IValue;
+use crate::scalar::{Utf8Scalar, Scalar};
 
 /// A [`Utf8Array`] is arrow's equivalent of `Vec<Option<String>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable strings.
@@ -180,6 +182,10 @@ impl<O: Offset> Array for Utf8Array<O> {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+
+    fn get_value(&self, idx: usize) -> IValue {
+        Utf8Scalar::<O>::new( Some(self.value(idx)) ).into_value()
     }
 }
 

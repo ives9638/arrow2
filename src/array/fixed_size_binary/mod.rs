@@ -5,6 +5,8 @@ use super::{display_fmt, display_helper, ffi::ToFfi, Array};
 mod iterator;
 mod mutable;
 pub use mutable::*;
+use crate::api::IValue::IValue;
+
 
 #[derive(Debug, Clone)]
 pub struct FixedSizeBinaryArray {
@@ -121,7 +123,11 @@ impl Array for FixedSizeBinaryArray {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
+    fn get_value(&self, idx: usize) -> IValue {
+        todo!()
+    }
 }
+
 
 impl std::fmt::Display for FixedSizeBinaryArray {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

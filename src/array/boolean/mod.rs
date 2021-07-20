@@ -7,8 +7,10 @@ mod from;
 mod iterator;
 mod mutable;
 
+use crate::scalar::{BooleanScalar, Scalar};
 pub use iterator::*;
 pub use mutable::*;
+use crate::api::IValue::IValue;
 
 /// A [`BooleanArray`] is arrow's equivalent to `Vec<Option<bool>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable booleans.
@@ -114,6 +116,10 @@ impl Array for BooleanArray {
     #[inline]
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+
+    fn get_value(&self, idx: usize) -> IValue {
+        BooleanScalar::new(Some(self.value(idx))).into_value()
     }
 }
 

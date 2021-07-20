@@ -1,9 +1,9 @@
 use crate::{array::*, buffer::Buffer, datatypes::DataType, types::NativeType};
 
 use super::Scalar;
-
+use super::super::compute::cast;
 use super::super::error::*;
-use crate::api::IValue::types::IValue;
+use crate::api::IValue::IValue;
 use num::{Num, NumCast, Zero};
 use std::any::Any;
 use std::marker::PhantomData;
@@ -41,16 +41,7 @@ impl<T: NativeType> PrimitiveScalar<T> {
     }
 }
 
-impl<
-        T: NativeType
-            + std::ops::Rem<Output = T>
-            + std::ops::Add<Output = T>
-            + std::ops::Sub<Output = T>
-            + std::ops::Mul<Output = T>
-            + std::ops::Div<Output = T>
-            + PartialOrd
-            + Zero,
-    > Scalar for PrimitiveScalar<T>
+impl<T: NativeType> Scalar for PrimitiveScalar<T>
 {
     #[inline]
     fn as_any(&self) -> &dyn std::any::Any {
@@ -90,73 +81,28 @@ impl<
     {
         IValue(Arc::new(self))
     }
-    #[inline]
-    fn remainder(&self, rhs: &Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        let r = match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a % b)),
-            _ => PrimitiveScalar::new(self.data_type().clone(), None),
-        };
-        Ok(r.into_value())
-    }
 
-    fn Sub(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        let r = match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a - b)),
-            _ => PrimitiveScalar::new(self.data_type().clone(), None),
-        };
-        Ok(r.into_value())
-    }
 
-    fn Add(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        let r = match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a + b)),
-            _ => PrimitiveScalar::new(self.data_type().clone(), None),
-        };
-        Ok(r.into_value())
-    }
-
-    fn Div(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        let r = match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a / b)),
-            _ => PrimitiveScalar::new(self.data_type().clone(), None),
-        };
-        Ok(r.into_value())
-    }
-
-    fn Mul(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        let r = match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => PrimitiveScalar::new(self.data_type().clone(), Some(a * b)),
-            _ => PrimitiveScalar::new(self.data_type().clone(), None),
-        };
-        Ok(r.into_value())
-    }
-
-    fn Max(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        let r = match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => {
-                let v = if a > b { a } else { b };
-                PrimitiveScalar::new(self.data_type().clone(), Some(v))
-            }
-            _ => PrimitiveScalar::new(self.data_type().clone(), None),
-        };
-        Ok(r.into_value())
-    }
-
-    fn Min(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        let r = match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => {
-                let v = if a < b { a } else { b };
-                PrimitiveScalar::new(self.data_type().clone(), Some(v))
-            }
-            _ => PrimitiveScalar::new(self.data_type().clone(), None),
-        };
-        Ok(r.into_value())
-    }
 }
+pub type Int8Scalar = PrimitiveScalar<i8>;
+
+pub type Int16Scalar = PrimitiveScalar<i16>;
+/// A type definition [`PrimitiveScalar`] for `i32`
+pub type Int32Scalar = PrimitiveScalar<i32>;
+/// A type definition [`PrimitiveScalar`] for `i64`
+pub type Int64Scalar = PrimitiveScalar<i64>;
+/// A type definition [`PrimitiveScalar`] for `i128`
+pub type Int128Scalar = PrimitiveScalar<i128>;
+
+/// A type definition [`PrimitiveScalar`] for `f32`
+pub type Float32Scalar = PrimitiveScalar<f32>;
+/// A type definition [`PrimitiveScalar`] for `f64`
+pub type Float64Scalar = PrimitiveScalar<f64>;
+/// A type definition [`PrimitiveScalar`] for `u8`
+pub type UInt8Scalar = PrimitiveScalar<u8>;
+/// A type definition [`PrimitiveScalar`] for `u16`
+pub type UInt16Scalar = PrimitiveScalar<u16>;
+/// A type definition [`PrimitiveScalar`] for `u32`
+pub type UInt32Scalar = PrimitiveScalar<u32>;
+/// A type definition [`PrimitiveScalar`] for `u64`
+pub type UInt64Scalar = PrimitiveScalar<u64>;

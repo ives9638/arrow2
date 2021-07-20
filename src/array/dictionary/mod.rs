@@ -12,6 +12,8 @@ pub use iterator::*;
 pub use mutable::*;
 
 use super::{ffi::ToFfi, new_empty_array, primitive::PrimitiveArray, Array};
+use crate::api::IValue::IValue;
+
 
 /// Trait denoting [`NativeType`]s that can be used as keys of a dictionary.
 pub trait DictionaryKey: NativeType + NaturalDataType + num::NumCast + num::FromPrimitive {}
@@ -129,6 +131,9 @@ impl<K: DictionaryKey> Array for DictionaryArray<K> {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn get_value(&self, idx: usize) -> IValue {
+       todo!()
     }
 }
 
