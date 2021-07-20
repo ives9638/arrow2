@@ -14,6 +14,8 @@ mod from_natural;
 mod iterator;
 pub use iterator::*;
 mod mutable;
+use crate::api::IValue::IValue;
+use crate::scalar::{PrimitiveScalar, Scalar};
 pub use mutable::*;
 
 /// A [`PrimitiveArray`] is arrow's equivalent to `Vec<Option<T: NativeType>>`, i.e.
@@ -152,6 +154,9 @@ impl<T: NativeType> Array for PrimitiveArray<T> {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn get_value(&self, idx: usize) -> IValue {
+        PrimitiveScalar::<T>::new(self.data_type().clone(), Some(self.value(idx))).into_value()
     }
 }
 

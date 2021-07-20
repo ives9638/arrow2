@@ -1,6 +1,7 @@
 use crate::{bitmap::Bitmap, datatypes::DataType};
 
 use super::{ffi::ToFfi, Array};
+use crate::api::IValue::IValue;
 
 /// The concrete [`Array`] of [`DataType::Null`].
 #[derive(Debug, Clone)]
@@ -59,6 +60,9 @@ impl Array for NullArray {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn get_value(&self, idx: usize) -> IValue {
+        todo!()
     }
 }
 

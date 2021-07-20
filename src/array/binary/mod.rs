@@ -10,7 +10,9 @@ mod iterator;
 pub use iterator::*;
 mod from;
 mod mutable;
+use crate::scalar::{BinaryScalar, Scalar};
 pub use mutable::*;
+use crate::api::IValue::IValue;
 
 #[derive(Debug, Clone)]
 pub struct BinaryArray<O: Offset> {
@@ -119,6 +121,10 @@ impl<O: Offset> Array for BinaryArray<O> {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+
+    fn get_value(&self, idx: usize) -> IValue {
+        BinaryScalar::<O>::new(Some(self.value(idx))).into_value()
     }
 }
 

@@ -3,7 +3,7 @@ use crate::{array::*, buffer::Buffer, datatypes::DataType};
 use super::Scalar;
 
 use super::super::error::*;
-use crate::api::IValue::types::IValue;
+use crate::api::IValue::IValue;
 use std::ops::Add;
 use std::sync::Arc;
 
@@ -80,49 +80,5 @@ impl<O: Offset> Scalar for Utf8Scalar<O> {
         IValue(Arc::new(self))
     }
 
-    fn remainder(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        todo!()
-    }
 
-    fn Sub(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        todo!()
-    }
-
-
-    fn Add(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-        match (self.value(), obj.value()) {
-            (Some(a), Some(b)) => {
-                let obj = rhs.as_any().downcast_ref::<Self>().unwrap();
-                let obj = Utf8Scalar::<O>::new(Some((a.to_string() + b).as_str()));
-                Ok(obj.into_value())
-            }
-            (Some(a), None) => {
-                let obj = Utf8Scalar::<O>::new(Some(a));
-                Ok(obj.into_value())
-            }
-
-            (None, Some(b)) => {
-                let obj = Utf8Scalar::<O>::new(Some(b));
-                Ok(obj.into_value())
-            }
-            (None, None) => Ok(Utf8Scalar::<O>::new(None).into_value()),
-        }
-    }
-
-    fn Div(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        todo!()
-    }
-
-    fn Mul(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        todo!()
-    }
-
-    fn Max(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        todo!()
-    }
-
-    fn Min(&self, rhs: &dyn Scalar) -> Result<IValue> {
-        todo!()
-    }
 }

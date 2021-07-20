@@ -17,6 +17,7 @@ mod iterator;
 pub use iterator::*;
 mod mutable;
 pub use mutable::*;
+use crate::api::IValue::IValue;
 
 #[derive(Debug, Clone)]
 pub struct ListArray<O: Offset> {
@@ -174,6 +175,9 @@ impl<O: Offset> Array for ListArray<O> {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn get_value(&self, idx: usize) -> IValue {
+        todo!()
     }
 }
 

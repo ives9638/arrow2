@@ -11,6 +11,8 @@ mod iterator;
 pub use iterator::*;
 mod mutable;
 pub use mutable::*;
+use crate::api::IValue::IValue;
+
 
 #[derive(Debug, Clone)]
 pub struct FixedSizeListArray {
@@ -116,6 +118,9 @@ impl Array for FixedSizeListArray {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn get_value(&self, idx: usize) -> IValue {
+        todo!()
     }
 }
 
