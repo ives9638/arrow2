@@ -24,7 +24,7 @@ pub use null::*;
 use std::convert::TryInto;
 use std::ops::Deref;
 use std::sync::Arc;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use std::iter::FromIterator;
 
 pub trait Scalar: Send + Sync {
@@ -32,7 +32,7 @@ pub trait Scalar: Send + Sync {
     fn is_valid(&self) -> bool;
     fn data_type(&self) -> &DataType;
     fn to_boxed_array(&self, length: usize) -> Box<dyn Array>;
-    fn into_value(self) -> Ivalue
+    fn into_value(self) -> DataValue
     where
         Self: Sized;
 }

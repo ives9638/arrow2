@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 
 use crate::api::columns::DataColumn;
 use crate::array::{Array, ArrayRef, Utf8Array, Int32Array, Float64Array};

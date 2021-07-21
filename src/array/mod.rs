@@ -90,7 +90,7 @@ pub trait Array: std::fmt::Debug + Send + Sync {
     /// This function panics iff `offset + length >= self.len()`.
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array>;
 
-    fn get_value(&self, idx: usize) -> Ivalue;
+    fn get_value(&self, idx: usize) -> DataValue;
 }
 
 /// A trait describing a mutable array; i.e. an array whose values can be changed.
@@ -524,7 +524,7 @@ mod tests {
 
 // backward compatibility
 use crate::api::columns::DataColumn;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use std::sync::Arc;
 
 pub type ArrayRef = Arc<dyn Array>;

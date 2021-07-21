@@ -8,7 +8,7 @@ use crate::{
 };
 
 use super::Scalar;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use std::ops::Add;
 
 /// The scalar equivalent of [`ListArray`]. Like [`ListArray`], this struct holds a dynamically-typed
@@ -83,11 +83,11 @@ impl<O: Offset> Scalar for ListScalar<O> {
         }
     }
 
-    fn into_value(self) -> Ivalue
+    fn into_value(self) -> DataValue
     where
         Self: Sized,
     {
-        Ivalue(Arc::new(self))
+        DataValue(Arc::new(self))
     }
 
 }

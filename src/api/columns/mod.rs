@@ -13,22 +13,22 @@ pub use data_column::*;
 
 use std::ops::Deref;
 use crate::array::ArrayRef;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 
 #[derive(Clone)]
 pub enum DataColumn {
     // Array of values.
     Array(ArrayRef),
     // A Single value.
-    Constant(Ivalue, usize),
+    Constant(DataValue, usize),
 }
-impl Into<DataColumn> for Ivalue {
+impl Into<DataColumn> for DataValue {
     fn into(self) -> DataColumn {
         DataColumn::Constant( self.clone(),1usize)
     }
 }
 
-impl Into<DataColumn> for &Ivalue {
+impl Into<DataColumn> for &DataValue {
     fn into(self) -> DataColumn {
         DataColumn::Constant( self.clone(),1usize)
     }

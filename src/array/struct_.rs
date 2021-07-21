@@ -8,7 +8,7 @@ use crate::{
 };
 
 use super::{ffi::ToFfi, new_empty_array, new_null_array, Array, FromFfi};
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use crate::api::columns::DataColumn;
 
 #[derive(Debug, Clone)]
@@ -115,7 +115,7 @@ impl Array for StructArray {
         Box::new(self.slice(offset, length))
     }
 
-    fn get_value(&self, idx: usize) -> Ivalue {
+    fn get_value(&self, idx: usize) -> DataValue {
         todo!()
     }
 }

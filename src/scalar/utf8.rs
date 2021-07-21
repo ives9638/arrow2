@@ -3,7 +3,7 @@ use crate::{array::*, buffer::Buffer, datatypes::DataType};
 use super::Scalar;
 
 use super::super::error::*;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use std::ops::Add;
 use std::sync::Arc;
 
@@ -73,11 +73,11 @@ impl<O: Offset> Scalar for Utf8Scalar<O> {
         }
     }
 
-    fn into_value(self) -> Ivalue
+    fn into_value(self) -> DataValue
     where
         Self: Sized,
     {
-        Ivalue(Arc::new(self))
+        DataValue(Arc::new(self))
     }
 
 

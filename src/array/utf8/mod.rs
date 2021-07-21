@@ -12,7 +12,7 @@ mod iterator;
 mod mutable;
 pub use iterator::*;
 pub use mutable::*;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use crate::scalar::{Utf8Scalar, Scalar};
 use crate::api::columns::DataColumn;
 use std::sync::Arc;
@@ -188,7 +188,7 @@ impl<O: Offset> Array for Utf8Array<O> {
         Box::new(self.slice(offset, length))
     }
 
-    fn get_value(&self, idx: usize) -> Ivalue {
+    fn get_value(&self, idx: usize) -> DataValue {
         Utf8Scalar::<O>::new( Some(self.value(idx)) ).into_value()
     }
 }

@@ -1,7 +1,7 @@
 use crate::{bitmap::Bitmap, datatypes::DataType};
 
 use super::{ffi::ToFfi, Array};
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use crate::api::columns::DataColumn;
 use std::sync::Arc;
 
@@ -65,7 +65,7 @@ impl Array for NullArray {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-    fn get_value(&self, idx: usize) -> Ivalue {
+    fn get_value(&self, idx: usize) -> DataValue {
         todo!()
     }
 }

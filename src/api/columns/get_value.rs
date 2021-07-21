@@ -1,11 +1,11 @@
 use crate::api::columns::DataColumn;
 use crate::api::columns::DataColumn::{Array, Constant};
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use crate::array::{Int32Array, PrimitiveArray};
 use crate::compute::take;
 use crate::api::prelude::*;
 impl DataColumn {
-    fn get_value(&self, i: usize) -> Ivalue {
+    fn get_value(&self, i: usize) -> DataValue {
         match self {
             Array(array) => array.get_value(i).clone(),
             Constant(value, _) => value.clone(),

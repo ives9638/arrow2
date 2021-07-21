@@ -1,4 +1,4 @@
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use crate::array::Array;
 use crate::compute::arithmetics::Operator;
 use crate::compute::arithmetics::*;
@@ -27,7 +27,7 @@ macro_rules! primitive_scalar {
             .map(|x| x as Box<dyn Array>)
     }};
 }
-pub fn arithmetic_scalar(lhs: &dyn Array, op: Operator, rhs: &Ivalue) -> Result<Box<dyn Array>> {
+pub fn arithmetic_scalar(lhs: &dyn Array, op: Operator, rhs: &DataValue) -> Result<Box<dyn Array>> {
     use Operator::*;
     match (lhs.data_type(), op, rhs.0.data_type()) {
         (Int8, _, Int8) => {

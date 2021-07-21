@@ -30,7 +30,7 @@ use crate::scalar::UInt32Scalar;
 use crate::scalar::UInt64Scalar;
 use crate::scalar::UInt8Scalar;
 use crate::scalar::Utf8Scalar;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 
 pub fn comparison_array(lhs: &dyn Array, op: Operator, rhs: &dyn Array) -> Result<Box<dyn Array>> {
     if !can_compare(lhs.data_type()) {
@@ -46,7 +46,7 @@ pub fn comparison_array(lhs: &dyn Array, op: Operator, rhs: &dyn Array) -> Resul
 pub fn comparison_scalar(
     lhs: &dyn Array,
     operator: Operator,
-    rhs: &Ivalue,
+    rhs: &DataValue,
 ) -> Result<Box<dyn Array>> {
     let data_type = lhs.data_type();
     if data_type != rhs.0.data_type() {

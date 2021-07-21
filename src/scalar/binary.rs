@@ -2,7 +2,7 @@ use crate::{array::*, buffer::Buffer, datatypes::DataType};
 
 use super::Scalar;
 
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use std::any::Any;
 use std::ops::{Add, Div, Mul, Sub};
 use std::sync::Arc;
@@ -72,11 +72,11 @@ impl<O: Offset> Scalar for BinaryScalar<O> {
         }
     }
     #[inline]
-    fn into_value(self) -> Ivalue
+    fn into_value(self) -> DataValue
     where
         Self: Sized,
     {
-        Ivalue(Arc::new(self))
+        DataValue(Arc::new(self))
     }
 
 

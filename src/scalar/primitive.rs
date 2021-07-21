@@ -3,7 +3,7 @@ use crate::{array::*, buffer::Buffer, datatypes::DataType, types::NativeType};
 use super::Scalar;
 use super::super::compute::cast;
 use super::super::error::*;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use num::{Num, NumCast, Zero};
 use std::any::Any;
 use std::marker::PhantomData;
@@ -75,11 +75,11 @@ impl<T: NativeType> Scalar for PrimitiveScalar<T>
         }
     }
     #[inline]
-    fn into_value(self) -> Ivalue
+    fn into_value(self) -> DataValue
     where
         Self: Sized,
     {
-        Ivalue(Arc::new(self))
+        DataValue(Arc::new(self))
     }
 
 

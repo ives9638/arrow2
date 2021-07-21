@@ -1,5 +1,5 @@
 
-pub mod Ivalue;
+pub mod scalar;
 pub mod comm_comparison;
 pub mod comm_arithmetic;
 pub mod columns;

@@ -2,7 +2,7 @@ use crate::{array::*, datatypes::DataType};
 
 use super::Scalar;
 
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use std::any::Any;
 use std::ops::Add;
 use std::sync::Arc;
@@ -48,7 +48,7 @@ impl Scalar for NullScalar {
         Box::new(NullArray::from_data(length))
     }
 
-    fn into_value(self) -> Ivalue where Self: Sized {
+    fn into_value(self) -> DataValue where Self: Sized {
         todo!()
     }
 

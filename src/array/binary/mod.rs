@@ -11,7 +11,7 @@ pub use iterator::*;
 mod from;
 mod mutable;
 use crate::api::columns::DataColumn;
-use crate::api::Ivalue::Ivalue;
+use crate::api::scalar::DataValue;
 use crate::scalar::{BinaryScalar, Scalar};
 pub use mutable::*;
 
@@ -128,7 +128,7 @@ impl<O: Offset> Array for BinaryArray<O> {
         Box::new(self.slice(offset, length))
     }
 
-    fn get_value(&self, idx: usize) -> Ivalue {
+    fn get_value(&self, idx: usize) -> DataValue {
         BinaryScalar::<O>::new(Some(self.value(idx))).into_value()
     }
 }
