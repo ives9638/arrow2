@@ -12,7 +12,7 @@ pub use iterator::*;
 pub use mutable::*;
 
 use super::{ffi::ToFfi, new_empty_array, primitive::PrimitiveArray, Array};
-use crate::api::IValue::IValue;
+use crate::api::Ivalue::Ivalue;
 use crate::api::columns::DataColumn;
 
 
@@ -135,7 +135,7 @@ impl<K: DictionaryKey> Array for DictionaryArray<K> {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-    fn get_value(&self, idx: usize) -> IValue {
+    fn get_value(&self, idx: usize) -> Ivalue {
        todo!()
     }
 }

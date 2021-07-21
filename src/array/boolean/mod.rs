@@ -10,7 +10,7 @@ mod mutable;
 use crate::scalar::{BooleanScalar, Scalar};
 pub use iterator::*;
 pub use mutable::*;
-use crate::api::IValue::IValue;
+use crate::api::Ivalue::Ivalue;
 use crate::api::prelude::Arc;
 use crate::api::columns::DataColumn;
 
@@ -122,7 +122,7 @@ impl Array for BooleanArray {
         Box::new(self.slice(offset, length))
     }
 
-    fn get_value(&self, idx: usize) -> IValue {
+    fn get_value(&self, idx: usize) -> Ivalue {
         BooleanScalar::new(Some(self.value(idx))).into_value()
     }
 }

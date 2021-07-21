@@ -9,12 +9,12 @@ use crate::api::columns::DataColumn::{Array, Constant};
 use crate::api::comm_arithmetic;
 use crate::api::comm_arithmetic::arithmetic_type_cast;
 use crate::api::data_value_operator::*;
-use crate::api::prelude::*;
+
 use crate::compute::arithmetics::{can_arithmetic, Operator};
 use crate::datatypes::DataType;
-use crate::error::*;
-use crate::api::prelude::DataValueArithmeticOperator::Plus;
 
+use crate::api::prelude::DataValueArithmeticOperator::Plus;
+use crate::api::prelude::*;
 impl DataColumn {
     pub fn data_type_to(lhs: &DataColumn, dtype: &DataType) -> Result<DataColumn> {
         if lhs.data_type() == dtype {

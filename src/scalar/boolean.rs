@@ -2,7 +2,7 @@ use crate::{array::*, bitmap::Bitmap, datatypes::DataType};
 
 use super::Scalar;
 
-use crate::api::IValue::IValue;
+use crate::api::Ivalue::Ivalue;
 use std::any::Any;
 use std::ops::Add;
 use std::sync::Arc;
@@ -59,11 +59,11 @@ impl Scalar for BooleanScalar {
         }
     }
 
-    fn into_value(self) -> IValue
+    fn into_value(self) -> Ivalue
     where
         Self: Sized,
     {
-        IValue(Arc::new(self))
+        Ivalue(Arc::new(self))
     }
 
 }

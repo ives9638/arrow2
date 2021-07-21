@@ -5,7 +5,7 @@ use super::{display_fmt, display_helper, ffi::ToFfi, Array};
 mod iterator;
 mod mutable;
 pub use mutable::*;
-use crate::api::IValue::IValue;
+use crate::api::Ivalue::Ivalue;
 use crate::api::columns::DataColumn;
 use crate::api::prelude::Arc;
 
@@ -127,7 +127,7 @@ impl Array for FixedSizeBinaryArray {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-    fn get_value(&self, idx: usize) -> IValue {
+    fn get_value(&self, idx: usize) -> Ivalue {
         todo!()
     }
 }
