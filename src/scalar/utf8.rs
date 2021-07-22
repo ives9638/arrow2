@@ -57,7 +57,7 @@ impl<O: Offset> Scalar for Utf8Scalar<O> {
         }
     }
 
-    fn to_boxed_array(&self, length: usize) -> Box<dyn Array> {
+    fn to_boxed_array(&self, length: usize) -> Arc<dyn Array> {
         if self.is_valid {
             let item_length = O::from_usize(self.value.len()).unwrap(); // verified at `new`
             let offsets = (0..=length).map(|i| O::from_usize(i).unwrap() * item_length);
@@ -67,9 +67,9 @@ impl<O: Offset> Scalar for Utf8Scalar<O> {
                 .flatten()
                 .copied()
                 .collect();
-            Box::new(Utf8Array::<O>::from_data(offsets, values, None))
+            Arc::new(Utf8Array::<O>::from_data(offsets, values, None))
         } else {
-            Box::new(Utf8Array::<O>::new_null(length))
+            Arc::new(Utf8Array::<O>::new_null(length))
         }
     }
 

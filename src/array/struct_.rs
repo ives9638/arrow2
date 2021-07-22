@@ -114,10 +114,6 @@ impl Array for StructArray {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-
-    fn get_value(&self, idx: usize) -> DataValue {
-        todo!()
-    }
 }
 
 impl std::fmt::Display for StructArray {

@@ -6,3 +6,4 @@ pub use crate::error::*;
 pub use crate::api::columns::DataColumn;
 pub use crate::api::data_value_operator::*;
 pub use crate::api::data_type_coercion::*;
+pub use crate::datatypes::DataType;

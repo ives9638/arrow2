@@ -46,7 +46,7 @@ pub fn concatenate(arrays: &[&dyn Array]) -> Result<Box<dyn Array>> {
         .any(|array| array.data_type() != arrays[0].data_type())
     {
         return Err(ArrowError::InvalidArgumentError(
-            "It is not possible to concatenate arrays of different data types.".to_string(),
+            format!("It is not possible to concatenate arrays of different data types. {:?} , {:?} ", arrays[1].data_type()  ,arrays[0].data_type() )
         ));
     }
 

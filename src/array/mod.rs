@@ -20,19 +20,18 @@
 use std::any::Any;
 use std::fmt::Display;
 
-use crate::error::Result;
+use crate::error::{ArrowError, Result};
 use crate::types::days_ms;
 use crate::{
     bitmap::{Bitmap, MutableBitmap},
     datatypes::{DataType, IntervalUnit},
 };
-
 /// A trait representing an immutable Arrow array. Arrow arrays are trait objects
 /// that are infalibly downcasted to concrete types according to the [`Array::data_type`].
 pub trait Array: std::fmt::Debug + Send + Sync {
     fn as_any(&self) -> &dyn Any;
 
-    fn into_data_column(&self) -> DataColumn ;
+    fn into_data_column(&self) -> DataColumn;
     /// The length of the [`Array`]. Every array has a length corresponding to the number of
     /// elements (slots).
     fn len(&self) -> usize;
@@ -90,7 +89,13 @@ pub trait Array: std::fmt::Debug + Send + Sync {
     /// This function panics iff `offset + length >= self.len()`.
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array>;
 
-    fn get_value(&self, idx: usize) -> DataValue;
+    fn get_value(&self, idx: usize) -> Result<DataValue> {
+        Err(ArrowError::NotYetImplemented(format!(
+            "{:?} !NotYetImplemented",
+            self.data_type()
+        )))
+    }
+
 }
 
 /// A trait describing a mutable array; i.e. an array whose values can be changed.
@@ -526,5 +531,6 @@ mod tests {
 use crate::api::columns::DataColumn;
 use crate::api::scalar::DataValue;
 use std::sync::Arc;
+use std::ops::Deref;
 
 pub type ArrayRef = Arc<dyn Array>;

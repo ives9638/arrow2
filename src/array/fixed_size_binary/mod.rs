@@ -127,9 +127,6 @@ impl Array for FixedSizeBinaryArray {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-    fn get_value(&self, idx: usize) -> DataValue {
-        todo!()
-    }
 }
 
 

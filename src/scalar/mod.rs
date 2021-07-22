@@ -31,7 +31,7 @@ pub trait Scalar: Send + Sync {
     fn as_any(&self) -> &dyn Any;
     fn is_valid(&self) -> bool;
     fn data_type(&self) -> &DataType;
-    fn to_boxed_array(&self, length: usize) -> Box<dyn Array>;
+    fn to_boxed_array(&self, length: usize) -> Arc<dyn Array>;
     fn into_value(self) -> DataValue
     where
         Self: Sized;
@@ -48,6 +48,6 @@ fn new_scalar_test() {
     let al = Utf8Array::<i32>::from_iter(bb);
     let q = al.get_value(2) ;
 
-    let q :String = q.into();
+    let q :String = q.unwrap().into();
     println!("{}", q)
 }

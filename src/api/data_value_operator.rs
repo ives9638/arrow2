@@ -24,7 +24,7 @@ impl std::fmt::Display for DataValueAggregateOperator {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DataValueComparisonOperator {
     Eq,
     Lt,

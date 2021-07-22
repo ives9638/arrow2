@@ -128,9 +128,6 @@ impl<O: Offset> Array for BinaryArray<O> {
         Box::new(self.slice(offset, length))
     }
 
-    fn get_value(&self, idx: usize) -> DataValue {
-        BinaryScalar::<O>::new(Some(self.value(idx))).into_value()
-    }
 }
 
 impl<O: Offset> std::fmt::Display for BinaryArray<O> {

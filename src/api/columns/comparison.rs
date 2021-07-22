@@ -3,12 +3,13 @@ use crate::api::columns::DataColumn::{Array, Constant};
 use crate::api::comm_comparison;
 use crate::api::data_type_coercion::numerical_arithmetic_coercion;
 use crate::api::data_value_operator::DataValueComparisonOperator;
+use crate::array::BooleanArray;
 use crate::compute::comparison::Operator;
 use crate::error::*;
 
 impl DataColumn {
     #[allow(unused)]
-    pub fn compare(&self, op: DataValueComparisonOperator, rhs: &DataColumn) -> Result<DataColumn> {
+    fn compare(&self, op: DataValueComparisonOperator, rhs: &DataColumn) -> Result<BooleanArray> {
         let op = match op {
             DataValueComparisonOperator::Eq => Operator::Eq,
             DataValueComparisonOperator::Lt => Operator::Lt,
@@ -16,39 +17,64 @@ impl DataColumn {
             DataValueComparisonOperator::Gt => Operator::Gt,
             DataValueComparisonOperator::GtEq => Operator::GtEq,
             DataValueComparisonOperator::NotEq => Operator::Neq,
-            DataValueComparisonOperator::Eq => Operator::Eq,
-            DataValueComparisonOperator::Like => Operator::LtEq,
-            DataValueComparisonOperator::NotLike => Operator::LtEq,
+            _ => {
+                return Err(ArrowError::NotYetImplemented(format!(
+                    "compare  {:?} is not supported",
+                    op
+                )));
+            }
         };
         use crate::api::prelude::DataValueArithmeticOperator::Plus;
         let dtype = numerical_arithmetic_coercion(&Plus, self.data_type(), rhs.data_type())?;
-        let l = DataColumn::data_type_to(self, &dtype)?;
-        let r = DataColumn::data_type_to(rhs, &dtype)?;
+        let l = self.cast_to(&dtype)?;
+        let r = rhs.cast_to(&dtype)?;
         match (&r, &l) {
             (Array(r_value), Array(l_value)) => {
-                Ok(
-                    comm_comparison::comparison_array(r_value.as_ref(), op, l_value.as_ref())?
-                        .into_data_column(),
-                )
+                comm_comparison::comparison_array(r_value.as_ref(), op, l_value.as_ref())
             }
             (Array(r_value), Constant(l_value, _)) => {
-                Ok(
-                    comm_comparison::comparison_scalar(r_value.as_ref(), op, l_value)?
-                        .into_data_column(),
-                )
+                comm_comparison::comparison_scalar(r_value.as_ref(), op, l_value)
             }
             (Constant(r_value, _), Array(l_value)) => {
-                Ok(
-                    comm_comparison::comparison_scalar(l_value.as_ref(), op, r_value)?
-                        .into_data_column(),
-                )
+                comm_comparison::comparison_scalar(l_value.as_ref(), op, r_value)
             }
-            (Constant(r_value, _), Constant(l_value, _)) => Ok(comm_comparison::comparison_array(
+            (Constant(r_value, _), Constant(l_value, _)) => comm_comparison::comparison_array(
                 l_value.0.to_boxed_array(1).as_ref(),
                 op,
                 r_value.0.to_boxed_array(1).as_ref(),
-            )?
-            .into_data_column()),
+            ),
         }
     }
+    fn eq(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.compare(DataValueComparisonOperator::Eq, rhs)
+    }
+    pub fn neq(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.compare(DataValueComparisonOperator::NotEq, rhs)
+    }
+
+    pub fn gt(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.compare(DataValueComparisonOperator::Gt, rhs)
+    }
+
+    pub fn gt_eq(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.compare(DataValueComparisonOperator::GtEq, rhs)
+    }
+
+    pub fn lt(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.compare(DataValueComparisonOperator::Lt, rhs)
+    }
+
+    pub fn lt_eq(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.compare(DataValueComparisonOperator::LtEq, rhs)
+    }
+
+    pub fn like(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.likes(false, rhs)
+    }
+
+    pub fn nlike(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+        self.likes(true, rhs)
+    }
+
+
 }

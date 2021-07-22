@@ -6,13 +6,13 @@ mod ffi;
 mod from;
 mod iterator;
 mod mutable;
-
+use crate::api::columns::DataColumn;
+use crate::api::prelude::Arc;
+use crate::api::scalar::DataValue;
+use crate::error::*;
 use crate::scalar::{BooleanScalar, Scalar};
 pub use iterator::*;
 pub use mutable::*;
-use crate::api::scalar::DataValue;
-use crate::api::prelude::Arc;
-use crate::api::columns::DataColumn;
 
 /// A [`BooleanArray`] is arrow's equivalent to `Vec<Option<bool>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable booleans.
@@ -121,10 +121,10 @@ impl Array for BooleanArray {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-
-    fn get_value(&self, idx: usize) -> DataValue {
-        BooleanScalar::new(Some(self.value(idx))).into_value()
+    fn get_value(&self, idx: usize) -> Result<DataValue> {
+        Ok(BooleanScalar::new(Some(unsafe { self.value_unchecked(idx) })).into_value())
     }
+
 }
 
 impl std::fmt::Display for BooleanArray {

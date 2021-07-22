@@ -44,8 +44,8 @@ impl Scalar for NullScalar {
     }
 
     #[inline]
-    fn to_boxed_array(&self, length: usize) -> Box<dyn Array> {
-        Box::new(NullArray::from_data(length))
+    fn to_boxed_array(&self, length: usize) -> Arc<dyn Array> {
+        Arc::new(NullArray::from_data(length))
     }
 
     fn into_value(self) -> DataValue where Self: Sized {

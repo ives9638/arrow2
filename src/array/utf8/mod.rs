@@ -10,11 +10,12 @@ mod ffi;
 mod from;
 mod iterator;
 mod mutable;
+use crate::api::columns::DataColumn;
+use crate::api::scalar::DataValue;
+use crate::error::*;
+use crate::scalar::{Scalar, Utf8Scalar};
 pub use iterator::*;
 pub use mutable::*;
-use crate::api::scalar::DataValue;
-use crate::scalar::{Utf8Scalar, Scalar};
-use crate::api::columns::DataColumn;
 use std::sync::Arc;
 
 /// A [`Utf8Array`] is arrow's equivalent of `Vec<Option<String>>`, i.e.
@@ -187,9 +188,8 @@ impl<O: Offset> Array for Utf8Array<O> {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-
-    fn get_value(&self, idx: usize) -> DataValue {
-        Utf8Scalar::<O>::new( Some(self.value(idx)) ).into_value()
+    fn get_value(&self, idx: usize) -> Result<DataValue> {
+        Ok(Utf8Scalar::<O>::new(Some(unsafe { self.value_unchecked(idx) })).into_value())
     }
 }
 

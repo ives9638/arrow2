@@ -59,16 +59,16 @@ impl<T: NativeType> Scalar for PrimitiveScalar<T>
     }
 
     #[inline]
-    fn to_boxed_array(&self, length: usize) -> Box<dyn Array> {
+    fn to_boxed_array(&self, length: usize) -> Arc<dyn Array> {
         if self.is_valid {
             let values = Buffer::from_trusted_len_iter(std::iter::repeat(self.value).take(length));
-            Box::new(PrimitiveArray::from_data(
+            Arc::new(PrimitiveArray::from_data(
                 self.data_type.clone(),
                 values,
                 None,
             ))
         } else {
-            Box::new(PrimitiveArray::<T>::new_null(
+            Arc::new(PrimitiveArray::<T>::new_null(
                 self.data_type.clone(),
                 length,
             ))

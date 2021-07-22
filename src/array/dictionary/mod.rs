@@ -135,9 +135,6 @@ impl<K: DictionaryKey> Array for DictionaryArray<K> {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-    fn get_value(&self, idx: usize) -> DataValue {
-       todo!()
-    }
 }
 
 impl<K: DictionaryKey> std::fmt::Display for DictionaryArray<K>

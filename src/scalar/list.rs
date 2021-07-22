@@ -64,7 +64,7 @@ impl<O: Offset> Scalar for ListScalar<O> {
         &self.data_type
     }
 
-    fn to_boxed_array(&self, length: usize) -> Box<dyn Array> {
+    fn to_boxed_array(&self, length: usize) -> Arc<dyn Array> {
         if self.is_valid {
             let offsets = (0..=length).map(|i| O::from_usize(i).unwrap() * self.length);
             let offsets = unsafe { Buffer::from_trusted_len_iter_unchecked(offsets) };
@@ -72,14 +72,14 @@ impl<O: Offset> Scalar for ListScalar<O> {
                 .take(self.length.to_usize())
                 .collect::<Vec<_>>();
             let values = crate::compute::concat::concatenate(&values).unwrap();
-            Box::new(ListArray::<O>::from_data(
+            Arc::new(ListArray::<O>::from_data(
                 self.data_type.clone(),
                 offsets,
                 values.into(),
                 None,
             ))
         } else {
-            Box::new(ListArray::<O>::new_null(self.data_type.clone(), length))
+            Arc::new(ListArray::<O>::new_null(self.data_type.clone(), length))
         }
     }
 

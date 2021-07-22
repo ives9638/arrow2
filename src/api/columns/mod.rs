@@ -1,19 +1,18 @@
-// Copyright 2020-2021 The Datafuse Authors.
-//
-// SPDX-License-Identifier: Apache-2.0.
+use std::ops::Deref;
+
+pub use data_column::*;
+
+use crate::api::scalar::DataValue;
+use crate::array::ArrayRef;
 
 mod arithmetic;
 mod data_column;
 mod comparison;
-mod get_value;
+mod base;
+mod string_operator;
+mod aggregate;
+mod kleenelogic;
 
-pub use data_column::*;
-
-
-
-use std::ops::Deref;
-use crate::array::ArrayRef;
-use crate::api::scalar::DataValue;
 
 #[derive(Clone)]
 pub enum DataColumn {
