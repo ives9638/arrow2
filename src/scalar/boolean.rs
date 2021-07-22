@@ -6,6 +6,7 @@ use crate::api::scalar::DataValue;
 use std::any::Any;
 use std::ops::Add;
 use std::sync::Arc;
+use crate::api::prelude::DataColumn;
 
 #[derive(Debug, Clone)]
 pub struct BooleanScalar {
@@ -58,7 +59,9 @@ impl Scalar for BooleanScalar {
             Arc::new(BooleanArray::new_null(length))
         }
     }
-
+    fn into_data_column(self) -> DataColumn {
+        DataColumn::Constant(self.into_value(), 1)
+    }
     fn into_value(self) -> DataValue
     where
         Self: Sized,

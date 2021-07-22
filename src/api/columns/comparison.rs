@@ -6,8 +6,30 @@ use crate::api::data_value_operator::DataValueComparisonOperator;
 use crate::array::BooleanArray;
 use crate::compute::comparison::Operator;
 use crate::error::*;
+use crate::api::prelude::{DataType, numerical_coercion};
 
 impl DataColumn {
+    fn coerce_cmp_lhs_rhs(lhs: &DataColumn, rhs: &DataColumn) -> Result<(DataColumn, DataColumn)> {
+        if lhs.data_type() == rhs.data_type()
+            && (lhs.data_type() == &DataType::Utf8 || lhs.data_type() == &DataType::Boolean)
+        {
+            return Ok((lhs.clone(), rhs.clone()));
+        }
+
+        let dtype = numerical_coercion(&lhs.data_type(), &rhs.data_type())?;
+
+        let mut left = lhs.clone();
+        if lhs.data_type() != &dtype {
+            left = lhs.cast_to(&dtype)?;
+        }
+
+        let mut right = rhs.clone();
+        if rhs.data_type() != &dtype {
+            right = rhs.cast_to(&dtype)?;
+        }
+
+        Ok((left, right))
+    }
     #[allow(unused)]
     fn compare(&self, op: DataValueComparisonOperator, rhs: &DataColumn) -> Result<BooleanArray> {
         let op = match op {
@@ -24,10 +46,7 @@ impl DataColumn {
                 )));
             }
         };
-        use crate::api::prelude::DataValueArithmeticOperator::Plus;
-        let dtype = numerical_arithmetic_coercion(&Plus, self.data_type(), rhs.data_type())?;
-        let l = self.cast_to(&dtype)?;
-        let r = rhs.cast_to(&dtype)?;
+        let (l,r) = DataColumn::coerce_cmp_lhs_rhs( self, rhs)?;
         match (&r, &l) {
             (Array(r_value), Array(l_value)) => {
                 comm_comparison::comparison_array(r_value.as_ref(), op, l_value.as_ref())
@@ -45,7 +64,7 @@ impl DataColumn {
             ),
         }
     }
-    fn eq(&self, rhs: &DataColumn) -> Result<BooleanArray> {
+    pub fn eq(&self, rhs: &DataColumn) -> Result<BooleanArray> {
         self.compare(DataValueComparisonOperator::Eq, rhs)
     }
     pub fn neq(&self, rhs: &DataColumn) -> Result<BooleanArray> {

@@ -2,6 +2,7 @@ use crate::{array::*, datatypes::DataType};
 
 use super::Scalar;
 
+use crate::api::prelude::DataColumn;
 use crate::api::scalar::DataValue;
 use std::any::Any;
 use std::ops::Add;
@@ -48,9 +49,13 @@ impl Scalar for NullScalar {
         Arc::new(NullArray::from_data(length))
     }
 
-    fn into_value(self) -> DataValue where Self: Sized {
+    fn into_value(self) -> DataValue
+    where
+        Self: Sized,
+    {
         todo!()
     }
-
-
+    fn into_data_column(self) -> DataColumn {
+        todo!()
+    }
 }

@@ -9,7 +9,7 @@ use crate::api::scalar::DataValue;
 use crate::api::columns::DataColumn;
 use crate::array::{Array, ArrayRef, Utf8Array, Int32Array, Float64Array, clone};
 use crate::datatypes::DataType;
-use crate::scalar::Int32Scalar;
+use crate::scalar::{Int32Scalar, Utf8Scalar, Scalar};
 use std::iter::FromIterator;
 use crate::error::*;
 use crate::api::data_value_operator::DataValueComparisonOperator;
@@ -57,25 +57,11 @@ impl DataColumn {
 
 #[test]
  fn new_test() {
-    let data = vec![Some(1), None, Some(10)];
-    let data1 = vec![Some(1.0), None, Some(10.0)];
     let bb = vec![Some("a"), None, Some("c")];
-    let a = Int32Scalar::new(DataType::Int32, Some(23));
-    let b = Int32Scalar::new(DataType::Int32, Some(2));
 
     let al = Utf8Array::<i32>::from_iter(bb);
-    let a3= Int32Array::from_iter(data);
-    let a2= Float64Array::from_iter(data1);
-    let q =  al.get_value(2).unwrap() ;
-
-    let q: String = q.into();
-
-    let c1 = a3.into_data_column();
-    let cc = (&c1 + &c1).unwrap();
-
-   // let ff = c1.compare(DataValueComparisonOperator::GtEq,&a2.into_data_column()).unwrap();
-  //  let ff:Option<i32> = c1.get_value(2).into();
-    let ff = DataColumn::concat(vec![c1.clone(),c1].as_slice()).unwrap();
-    let p = format!("{}", ff.get_array_ref().unwrap().as_ref());
+    let s = &al.into_data_column();
+    let rr = s.eq(  &Utf8Scalar::<i32>::new(Some("a")).into_data_column()).unwrap();
+    let p = format!("{}",  s.filter(&rr).unwrap().get_array_ref().unwrap());
     println!("{}",p)
 }

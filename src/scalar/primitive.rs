@@ -1,8 +1,9 @@
 use crate::{array::*, buffer::Buffer, datatypes::DataType, types::NativeType};
 
-use super::Scalar;
 use super::super::compute::cast;
 use super::super::error::*;
+use super::Scalar;
+use crate::api::prelude::DataColumn;
 use crate::api::scalar::DataValue;
 use num::{Num, NumCast, Zero};
 use std::any::Any;
@@ -41,8 +42,7 @@ impl<T: NativeType> PrimitiveScalar<T> {
     }
 }
 
-impl<T: NativeType> Scalar for PrimitiveScalar<T>
-{
+impl<T: NativeType> Scalar for PrimitiveScalar<T> {
     #[inline]
     fn as_any(&self) -> &dyn std::any::Any {
         self
@@ -81,8 +81,9 @@ impl<T: NativeType> Scalar for PrimitiveScalar<T>
     {
         DataValue(Arc::new(self))
     }
-
-
+    fn into_data_column(self) -> DataColumn {
+        DataColumn::Constant(self.into_value(), 1)
+    }
 }
 pub type Int8Scalar = PrimitiveScalar<i8>;
 

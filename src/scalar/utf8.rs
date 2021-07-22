@@ -3,6 +3,7 @@ use crate::{array::*, buffer::Buffer, datatypes::DataType};
 use super::Scalar;
 
 use super::super::error::*;
+use crate::api::prelude::DataColumn;
 use crate::api::scalar::DataValue;
 use std::ops::Add;
 use std::sync::Arc;
@@ -79,6 +80,7 @@ impl<O: Offset> Scalar for Utf8Scalar<O> {
     {
         DataValue(Arc::new(self))
     }
-
-
+    fn into_data_column(self) -> DataColumn {
+        DataColumn::Constant(self.into_value(), 1)
+    }
 }

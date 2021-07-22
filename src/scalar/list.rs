@@ -10,6 +10,7 @@ use crate::{
 use super::Scalar;
 use crate::api::scalar::DataValue;
 use std::ops::Add;
+use crate::api::prelude::DataColumn;
 
 /// The scalar equivalent of [`ListArray`]. Like [`ListArray`], this struct holds a dynamically-typed
 /// [`Array`]. The only difference is that this has only one element.
@@ -83,6 +84,9 @@ impl<O: Offset> Scalar for ListScalar<O> {
         }
     }
 
+    fn into_data_column(self) -> DataColumn {
+        DataColumn::Constant(self.clone().into_value(), self.length.to_usize() )
+    }
     fn into_value(self) -> DataValue
     where
         Self: Sized,

@@ -6,6 +6,7 @@ use crate::api::scalar::DataValue;
 use std::any::Any;
 use std::ops::{Add, Div, Mul, Sub};
 use std::sync::Arc;
+use crate::api::columns::DataColumn;
 
 #[derive(Debug, Clone)]
 pub struct BinaryScalar<O: Offset> {
@@ -71,6 +72,11 @@ impl<O: Offset> Scalar for BinaryScalar<O> {
             Arc::new(BinaryArray::<O>::new_null(length))
         }
     }
+
+    fn into_data_column(self) -> DataColumn {
+        DataColumn::Constant(self.into_value(), 1)
+    }
+
     #[inline]
     fn into_value(self) -> DataValue
     where

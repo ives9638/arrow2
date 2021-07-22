@@ -26,12 +26,14 @@ use std::ops::Deref;
 use std::sync::Arc;
 use crate::api::scalar::DataValue;
 use std::iter::FromIterator;
+use crate::api::prelude::DataColumn;
 
 pub trait Scalar: Send + Sync {
     fn as_any(&self) -> &dyn Any;
     fn is_valid(&self) -> bool;
     fn data_type(&self) -> &DataType;
     fn to_boxed_array(&self, length: usize) -> Arc<dyn Array>;
+    fn into_data_column(self) -> DataColumn;
     fn into_value(self) -> DataValue
     where
         Self: Sized;
