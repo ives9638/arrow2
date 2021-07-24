@@ -41,72 +41,49 @@ pub enum ValList {
     Binary(BinaryArray<i32>),
 }
 macro_rules! cast_to {
-    ($self:ident,$dt:ident,$it:ident,$me:ident) => {
-        {
-             if cast::can_cast_types($self.data_type(), &$dt) {
-                match $self {
-                    Self::I8Vec(_value) => Ok(cast::primitive_to_primitive::<i8, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::I16Vec(_value) => Ok(cast::primitive_to_primitive::<i16, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::I32Vec(_value) => Ok(cast::primitive_to_primitive::<i32, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::I64Vec(_value) => Ok(cast::primitive_to_primitive::<i64, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::U8Vec(_value) => Ok(cast::primitive_to_primitive::<u8, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::U16Vec(_value) => Ok(cast::primitive_to_primitive::<u16, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::U32Vec(_value) => Ok(cast::primitive_to_primitive::<u32, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::U64Vec(_value) => Ok(cast::primitive_to_primitive::<u64, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::F32Vec(_value) => Ok(cast::primitive_to_primitive::<f32, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::F64Vec(_value) => Ok(cast::primitive_to_primitive::<f64, $it>(
-                        &_value,
-                        &DataType::$dt,
-                    )),
-                    Self::String(_value) => {
-                        Ok(cast::utf8_to_primitive(&_value, &DataType::$dt))
-                    }
-                    _ => {
-                        Err(DowncastError {
-                            from: $self.type_name(),
-                            to: "$me",
-                        })
-                    }
-                }
-            } else {
-                Err(DowncastError {
-                    from: $self.type_name(),
-                    to: "$me",
-                })
-            }
+    ($self:ident,$dt:ident,$it:ident,$me:ident) => {{
+        if !cast::can_cast_types($self.data_type(), &$dt) {
+            return Err(DowncastError {
+                from: $self.type_name(),
+                to: "$me",
+            });
         }
-                    
-        
-    };
+        match $self {
+            Self::I8Vec(_value) => cast::primitive_to_primitive::<i8, $it>(&_value, &DataType::$dt),
+            Self::I16Vec(_value) => {
+                cast::primitive_to_primitive::<i16, $it>(&_value, &DataType::$dt)
+            }
+            Self::I32Vec(_value) => {
+                cast::primitive_to_primitive::<i32, $it>(&_value, &DataType::$dt)
+            }
+            Self::I64Vec(_value) => {
+                cast::primitive_to_primitive::<i64, $it>(&_value, &DataType::$dt)
+            }
+            Self::U8Vec(_value) => cast::primitive_to_primitive::<u8, $it>(&_value, &DataType::$dt),
+            Self::U16Vec(_value) => {
+                cast::primitive_to_primitive::<u16, $it>(&_value, &DataType::$dt)
+            }
+            Self::U32Vec(_value) => {
+                cast::primitive_to_primitive::<u32, $it>(&_value, &DataType::$dt)
+            }
+            Self::U64Vec(_value) => {
+                cast::primitive_to_primitive::<u64, $it>(&_value, &DataType::$dt)
+            }
+            Self::F32Vec(_value) => {
+                cast::primitive_to_primitive::<f32, $it>(&_value, &DataType::$dt)
+            }
+            Self::F64Vec(_value) => {
+                cast::primitive_to_primitive::<f64, $it>(&_value, &DataType::$dt)
+            }
+            Self::String(_value) => cast::utf8_to_primitive(&_value, &DataType::$dt),
+            _ => Err(DowncastError {
+                from: $self.type_name(),
+                to: "$me",
+            }),
+        }
+    }};
 }
-impl ValList  {
+impl ValList {
     pub fn type_name(&self) -> &'static str {
         match self {
             Self::BoolVec(_value) => "boolArray",
@@ -181,7 +158,6 @@ impl ValList  {
         }
     }
     pub fn into_boolVec(self) -> Result<BooleanArray, DowncastError> {
-
         if let Self::BoolVec(ret) = self {
             Ok(ret)
         } else {
@@ -199,7 +175,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,Int8,i8,I8Vec )
+            Ok(&cast_to!(self, Int8, i8, I8Vec))
         }
     }
     pub fn into_i8Vec(self) -> Result<Int8Array, DowncastError> {
@@ -211,7 +187,6 @@ impl ValList  {
                 to: "I8Vec",
             })
         }
-
     }
     pub fn is_i16Vec(&self) -> bool {
         matches!(self, Self::I16Vec(_))
@@ -221,7 +196,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,Int16,i16,I16Vec )
+            cast_to!(self, Int16, i16, I16Vec)
         }
     }
     pub fn into_i16Vec(self) -> Result<Int16Array, DowncastError> {
@@ -233,7 +208,6 @@ impl ValList  {
                 to: "I16Vec",
             })
         }
-
     }
     pub fn is_i32Vec(&self) -> bool {
         matches!(self, Self::I32Vec(_))
@@ -243,7 +217,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,Int32,i32,I32Vec )
+            cast_to!(self, Int32, i32, I32Vec)
         }
     }
     pub fn into_i32Vec(self) -> Result<Int32Array, DowncastError> {
@@ -255,7 +229,6 @@ impl ValList  {
                 to: "I32Vec",
             })
         }
-
     }
     pub fn is_i64Vec(&self) -> bool {
         matches!(self, Self::I64Vec(_))
@@ -265,11 +238,10 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,Int64,i64,I64Vec )
+            cast_to!(self, Int64, i64, I64Vec)
         }
     }
     pub fn into_i64Vec(self) -> Result<Int64Array, DowncastError> {
-
         if let Self::I64Vec(ret) = self {
             Ok(ret)
         } else {
@@ -287,7 +259,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,UInt64,u64,U64Vec )
+            cast_to!(self, UInt64, u64, U64Vec)
         }
     }
     pub fn into_u64Vec(self) -> Result<UInt64Array, DowncastError> {
@@ -299,7 +271,6 @@ impl ValList  {
                 to: "U64Vec",
             })
         }
-
     }
     pub fn is_u8Vec(&self) -> bool {
         matches!(self, Self::U8Vec(_))
@@ -309,7 +280,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,UInt8,u8,U8Vec )
+            cast_to!(self, UInt8, u8, U8Vec)
         }
     }
     pub fn into_u8Vec(self) -> Result<UInt8Array, DowncastError> {
@@ -330,7 +301,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,UInt16,u16,U16Vec )
+            cast_to!(self, UInt16, u16, U16Vec)
         }
     }
     pub fn into_u16Vec(self) -> Result<UInt16Array, DowncastError> {
@@ -351,7 +322,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,UInt32,u32,U32Vec )
+            cast_to!(self, UInt32, u32, U32Vec)
         }
     }
     pub fn into_u32Vec(self) -> Result<UInt32Array, DowncastError> {
@@ -363,7 +334,6 @@ impl ValList  {
                 to: "U32Vec",
             })
         }
-
     }
     pub fn is_f32Vec(&self) -> bool {
         matches!(self, Self::F32Vec(_))
@@ -373,11 +343,10 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,Float32,f32,f32Vec )
+            cast_to!(self, Float32, f32, f32Vec)
         }
     }
     pub fn into_f32Vec(self) -> Result<Float32Array, DowncastError> {
-
         if let Self::F32Vec(ret) = self {
             Ok(ret)
         } else {
@@ -395,7 +364,7 @@ impl ValList  {
             Ok(ret)
         } else {
             use crate::api::prelude::DataType::*;
-            cast_to!( self,Float64,f64,f64Vec )
+            cast_to!(self, Float64, f64, f64Vec)
         }
     }
 
@@ -410,8 +379,7 @@ impl ValList  {
         }
     }
 }
-impl ValList  {
-
+impl ValList {
     pub fn is_string(&self) -> bool {
         matches!(self, Self::String(_))
     }

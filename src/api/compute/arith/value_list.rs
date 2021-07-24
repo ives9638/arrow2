@@ -30,17 +30,17 @@ impl Add for &ValList {
     fn add(self, rhs: Self) -> Self::Output {
         match self {
             ValList::I8Vec(_value) => {
-                arithmetic_primitive(&_value, Operator::Add, &rhs.into_i8Vec().unwrap())
+                arithmetic_primitive(_value, Operator::Add, &rhs.into_i8Vec().unwrap())
                     .unwrap()
                     .into()
             }
             ValList::I16Vec(_value) => {
-                arithmetic_primitive(&_value, Operator::Add, &rhs.into_i16Vec().unwrap())
+                arithmetic_primitive(_value, Operator::Add, &rhs.into_i16Vec().unwrap())
                     .unwrap()
                     .into()
             }
             ValList::I32Vec(_value) => {
-                arithmetic_primitive(&_value, Operator::Add, &rhs.into_i32Vec().unwrap())
+                arithmetic_primitive(_value, Operator::Add, &rhs.into_i32Vec().unwrap())
                     .unwrap()
                     .into()
             }
