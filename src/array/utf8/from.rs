@@ -271,10 +271,11 @@ mod tests {
 
     #[test]
     fn test_from_iter_values() {
-        let b = Utf8Array::<i32>::from_iter_values(vec!["a", "b", "cc"]);
-
+        let b = Utf8Array::<i32>::from_iter_values(vec!["你", "b", "cc"]);
+        let s = b.value(0);
+        println!("{}",s);
         let offsets = Buffer::from(&[0, 1, 2, 4]);
-        let values = Buffer::from("abcc".as_bytes());
+        let values = Buffer::from("你bcc".as_bytes());
         assert_eq!(b, Utf8Array::<i32>::from_data(offsets, values, None));
     }
 }

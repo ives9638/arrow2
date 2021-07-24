@@ -2,15 +2,18 @@ use crate::api::columns::DataColumn;
 use crate::api::columns::DataColumn::{Array, Constant};
 use crate::api::prelude::*;
 use crate::api::scalar::DataValue;
-use crate::array::{Array as ArrowArray, BooleanArray, Int32Array, PrimitiveArray, UInt64Array};
+use crate::array::{Array as ArrowArray, BooleanArray, Int32Array, PrimitiveArray, UInt64Array, Utf8Array};
 use crate::compute;
 use crate::compute::take;
+use crate::trusted_len::TrustedLen;
+use crate::types::{NaturalDataType, NativeType};
+use crate::api::prelude::array::Offset;
 
 impl DataColumn {
-    pub fn get_value(&self, i: usize) -> DataValue {
+    pub fn try_get(&self, i: usize) -> Result<DataValue> {
         match self {
-            Array(array) => array.get_value(i).unwrap().clone(),
-            Constant(value, _) => value.clone(),
+            Array(array) => array.get_value(i),
+            Constant(value, _) => Ok(value.clone()),
         }
     }
     pub fn vec_hash(&self) -> Result<UInt64Array> {
@@ -48,5 +51,11 @@ impl DataColumn {
                 .into_data_column(),
         )
     }
+    pub fn from_array<I: TrustedLen<Item=T>,T>(iter: I) -> DataColumn  where T: NativeType + NaturalDataType {
+        PrimitiveArray::from_trusted_len_values_iter(iter).into_data_column()
+    }
 
+    pub fn from_U<I: TrustedLen<Item=T>,T>(iter: I) -> DataColumn  where T:  AsRef<str>{
+        Utf8Array::<i32>::from_trusted_len_values_iter(iter).into_data_column()
+    }
 }

@@ -7,14 +7,13 @@ use std::sync::Arc;
 use crate::api::scalar::DataValue;
 
 use crate::api::columns::DataColumn;
-use crate::array::{Array, ArrayRef, Utf8Array, Int32Array, Float64Array, clone};
-use crate::datatypes::DataType;
-use crate::scalar::{Int32Scalar, Utf8Scalar, Scalar};
-use std::iter::FromIterator;
-use crate::error::*;
 use crate::api::data_value_operator::DataValueComparisonOperator;
+use crate::array::{clone, Array, ArrayRef, Float64Array, Int32Array, Utf8Array};
+use crate::datatypes::DataType;
+use crate::error::*;
+use crate::scalar::{Int32Scalar, Scalar, Utf8Scalar};
+use std::iter::FromIterator;
 use std::ops::Deref;
-
 
 impl DataColumn {
     #[inline]
@@ -47,21 +46,27 @@ impl DataColumn {
     }
     pub fn get_array_ref(&self) -> Result<Arc<dyn Array>> {
         match self {
-            DataColumn::Array(array) => Ok( array.clone()),
-            DataColumn::Constant(scalar, size) => {
-                Ok( scalar.0.to_boxed_array( *size) )
-            }
+            DataColumn::Array(array) => Ok(array.clone()),
+            DataColumn::Constant(scalar, size) => Ok(scalar.0.to_boxed_array(*size)),
         }
     }
 }
 
 #[test]
- fn new_test() {
+fn new_test() {
     let bb = vec![Some("a"), None, Some("c")];
 
     let al = Utf8Array::<i32>::from_iter(bb);
     let s = &al.into_data_column();
-    let rr = s.eq(  &Utf8Scalar::<i32>::new(Some("a")).into_data_column()).unwrap();
-    let p = format!("{}",  s.filter(&rr).unwrap().get_array_ref().unwrap());
-    println!("{}",p)
+    let rr = s
+        .eq(&Utf8Scalar::<i32>::new(Some("a")).into_data_column())
+        .unwrap();
+    let p = format!(
+        "{}",
+        s.filter(&rr.get_array_ref().unwrap().as_any().downcast_ref().unwrap())
+            .unwrap()
+            .get_array_ref()
+            .unwrap()
+    );
+    println!("{}", p)
 }

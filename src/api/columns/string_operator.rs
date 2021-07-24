@@ -1,12 +1,12 @@
 use crate::api::columns::DataColumn::{Array, Constant};
 use crate::api::prelude::{ArrowError, DataColumn, DataType, DataValueComparisonOperator, Result};
 use crate::api::{comm_arithmetic, comm_comparison};
-use crate::array::BooleanArray;
+use crate::array::{Array as ArrowArray, BooleanArray};
 use crate::compute::substring::substring;
 
 impl DataColumn {
     #[allow(unused)]
-    pub(crate) fn likes(&self, not: bool, rhs: &DataColumn) -> Result<BooleanArray> {
+    pub(crate) fn likes(&self, not: bool, rhs: &DataColumn) -> Result<DataColumn> {
         if self.data_type() != rhs.data_type() || self.data_type() != &DataType::Utf8 {
             return Err(ArrowError::NotYetImplemented(format!(
                 "like not supported  {:?} , {:?}  for Operator like",
@@ -21,19 +21,28 @@ impl DataColumn {
         };
         match (self, rhs) {
             (Array(r_value), Array(l_value)) => {
-                comm_comparison::comparison_udf8_array(r_value.as_ref(), op, l_value.as_ref())
+                Ok(
+                    comm_comparison::comparison_udf8_array(r_value.as_ref(), op, l_value.as_ref())?
+                        .into_data_column(),
+                )
             }
             (Array(r), Constant(l, _)) => {
-                comm_comparison::comparison_udf8_scalar(r.as_ref(), op, l)
+                Ok(comm_comparison::comparison_udf8_scalar(r.as_ref(), op, l)?.into_data_column())
             }
             (Constant(r_value, _), Array(l_value)) => {
-                comm_comparison::comparison_udf8_scalar(l_value.as_ref(), op, r_value)
+                Ok(
+                    comm_comparison::comparison_udf8_scalar(l_value.as_ref(), op, r_value)?
+                        .into_data_column(),
+                )
             }
-            (Constant(r_value, _), Constant(l_value, _)) => comm_comparison::comparison_udf8_array(
-                l_value.0.to_boxed_array(1).as_ref(),
-                op,
-                r_value.0.to_boxed_array(1).as_ref(),
-            ),
+            (Constant(r_value, _), Constant(l_value, _)) => {
+                Ok(comm_comparison::comparison_udf8_array(
+                    l_value.0.to_boxed_array(1).as_ref(),
+                    op,
+                    r_value.0.to_boxed_array(1).as_ref(),
+                )?
+                .into_data_column())
+            }
         }
     }
     pub fn sub_str(&self, start: i64, length: &Option<u64>) -> Result<DataColumn> {
@@ -44,22 +53,26 @@ impl DataColumn {
             }
         }
     }
-    pub fn regex(&self, regx: &DataColumn) -> Result<BooleanArray> {
+    pub fn regex(&self, regx: &DataColumn) -> Result<DataColumn> {
         match (self, regx) {
-            (Array(r_value), Array(l_value)) => {
-                comm_comparison::comparison_udf_regex_array(r_value.as_ref(), l_value.as_ref())
-            }
+            (Array(r_value), Array(l_value)) => Ok(comm_comparison::comparison_udf_regex_array(
+                r_value.as_ref(),
+                l_value.as_ref(),
+            )?
+            .into_data_column()),
             (Array(r), Constant(l, _)) => {
-                comm_comparison::comparison_udf_regex_scalar(r.as_ref(), l)
+                Ok(comm_comparison::comparison_udf_regex_scalar(r.as_ref(), l)?.into_data_column())
             }
-            (Constant(r_value, _), Array(l_value)) => {
-                comm_comparison::comparison_udf_regex_scalar(l_value.as_ref(), r_value)
-            }
+            (Constant(r_value, _), Array(l_value)) => Ok(
+                comm_comparison::comparison_udf_regex_scalar(l_value.as_ref(), r_value)?
+                    .into_data_column(),
+            ),
             (Constant(r_value, _), Constant(l_value, _)) => {
-                comm_comparison::comparison_udf_regex_array(
+                Ok(comm_comparison::comparison_udf_regex_array(
                     l_value.0.to_boxed_array(1).as_ref(),
                     r_value.0.to_boxed_array(1).as_ref(),
-                )
+                )?
+                .into_data_column())
             }
         }
     }
