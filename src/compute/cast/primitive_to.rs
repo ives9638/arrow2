@@ -56,7 +56,19 @@ where
     let from = from.as_any().downcast_ref::<PrimitiveArray<I>>().unwrap();
     Ok(Box::new(primitive_to_primitive::<I, O>(from, to_type)))
 }
-
+pub fn primitive_to_primitive_1<I, O>(
+    from: &PrimitiveArray<I>,
+    to_type: &DataType,
+) ->Box< PrimitiveArray<O>>
+    where
+        I: NativeType + num::NumCast,
+        O: NativeType + num::NumCast,
+{
+    let iter = from
+        .iter()
+        .map(|v| v.and_then(|x| num::cast::cast::<I, O>(*x)));
+    Box::new(PrimitiveArray::<O>::from_trusted_len_iter(iter).to(to_type.clone()))
+}
 /// Cast [`PrimitiveArray`] to a [`PrimitiveArray`] of another physical type via numeric conversion.
 pub fn primitive_to_primitive<I, O>(
     from: &PrimitiveArray<I>,

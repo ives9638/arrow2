@@ -5,6 +5,4 @@ mod value_test;
 
 
 
-pub trait islist{}
-
 pub use lib::*;
