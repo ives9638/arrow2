@@ -2,17 +2,19 @@ use crate::api::prelude::array::*;
 use crate::api::prelude::DataType;
 
 use crate::api::prelude::cast;
+use crate::api::prelude::cast::primitive_to_primitive_1;
 use crate::api::types::lib::DowncastError;
 use crate::compute::cast::cast;
 use crate::datatypes::{Field, IntervalUnit, TimeUnit};
 use crate::trusted_len::TrustedLen;
 use crate::types::{NativeType, NaturalDataType};
+use chrono::format::Item;
 use std::cmp::Ordering;
 use std::ops::Add;
-use crate::api::prelude::cast::primitive_to_primitive_1;
- 
+use std::slice::Iter;
+
 #[derive(Clone, Debug)]
-pub enum ValList {
+pub enum List {
     Null(NullArray),
     Bool(BooleanArray),
 
@@ -39,10 +41,9 @@ pub enum ValList {
     Struct(Vec<Field>),
     Binary(BinaryArray<i32>),
 }
- 
-impl ValList {
-    pub fn type_name(&self) -> &'static str {
 
+impl List {
+    pub fn type_name(&self) -> &'static str {
         match self {
             Self::Bool(_value) => "boolArray",
 
@@ -102,14 +103,13 @@ impl ValList {
             }
         }
     }
-
 }
-impl ValList {
-    pub fn is_string(&self) -> bool {
+impl List {
+    pub fn is_str(&self) -> bool {
         matches!(self, Self::String(_))
     }
 
-    pub fn as_string(&self) -> Result<&Utf8Array<i32>, DowncastError> {
+    pub fn as_str(&self) -> Result<&Utf8Array<i32>, DowncastError> {
         if let Self::String(ret) = self {
             Ok(ret)
         } else {
@@ -120,7 +120,7 @@ impl ValList {
         }
     }
 
-    pub fn into_string(self) -> Result<Utf8Array<i32>, DowncastError> {
+    pub fn into_str(self) -> Result<Utf8Array<i32>, DowncastError> {
         if let Self::String(ret) = self {
             Ok(ret)
         } else {
@@ -183,104 +183,111 @@ impl ValList {
         }
     }
 }
-impl ValList {
-    pub fn from_vec<I: TrustedLen<Item = T>, T>(iter: I) ->Box<ValList>
-        where
-            ValList: From<PrimitiveArray<T>>,
-            T: NativeType + NaturalDataType,
+impl List {
+    pub fn from_vec<I: TrustedLen<Item = T>, T>(iter: I) -> Box<List>
+    where
+        List: From<PrimitiveArray<T>>,
+        T: NativeType + NaturalDataType,
     {
-       Box::new( PrimitiveArray::<T>::from_trusted_len_values_iter(iter).into())
+        Box::new(PrimitiveArray::<T>::from_trusted_len_values_iter(iter).into())
     }
-    pub fn from_str<I: TrustedLen<Item = O>, O>(iter: I) -> ValList
-        where
-            ValList: From<Utf8Array<i32>>,
-            O: AsRef<str>,
+
+    pub fn from_str<I: TrustedLen<Item = O>, O>(iter: I) -> List
+    where
+        List: From<Utf8Array<i32>>,
+        O: AsRef<str>,
     {
         Utf8Array::<i32>::from_trusted_len_values_iter(iter).into()
     }
+
 }
 
-impl<T> From<Box<T>> for ValList
-    where
-        T: Into<Self>,
+impl<T> From<Box<T>> for List
+where
+    T: Into<Self>,
 {
     fn from(value: Box<T>) -> Self {
         (*value).into()
     }
 }
-impl From<StructArray> for ValList {
+impl From<StructArray> for List {
     fn from(value: StructArray) -> Self {
         todo!()
     }
 }
 
-impl From<Utf8Array<i64>> for ValList {
+impl From<Utf8Array<i64>> for List {
     fn from(value: Utf8Array<i64>) -> Self {
         Self::Text(value)
     }
 }
-impl From<Utf8Array<i32>> for ValList {
+impl From<Utf8Array<i32>> for List {
     fn from(value: Utf8Array<i32>) -> Self {
         Self::String(value)
     }
 }
-impl From<NullArray> for ValList {
+impl From<NullArray> for List {
     fn from(value: NullArray) -> Self {
         Self::Null(value)
     }
 }
-impl From<Float32Array> for ValList {
+impl From<Float32Array> for List {
     fn from(value: Float32Array) -> Self {
         Self::F32(value)
     }
 }
 
-impl From<Float64Array> for ValList {
+impl From<Float64Array> for List {
     fn from(value: Float64Array) -> Self {
         Self::F64(value)
     }
 }
 
-impl From<UInt8Array> for ValList {
+impl From<UInt8Array> for List {
     fn from(value: UInt8Array) -> Self {
         Self::U8(value)
     }
 }
-impl From<UInt16Array> for ValList {
+impl From<UInt16Array> for List {
     fn from(value: UInt16Array) -> Self {
         Self::U16(value)
     }
 }
-impl From<UInt32Array> for ValList {
+impl From<UInt32Array> for List {
     fn from(value: UInt32Array) -> Self {
         Self::U32(value)
     }
 }
 
-impl From<UInt64Array> for ValList {
+impl From<UInt64Array> for List {
     fn from(value: UInt64Array) -> Self {
         Self::U64(value)
     }
 }
 
-impl From<Int16Array> for ValList {
+impl From<Int16Array> for List {
     fn from(value: Int16Array) -> Self {
         Self::I16(value)
     }
 }
 
-impl From<Int32Array> for ValList {
+impl From<Int32Array> for List {
     fn from(value: Int32Array) -> Self {
         Self::I32(value)
     }
 }
-impl From<Int64Array> for ValList {
+impl From<Int64Array> for List {
     fn from(value: Int64Array) -> Self {
         Self::I64(value)
     }
 }
-impl From<Int8Array> for ValList {
+impl From<Int8Array> for List {
     fn from(value: Int8Array) -> Self {
         Self::I8(value)
+    }
+}
+impl From<BooleanArray> for List {
+    fn from(value: BooleanArray) -> Self {
+        Self::Bool(value)
     }
 }
