@@ -6,7 +6,7 @@ use crate::trusted_len::TrustedLen;
 use crate::types::{NativeType, NaturalDataType};
 use std::cmp::Ordering;
 
-use crate::api::compute::cast::value::isval;
+use crate::api::compute::cast::value::Isval;
 
 #[derive(Clone, PartialEq,Debug)]
 pub enum Value {
@@ -21,6 +21,7 @@ pub enum Value {
     I64(i64),
     F32(f32),
     F64(f64),
+    Str(String)
 }
 
 impl Value {
@@ -37,6 +38,7 @@ impl Value {
             Self::I64(_value) => "i64",
             Self::F32(_value) => "f32",
             Self::F64(_value) => "f64",
+            Self::Str(_value) => "string",
         }
     }
 
@@ -97,6 +99,19 @@ impl From<f32> for Value {
 impl From<f64> for Value {
     fn from(value: f64) -> Self {
         Self::F64(value)
+    }
+}
+
+impl From<&str> for Value {
+    fn from(value: &str) -> Self {
+        Self::Str(value.to_string())
+    }
+}
+
+
+impl PartialEq<String> for Value {
+    fn eq(&self, other: &String) -> bool {
+        self.as_str().map(|strs| &strs == other).unwrap_or(false)
     }
 }
 impl PartialEq<bool> for Value {
@@ -169,6 +184,7 @@ impl PartialOrd for Value {
             (Self::I64(a), Self::I64(b)) => a.partial_cmp(b),
             (Self::F32(a), Self::F32(b)) => a.partial_cmp(b),
             (Self::F64(a), Self::F64(b)) => a.partial_cmp(b),
+            (Self::Str(a), Self::Str(b)) => a.partial_cmp(b),
             _ => None,
         }
     }

@@ -1,6 +1,6 @@
 use crate::api::types::value::Value;
 use crate::api::types::DowncastError;
-pub trait isval {
+pub trait Isval {
     fn is_bool(&self) -> bool;
 
     fn as_bool(&self) -> Result<bool, DowncastError>;
@@ -65,9 +65,13 @@ pub trait isval {
     fn as_f64(&self) -> Result<f64, DowncastError>;
 
     fn into_f64(self) -> Result<f64, DowncastError>;
+
+    fn is_str(&self) -> bool;
+
+    fn as_str(&self) -> Result<String, DowncastError>;
 }
 
-impl isval for Value {
+impl Isval for Value {
     fn is_bool(&self) -> bool {
         matches!(self, Self::Bool(_))
     }
@@ -350,6 +354,21 @@ impl isval for Value {
             Err(DowncastError {
                 from: self.type_name(),
                 to: "f64",
+            })
+        }
+    }
+
+    fn is_str(&self) -> bool {
+        matches!(self, Self::Str(_))
+    }
+
+    fn as_str(&self) -> Result<String, DowncastError> {
+        if let Self::Str(ret) = self {
+            Ok(ret.clone())
+        } else {
+            Err(DowncastError {
+                from: self.type_name(),
+                to: "string",
             })
         }
     }

@@ -1,2 +1,5 @@
 mod add;
-mod arithmetic_op;
+mod mul;
+mod div;
+mod sub;
+mod rem;

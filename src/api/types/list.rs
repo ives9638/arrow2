@@ -1,5 +1,5 @@
 use crate::api::prelude::array::*;
-use crate::api::prelude::DataType;
+use crate::api::prelude::{Arc, DataType};
 
 use crate::api::prelude::cast;
 use crate::api::prelude::cast::primitive_to_primitive_1;
@@ -15,31 +15,31 @@ use std::slice::Iter;
 
 #[derive(Clone, Debug)]
 pub enum List {
-    Null(NullArray),
-    Bool(BooleanArray),
+    Null(Arc<NullArray>),
+    Bool(Arc<BooleanArray>),
 
-    U8(UInt8Array),
-    U16(UInt16Array),
-    U32(UInt32Array),
-    U64(UInt64Array),
+    U8(Arc<UInt8Array>),
+    U16(Arc<UInt16Array>),
+    U32(Arc<UInt32Array>),
+    U64(Arc<UInt64Array>),
 
-    I8(Int8Array),
-    I16(Int16Array),
-    I32(Int32Array),
-    I64(Int64Array),
+    I8(Arc<Int8Array>),
+    I16(Arc<Int16Array>),
+    I32(Arc<Int32Array>),
+    I64(Arc<Int64Array>),
 
-    F32(Float32Array),
-    F64(Float64Array),
+    F32(Arc<Float32Array>),
+    F64(Arc<Float64Array>),
 
-    String(Utf8Array<i32>),
-    Text(Utf8Array<i64>),
+    String(Arc<Utf8Array<i32>>),
+    Text(Arc<Utf8Array<i64>>),
 
-    Date32(Int32Array),
-    Date64(Int64Array),
+    Date32(Arc<Int32Array>),
+    Date64(Arc<Int64Array>),
 
     List(Box<Field>),
     Struct(Vec<Field>),
-    Binary(BinaryArray<i32>),
+    Binary(Arc<BinaryArray<i32>>),
 }
 
 impl List {
@@ -109,46 +109,13 @@ impl List {
         matches!(self, Self::String(_))
     }
 
-    pub fn as_str(&self) -> Result<&Utf8Array<i32>, DowncastError> {
-        if let Self::String(ret) = self {
-            Ok(ret)
-        } else {
-            Err(DowncastError {
-                from: self.type_name(),
-                to: "String",
-            })
-        }
-    }
-
-    pub fn into_str(self) -> Result<Utf8Array<i32>, DowncastError> {
-        if let Self::String(ret) = self {
-            Ok(ret)
-        } else {
-            Err(DowncastError {
-                from: self.type_name(),
-                to: "String",
-            })
-        }
-    }
-
     pub fn is_text(&self) -> bool {
         matches!(self, Self::Text(_))
     }
 
-    pub fn as_text(&self) -> Result<&Utf8Array<i64>, DowncastError> {
+    pub fn as_text(&self) -> Result<Arc<Utf8Array<i64>>, DowncastError> {
         if let Self::Text(ret) = self {
-            Ok(ret)
-        } else {
-            Err(DowncastError {
-                from: self.type_name(),
-                to: "String",
-            })
-        }
-    }
-
-    pub fn into_text(self) -> Result<Utf8Array<i64>, DowncastError> {
-        if let Self::Text(ret) = self {
-            Ok(ret)
+            Ok(ret.clone())
         } else {
             Err(DowncastError {
                 from: self.type_name(),
@@ -162,17 +129,6 @@ impl List {
     }
 
     pub fn as_struct(&self) -> Result<&Vec<Field>, DowncastError> {
-        if let Self::Struct(ret) = self {
-            Ok(ret)
-        } else {
-            Err(DowncastError {
-                from: self.type_name(),
-                to: "Struct",
-            })
-        }
-    }
-
-    pub fn into_struct(self) -> Result<Vec<Field>, DowncastError> {
         if let Self::Struct(ret) = self {
             Ok(ret)
         } else {
@@ -199,7 +155,6 @@ impl List {
     {
         Utf8Array::<i32>::from_trusted_len_values_iter(iter).into()
     }
-
 }
 
 impl<T> From<Box<T>> for List
@@ -218,76 +173,76 @@ impl From<StructArray> for List {
 
 impl From<Utf8Array<i64>> for List {
     fn from(value: Utf8Array<i64>) -> Self {
-        Self::Text(value)
+        Self::Text(Arc::new(value))
     }
 }
 impl From<Utf8Array<i32>> for List {
     fn from(value: Utf8Array<i32>) -> Self {
-        Self::String(value)
+        Self::String(Arc::new(value))
     }
 }
 impl From<NullArray> for List {
     fn from(value: NullArray) -> Self {
-        Self::Null(value)
+        Self::Null(Arc::new(value))
     }
 }
 impl From<Float32Array> for List {
     fn from(value: Float32Array) -> Self {
-        Self::F32(value)
+        Self::F32(Arc::new(value))
     }
 }
 
 impl From<Float64Array> for List {
     fn from(value: Float64Array) -> Self {
-        Self::F64(value)
+        Self::F64(Arc::new(value))
     }
 }
 
 impl From<UInt8Array> for List {
     fn from(value: UInt8Array) -> Self {
-        Self::U8(value)
+        Self::U8(Arc::new(value))
     }
 }
 impl From<UInt16Array> for List {
     fn from(value: UInt16Array) -> Self {
-        Self::U16(value)
+        Self::U16(Arc::new(value))
     }
 }
 impl From<UInt32Array> for List {
     fn from(value: UInt32Array) -> Self {
-        Self::U32(value)
+        Self::U32(Arc::new(value))
     }
 }
 
 impl From<UInt64Array> for List {
     fn from(value: UInt64Array) -> Self {
-        Self::U64(value)
+        Self::U64(Arc::new(value))
     }
 }
 
 impl From<Int16Array> for List {
     fn from(value: Int16Array) -> Self {
-        Self::I16(value)
+        Self::I16(Arc::new(value))
     }
 }
 
 impl From<Int32Array> for List {
     fn from(value: Int32Array) -> Self {
-        Self::I32(value)
+        Self::I32(Arc::new(value))
     }
 }
 impl From<Int64Array> for List {
     fn from(value: Int64Array) -> Self {
-        Self::I64(value)
+        Self::I64(Arc::new(value))
     }
 }
 impl From<Int8Array> for List {
     fn from(value: Int8Array) -> Self {
-        Self::I8(value)
+        Self::I8(Arc::new(value))
     }
 }
 impl From<BooleanArray> for List {
     fn from(value: BooleanArray) -> Self {
-        Self::Bool(value)
+        Self::Bool(Arc::new(value))
     }
 }
