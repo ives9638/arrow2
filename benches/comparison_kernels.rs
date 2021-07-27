@@ -22,6 +22,7 @@ use criterion::Criterion;
 use arrow2::array::*;
 use arrow2::util::bench_util::*;
 use arrow2::{compute::comparison::*, datatypes::DataType, types::NativeType};
+use arrow2::io::ipc::gen::Schema::List;
 
 fn bench_op<T>(arr_a: &PrimitiveArray<T>, arr_b: &PrimitiveArray<T>, op: Operator)
 where
@@ -46,6 +47,8 @@ fn add_benchmark(c: &mut Criterion) {
     let size = 65536;
     let arr_a = create_primitive_array_with_seed::<f32>(size, DataType::Float32, 0.0, 42);
     let arr_b = create_primitive_array_with_seed::<f32>(size, DataType::Float32, 0.0, 43);
+
+
 
     c.bench_function("eq Float32", |b| {
         b.iter(|| bench_op(&arr_a, &arr_b, Operator::Eq))

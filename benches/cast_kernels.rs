@@ -17,7 +17,7 @@
 
 #[macro_use]
 extern crate criterion;
-use criterion::Criterion;
+use criterion::{criterion_group, criterion_main, Criterion};
 use rand::distributions::Uniform;
 use rand::Rng;
 
@@ -25,6 +25,7 @@ use arrow2::array::*;
 use arrow2::compute::cast;
 use arrow2::datatypes::*;
 use arrow2::util::bench_util::*;
+use arrow2::api::compute::cast::list::Islist;
 
 fn build_utf8_date_array(size: usize, with_nulls: bool) -> Utf8Array<i32> {
     use chrono::NaiveDate;
@@ -76,8 +77,11 @@ fn cast_array(array: &dyn Array, to_type: DataType) {
 }
 
 fn add_benchmark(c: &mut Criterion) {
-    let size = 512;
+    let size = 5120;
     let i32_array = create_primitive_array::<i32>(size, DataType::Int32, 0.1);
+
+    let list_i32_array = arrow2::api::types::list::List::from(i32_array.clone());
+
     let i64_array = create_primitive_array::<i64>(size, DataType::Int64, 0.1);
     let f32_array = create_primitive_array::<f32>(size, DataType::Float32, 0.1);
     let f32_utf8_array = cast::cast(&f32_array, &DataType::Utf8).unwrap();
@@ -102,6 +106,13 @@ fn add_benchmark(c: &mut Criterion) {
     c.bench_function("cast int32 to uint32 512", |b| {
         b.iter(|| cast_array(&i32_array, DataType::UInt32))
     });
+
+    c.bench_function("cast_list int32 to uint32 512", |b| {
+        b.iter(||
+                   criterion::black_box(list_i32_array.as_f32())
+        )
+    });
+
     c.bench_function("cast int32 to float32 512", |b| {
         b.iter(|| cast_array(&i32_array, DataType::Float32))
     });

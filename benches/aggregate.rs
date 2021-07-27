@@ -1,5 +1,4 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-
 use arrow2::array::*;
 use arrow2::util::bench_util::*;
 use arrow2::{compute::aggregate::*, datatypes::DataType};
@@ -14,8 +13,13 @@ fn bench_min(arr_a: &PrimitiveArray<f32>) {
 
 fn add_benchmark(c: &mut Criterion) {
     (10..=20).step_by(2).for_each(|log2_size| {
-        let size = 2usize.pow(log2_size);
+        let size = 2usize.pow(log2_size)*10000;
         let arr_a = create_primitive_array::<f32>(size, DataType::Float32, 0.0);
+        let list_a = arrow2::api::types::list::List::from(arr_a.clone());
+
+        c.bench_function(&format!("sum_list 2^{} f32", log2_size), |b| {
+            b.iter(|| criterion::black_box(&list_a).sum())
+        });
 
         c.bench_function(&format!("sum 2^{} f32", log2_size), |b| {
             b.iter(|| bench_sum(&arr_a))
@@ -25,6 +29,11 @@ fn add_benchmark(c: &mut Criterion) {
         });
 
         let arr_a = create_primitive_array::<f32>(size, DataType::Float32, 0.1);
+        let list_a = arrow2::api::types::list::List::from(arr_a.clone());
+        c.bench_function(&format!("sum null 2^{} f32", log2_size), |b| {
+            b.iter(|| criterion::black_box(&list_a).sum())
+        });
+
 
         c.bench_function(&format!("sum null 2^{} f32", log2_size), |b| {
             b.iter(|| bench_sum(&arr_a))
