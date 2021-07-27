@@ -22,3 +22,4 @@ pub mod util;
 // so that documentation gets test
 #[cfg(any(test, doctest))]
 mod docs;
+pub mod api;

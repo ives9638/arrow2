@@ -27,9 +27,9 @@ use crate::datatypes::{DataType, IntervalUnit};
 use crate::error::{ArrowError, Result};
 use crate::types::days_ms;
 
-mod boolean;
-mod primitive;
-mod utf8;
+pub mod boolean;
+pub mod primitive;
+pub mod utf8;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Operator {
