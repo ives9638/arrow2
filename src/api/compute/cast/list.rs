@@ -6,6 +6,7 @@ use crate::api::types::DowncastError;
 
 use crate::api::prelude::{Arc, DataType};
 
+
 pub trait Islist {
     fn as_bool(&self) -> Result<Arc<BooleanArray>, DowncastError>;
     fn as_i8(&self) -> Result<Arc<Int8Array>, DowncastError>;

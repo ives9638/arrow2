@@ -25,7 +25,7 @@ fn test_data_block() -> Result<(), ()> {
 
     let sum =  v.sum().unwrap();
     let max = v.max().unwrap();
-    let bol = v2.Lt(&v) ;
+    let bol = v2.lt(&v) ;
     let add = v2.add(&v);
     Ok(())
 }

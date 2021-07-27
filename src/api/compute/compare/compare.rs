@@ -12,7 +12,7 @@ use crate::api::prelude::ArrowError;
 impl ArrayComare<List> for List {
     type Output = BooleanArray;
 
-    fn Eq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
+    fn eq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::eq(_value, rhs.as_i8().unwrap().as_ref()),
             Self::I16(_value) => primitive::eq(_value, rhs.as_i16().unwrap().as_ref()),
@@ -39,7 +39,7 @@ impl ArrayComare<List> for List {
         }
     }
 
-    fn Neq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
+    fn n_eq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::neq(_value, rhs.as_i8().unwrap().as_ref()),
             Self::I16(_value) => primitive::neq(_value, rhs.as_i16().unwrap().as_ref()),
@@ -66,7 +66,7 @@ impl ArrayComare<List> for List {
         }
     }
 
-    fn Gt(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
+    fn gt(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::gt(_value, rhs.as_i8().unwrap().as_ref()),
             Self::I16(_value) => primitive::gt(_value, rhs.as_i16().unwrap().as_ref()),
@@ -93,7 +93,7 @@ impl ArrayComare<List> for List {
         }
     }
 
-    fn GtEq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
+    fn gt_eq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::gt_eq(_value, rhs.as_i8().unwrap().as_ref()),
             Self::I16(_value) => primitive::gt_eq(_value, rhs.as_i16().unwrap().as_ref()),
@@ -120,7 +120,7 @@ impl ArrayComare<List> for List {
         }
     }
 
-    fn Lt(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
+    fn lt(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::lt(_value, rhs.as_i8().unwrap().as_ref()),
             Self::I16(_value) => primitive::lt(_value, rhs.as_i16().unwrap().as_ref()),
@@ -147,7 +147,7 @@ impl ArrayComare<List> for List {
         }
     }
 
-    fn LtEq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
+    fn lt_eq(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::lt_eq(_value, rhs.as_i8().unwrap().as_ref()),
             Self::I16(_value) => primitive::lt_eq(_value, rhs.as_i16().unwrap().as_ref()),
@@ -200,7 +200,7 @@ impl ArrayComare<List> for List {
 impl ArrayComare<Value> for List {
     type Output = BooleanArray;
 
-    fn Eq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
+    fn eq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::eq_scalar(_value, rhs.as_i8().unwrap()),
             Self::I16(_value) => primitive::eq_scalar(_value, rhs.as_i16().unwrap()),
@@ -227,7 +227,7 @@ impl ArrayComare<Value> for List {
         }
     }
 
-    fn Neq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
+    fn n_eq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::neq_scalar(_value, rhs.as_i8().unwrap()),
             Self::I16(_value) => primitive::neq_scalar(_value, rhs.as_i16().unwrap()),
@@ -254,7 +254,7 @@ impl ArrayComare<Value> for List {
         }
     }
 
-    fn Gt(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
+    fn gt(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::gt_scalar(_value, rhs.as_i8().unwrap()),
             Self::I16(_value) => primitive::gt_scalar(_value, rhs.as_i16().unwrap()),
@@ -281,7 +281,7 @@ impl ArrayComare<Value> for List {
         }
     }
 
-    fn GtEq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
+    fn gt_eq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::gt_eq_scalar(_value, rhs.as_i8().unwrap()),
             Self::I16(_value) => primitive::gt_eq_scalar(_value, rhs.as_i16().unwrap()),
@@ -308,7 +308,7 @@ impl ArrayComare<Value> for List {
         }
     }
 
-    fn Lt(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
+    fn lt(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::lt_scalar(_value, rhs.as_i8().unwrap()),
             Self::I16(_value) => primitive::lt_scalar(_value, rhs.as_i16().unwrap()),
@@ -335,7 +335,7 @@ impl ArrayComare<Value> for List {
         }
     }
 
-    fn LtEq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
+    fn lt_eq(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => primitive::lt_eq_scalar(_value, rhs.as_i8().unwrap()),
             Self::I16(_value) => primitive::lt_eq_scalar(_value, rhs.as_i16().unwrap()),

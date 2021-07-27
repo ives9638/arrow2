@@ -17,8 +17,6 @@ impl List {
             Self::U32(_value) => Ok(hash_primitive(_value)),
             Self::U64(_value) => Ok(hash_primitive(_value)),
 
-            Self::F32(_value) => Ok(hash_primitive(_value)),
-            Self::F64(_value) => Ok(hash_primitive(_value)),
 
             Self::String(_value) => Ok(hash_utf8(_value)),
             Self::Text(_value) => Ok(hash_utf8(_value)),

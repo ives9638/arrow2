@@ -4,6 +4,7 @@ use crate::api::types::value::Value;
 use crate::compute::aggregate::*;
 
 impl List {
+    #[inline]
     pub fn sum(&self) -> Result<Value> {
         match self {
             Self::I8(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
@@ -26,6 +27,7 @@ impl List {
             ))),
         }
     }
+    #[inline]
     pub fn max(&self) -> Result<Value> {
         match self {
             Self::I8(_value) => Ok(Value::from(max_primitive(&_value).unwrap_or_default())),
@@ -51,6 +53,7 @@ impl List {
             ))),
         }
     }
+    #[inline]
     pub fn min(&self) -> Result<Value> {
         match self {
             Self::I8(_value) => Ok(Value::from(min_primitive(&_value).unwrap_or_default())),

@@ -55,7 +55,7 @@ impl DataColumn {
         PrimitiveArray::from_trusted_len_values_iter(iter).into_data_column()
     }
 
-    pub fn from_U<I: TrustedLen<Item=T>,T>(iter: I) -> DataColumn  where T:  AsRef<str>{
+    pub fn from_utf8<I: TrustedLen<Item=T>,T>(iter: I) -> DataColumn  where T:  AsRef<str>{
         Utf8Array::<i32>::from_trusted_len_values_iter(iter).into_data_column()
     }
 }

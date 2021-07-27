@@ -9,7 +9,7 @@ use crate::api::types::value::Value;
 impl ArrayAdd<List> for List
 {
     type Output = Self;
-
+    #[inline]
     fn add(&self, rhs: &List) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => Ok(_value.add(rhs.as_i8().unwrap().as_ref())?.into()),
@@ -36,7 +36,7 @@ impl ArrayAdd<Value> for List
 
 {
     type Output = Self;
-
+    #[inline]
     fn add(&self, rhs: &Value) -> crate::api::prelude::Result<Self::Output> {
         match self {
             Self::I8(_value) => Ok(_value.add(&rhs.as_i8().unwrap())?.into()),

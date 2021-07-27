@@ -23,7 +23,7 @@ use crate::{
     error::{ArrowError, Result},
 };
 
-fn utf8_substring<O: Offset>(array: &Utf8Array<O>, start: O, length: &Option<O>) -> Utf8Array<O> {
+pub fn utf8_substring<O: Offset>(array: &Utf8Array<O>, start: O, length: &Option<O>) -> Utf8Array<O> {
     let validity = array.validity();
     let offsets = array.offsets();
     let values = array.values();

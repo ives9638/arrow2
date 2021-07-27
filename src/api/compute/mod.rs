@@ -4,6 +4,8 @@ pub mod compare;
 pub mod agg;
 mod hash;
 mod utf8;
+mod logical;
+mod take;
 
 pub use arith::*;
 pub use cast::*;
