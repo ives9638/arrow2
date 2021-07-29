@@ -38,6 +38,76 @@ pub enum List {
     Struct(Arc<StructArray>),
     Binary(Arc<BinaryArray<i32>>),
 }
+macro_rules! pack_to {
+    ($name:ident,$ty:ident) => {
+       pub fn $name(list: &List, packed_value: $ty, pos: usize) -> Vec<$ty> {
+                match list {
+                    Self::Bool(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::I8(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::I16(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::I32(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::I64(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::U8(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::U16(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::U32(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::U64(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+
+                    Self::Date32(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+                    Self::Date64(_value) => _value
+                        .values()
+                        .iter()
+                        .map(|val| packed_value | (*val as $ty) << (pos))
+                        .collect_vec(),
+
+                    _ => {
+                        todo!()
+                    }
+                }
+            }
+
+    };
+}
+
 
 impl List {
     #[inline]
@@ -82,71 +152,7 @@ impl List {
             _ => unimplemented!(),
         }
     }
-    #[inline]
-    pub fn pack_to_u128(list: &List, packed_value: u128, pos: usize) -> Vec<u128> {
-        match list {
-            Self::Bool(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (val as u128) << (pos))
-                .collect_vec(),
-            Self::I8(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::I16(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::I32(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::I64(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::U8(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::U16(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::U32(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::U64(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
 
-            Self::Date32(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-            Self::Date64(_value) => _value
-                .values()
-                .iter()
-                .map(|val| packed_value | (*val as u128) << (pos))
-                .collect_vec(),
-
-            _ => {
-                todo!()
-            }
-        }
-    }
     #[inline]
     pub fn get_array_ref(self) -> ArrayRef {
         match self {
@@ -367,7 +373,12 @@ impl List {
         Arc::new(Utf8Array::<i32>::from_trusted_len_values_iter(iter).into())
     }
 }
-
+impl List {
+    pack_to!(pack_to_u128,u128);
+    pack_to!(pack_to_u64,u64);
+    pack_to!(pack_to_u32,u32);
+    pack_to!(pack_to_u8,u8);
+}
 impl<T> From<Box<T>> for List
 where
     T: Into<Self>,

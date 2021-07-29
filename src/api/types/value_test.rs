@@ -28,7 +28,7 @@ fn test_data_block() -> Result<(), ()> {
     let v = List::from(array2);
 
 
-    let binArray = List::pack_to_uk(&v,0u128,0);
+    let binArray = List::pack_to_u128(&v,0u128,0);
 
     let mut packed_value = 0u128;
     let aa = 32i32;
