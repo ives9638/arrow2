@@ -96,7 +96,7 @@ impl<'a, T: NativeType> From<GrowablePrimitive<'a, T>> for PrimitiveArray<T> {
 mod tests {
     use super::*;
 
-    use crate::array::PrimitiveArray;
+    use crate::array::{PrimitiveArray, MutablePrimitiveArray};
     use crate::datatypes::DataType;
 
     /// tests extending from a primitive array w/ offset nor nulls
@@ -121,6 +121,7 @@ mod tests {
         let expected = PrimitiveArray::<u8>::from(vec![Some(2), Some(3)]).to(DataType::UInt8);
         assert_eq!(result, expected);
     }
+
 
     /// tests extending from a primitive array with offset and nulls
     #[test]

@@ -8,6 +8,7 @@ use crate::{
 };
 
 use super::{ffi::ToFfi, new_empty_array, new_null_array, Array, FromFfi};
+use crate::api::types::list::List;
 
 #[derive(Debug, Clone)]
 pub struct StructArray {
@@ -106,6 +107,8 @@ impl Array for StructArray {
     fn validity(&self) -> &Option<Bitmap> {
         &self.validity
     }
+
+
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))

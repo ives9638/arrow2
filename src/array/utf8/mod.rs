@@ -12,6 +12,8 @@ mod iterator;
 mod mutable;
 pub use iterator::*;
 pub use mutable::*;
+use crate::api::types::list::List;
+use crate::api::prelude::Arc;
 
 /// A [`Utf8Array`] is arrow's equivalent of `Vec<Option<String>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable strings.
@@ -181,6 +183,7 @@ impl<O: Offset> Array for Utf8Array<O> {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
+
 }
 
 impl<O: Offset> std::fmt::Display for Utf8Array<O> {

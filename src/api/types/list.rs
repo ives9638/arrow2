@@ -1,11 +1,15 @@
-
 use crate::api::prelude::array::*;
-use crate::api::prelude::{Arc, ArrowError, DataType};
+use crate::api::prelude::{array, Arc, ArrowError, DataType};
 
 use crate::api::types::lib::DowncastError;
 
+use crate::datatypes::IntervalUnit;
 use crate::trusted_len::TrustedLen;
 use crate::types::{NativeType, NaturalDataType};
+use flatbuffers::EndianScalar;
+use futures::future::ok;
+use itertools::Itertools;
+
 #[derive(Clone, Debug)]
 pub enum List {
     Null(Arc<NullArray>),
@@ -36,6 +40,139 @@ pub enum List {
 }
 
 impl List {
+    #[inline]
+    pub fn new_empty(data_type: DataType) -> Self {
+        match data_type {
+            DataType::Null => List::Null(Arc::new(NullArray::new_empty())),
+            DataType::Boolean => List::Bool(Arc::new(BooleanArray::new_empty())),
+            DataType::Int8 => List::I8(Arc::new(Int8Array::new_empty(data_type))),
+            DataType::Int16 => List::I16(Arc::new(Int16Array::new_empty(data_type))),
+            DataType::Int32
+            | DataType::Date32
+            | DataType::Time32(_)
+            | DataType::Interval(IntervalUnit::YearMonth) => {
+                List::I32(Arc::new(Int32Array::new_empty(data_type)))
+            }
+            DataType::Int64
+            | DataType::Date64
+            | DataType::Time64(_)
+            | DataType::Timestamp(_, _)
+            | DataType::Duration(_) => List::I64(Arc::new(Int64Array::new_empty(data_type))),
+
+            DataType::UInt8 => List::U8(Arc::new(UInt8Array::new_empty(data_type))),
+            DataType::UInt16 => List::U16(Arc::new(UInt16Array::new_empty(data_type))),
+            DataType::UInt32 => List::U32(Arc::new(UInt32Array::new_empty(data_type))),
+            DataType::UInt64 => List::U64(Arc::new(UInt64Array::new_empty(data_type))),
+            DataType::Float16 => unreachable!(),
+            DataType::Float32 => List::F32(Arc::new(Float32Array::new_empty(data_type))),
+            DataType::Float64 => List::F64(Arc::new(Float64Array::new_empty(data_type))),
+            DataType::Binary => List::Binary(Arc::new(BinaryArray::<i32>::new_empty())),
+            DataType::LargeBinary => unreachable!(),
+            DataType::FixedSizeBinary(_) => unreachable!(),
+            DataType::Utf8 => List::String(Arc::new(Utf8Array::<i32>::new_empty())),
+            DataType::LargeUtf8 => List::Text(Arc::new(Utf8Array::<i64>::new_empty())),
+            DataType::List(_) => List::List(Arc::new(ListArray::<i32>::new_empty(data_type))),
+            DataType::LargeList(_) => unreachable!(),
+            DataType::FixedSizeList(_, _) => unreachable!(),
+            DataType::Struct(fields) => {
+                List::Struct(Arc::new(StructArray::new_empty(fields.as_slice())))
+            }
+            DataType::Union(_) => unimplemented!(),
+            DataType::Dictionary(key_type, value_type) => unimplemented!(),
+            _ => unimplemented!(),
+        }
+    }
+    #[inline]
+    pub fn pack_to_u128(list: &List, packed_value: u128, pos: usize) -> Vec<u128> {
+        match list {
+            Self::Bool(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (val as u128) << (pos))
+                .collect_vec(),
+            Self::I8(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::I16(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::I32(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::I64(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::U8(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::U16(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::U32(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::U64(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+
+            Self::Date32(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+            Self::Date64(_value) => _value
+                .values()
+                .iter()
+                .map(|val| packed_value | (*val as u128) << (pos))
+                .collect_vec(),
+
+            _ => {
+                todo!()
+            }
+        }
+    }
+    #[inline]
+    pub fn get_array_ref(self) -> ArrayRef {
+        match self {
+            Self::Bool(_value) => _value as ArrayRef,
+            Self::I8(_value) => _value as ArrayRef,
+            Self::I16(_value) => _value as ArrayRef,
+            Self::I32(_value) => _value as ArrayRef,
+            Self::I64(_value) => _value as ArrayRef,
+            Self::U8(_value) => _value as ArrayRef,
+            Self::U16(_value) => _value as ArrayRef,
+            Self::U32(_value) => _value as ArrayRef,
+            Self::U64(_value) => _value as ArrayRef,
+            Self::F32(_value) => _value as ArrayRef,
+            Self::F64(_value) => _value as ArrayRef,
+            Self::String(_value) => _value as ArrayRef,
+            Self::Text(_value) => _value as ArrayRef,
+            Self::Date32(_value) => _value as ArrayRef,
+            Self::Date64(_value) => _value as ArrayRef,
+            Self::List(_value) => _value as ArrayRef,
+            Self::Struct(_value) => _value as ArrayRef,
+            Self::Binary(_value) => _value as ArrayRef,
+            _ => {
+                todo!()
+            }
+        }
+    }
     #[inline]
     pub fn slice(&self, offset: usize, length: usize) -> Result<List, ArrowError> {
         match self {
@@ -197,7 +334,7 @@ impl List {
             })
         }
     }
-
+    #[inline]
     pub fn is_struct(&self) -> bool {
         matches!(self, Self::Struct(_))
     }
@@ -245,7 +382,7 @@ impl From<StructArray> for List {
     #[inline]
 
     fn from(_value: StructArray) -> Self {
-        todo!()
+        Self::Struct(Arc::new(_value))
     }
 }
 
@@ -344,4 +481,3 @@ impl From<ListArray<i32>> for List {
         Self::List(Arc::new(value))
     }
 }
-

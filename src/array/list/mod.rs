@@ -17,6 +17,7 @@ mod iterator;
 pub use iterator::*;
 mod mutable;
 pub use mutable::*;
+use crate::api::types::list::List;
 
 #[derive(Debug, Clone)]
 pub struct ListArray<O: Offset> {
@@ -166,6 +167,7 @@ impl<O: Offset> Array for ListArray<O> {
     fn data_type(&self) -> &DataType {
         &self.data_type
     }
+
 
     #[inline]
     fn validity(&self) -> &Option<Bitmap> {

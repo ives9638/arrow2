@@ -27,6 +27,7 @@ use crate::{
     datatypes::{DataType, IntervalUnit},
 };
 
+
 /// A trait representing an immutable Arrow array. Arrow arrays are trait objects
 /// that are infalibly downcasted to concrete types according to the [`Array::data_type`].
 pub trait Array: std::fmt::Debug + Send + Sync {
@@ -131,8 +132,8 @@ pub trait MutableArray: std::fmt::Debug {
             .map(|x| x.get(index))
             .unwrap_or(true)
     }
-}
 
+}
 macro_rules! general_dyn {
     ($array:expr, $ty:ty, $f:expr) => {{
         let array = $array.as_any().downcast_ref::<$ty>().unwrap();
@@ -521,4 +522,6 @@ mod tests {
 
 // backward compatibility
 use std::sync::Arc;
+use crate::api::types::list::List;
+
 pub type ArrayRef = Arc<dyn Array>;

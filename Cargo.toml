@@ -17,6 +17,7 @@ bench = false
 [dependencies]
 num = "^0.3"
 chrono = "^0.4"
+byteorder="1.4.3"
 # To efficiently cast numbers to strings
 lexical-core = "^0.7"
 # We need to Hash values before sending them to an hasher. This

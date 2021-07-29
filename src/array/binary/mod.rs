@@ -11,6 +11,8 @@ pub use iterator::*;
 mod from;
 mod mutable;
 pub use mutable::*;
+use crate::api::types::list::List;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct BinaryArray<O: Offset> {
@@ -117,9 +119,12 @@ impl<O: Offset> Array for BinaryArray<O> {
         &self.validity
     }
 
+
+
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
+
 }
 
 impl<O: Offset> std::fmt::Display for BinaryArray<O> {

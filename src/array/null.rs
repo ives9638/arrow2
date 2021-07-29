@@ -1,6 +1,8 @@
 use crate::{bitmap::Bitmap, datatypes::DataType};
 
 use super::{ffi::ToFfi, Array};
+use crate::api::types::list::List;
+use crate::api::prelude::Arc;
 
 /// The concrete [`Array`] of [`DataType::Null`].
 #[derive(Debug, Clone)]
