@@ -407,6 +407,7 @@ impl List {
     pack_to!(pack_to_u64, u64);
     pack_to!(pack_to_u32, u32);
     pack_to!(pack_to_u8, u8);
+    pack_to!(pack_to_u16,u16) ;
 }
 
 impl<T> From<Box<T>> for List

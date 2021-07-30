@@ -26,7 +26,6 @@ fn test_data_block()  {
 
     let v = List::from(array2);
 
-
     let binArray = List::pack_to_u128(&v,0u128,0);
 
     let mut packed_value = 0u128;

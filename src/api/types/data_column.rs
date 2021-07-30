@@ -55,7 +55,13 @@ impl DataColumn {
             DataColumn::Constant(_, size) => *size == 0,
         }
     }
-
+    #[inline]
+    pub fn slice(&self, offset: usize, length: usize) -> DataColumn {
+        match self {
+            DataColumn::Array(array) => DataColumn::Array(array.slice(offset, length).unwrap()),
+            DataColumn::Constant(scalar, _) => DataColumn::Constant(scalar.clone(), length),
+        }
+    }
     #[inline]
     pub fn get_array_memory_size(&self) -> usize {
         match self {
