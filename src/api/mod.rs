@@ -4,9 +4,12 @@ use crate::datatypes::IntervalUnit;
 use crate::types::days_ms;
 
 
-pub mod types;
-pub mod prelude;
-pub mod compute;
+mod types;
+mod prelude;
+mod compute;
+
+pub use types::*;
+pub use compute::*;
 
 pub fn  empty_array(data_type: DataType) -> ArrayRef {
     match data_type {

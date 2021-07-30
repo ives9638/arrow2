@@ -522,6 +522,4 @@ mod tests {
 
 // backward compatibility
 use std::sync::Arc;
-use crate::api::types::list::List;
-
 pub type ArrayRef = Arc<dyn Array>;

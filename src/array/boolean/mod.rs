@@ -9,8 +9,7 @@ mod mutable;
 
 pub use iterator::*;
 pub use mutable::*;
-use crate::api::prelude::Arc;
-use crate::api::types::list::List;
+
 
 /// A [`BooleanArray`] is arrow's equivalent to `Vec<Option<bool>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable booleans.

@@ -6,8 +6,8 @@ use crate::api::types::lib::DowncastError;
 use crate::datatypes::IntervalUnit;
 use crate::trusted_len::TrustedLen;
 use crate::types::{NativeType, NaturalDataType};
-use flatbuffers::EndianScalar;
-use futures::future::ok;
+
+use crate::api::types::value::Value;
 use itertools::Itertools;
 
 #[derive(Clone, Debug)]
@@ -40,74 +40,73 @@ pub enum List {
 }
 macro_rules! pack_to {
     ($name:ident,$ty:ident) => {
-       pub fn $name(list: &List, packed_value: $ty, pos: usize) -> Vec<$ty> {
-                match list {
-                    Self::Bool(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::I8(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::I16(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::I32(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::I64(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::U8(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::U16(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::U32(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::U64(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
+        #[inline]
+        pub fn $name(list: &List, packed_value: $ty, pos: usize) -> Vec<$ty> {
+            match list {
+                Self::Bool(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (val as $ty) << (pos))
+                    .collect_vec(),
+                Self::I8(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::I16(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::I32(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::I64(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::U8(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::U16(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::U32(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::U64(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
 
-                    Self::Date32(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
-                    Self::Date64(_value) => _value
-                        .values()
-                        .iter()
-                        .map(|val| packed_value | (*val as $ty) << (pos))
-                        .collect_vec(),
+                Self::Date32(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
+                Self::Date64(_value) => _value
+                    .values()
+                    .iter()
+                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .collect_vec(),
 
-                    _ => {
-                        todo!()
-                    }
+                _ => {
+                    todo!()
                 }
             }
-
+        }
     };
 }
-
 
 impl List {
     #[inline]
@@ -152,7 +151,27 @@ impl List {
             _ => unimplemented!(),
         }
     }
-
+    pub fn get_value(&self, i: usize) -> Result<Value, ArrowError> {
+        match self {
+            Self::Bool(_value) => Ok(_value.value(i).into()),
+            Self::I8(_value) => Ok(_value.value(i).into()),
+            Self::I16(_value) => Ok(_value.value(i).into()),
+            Self::I32(_value) => Ok(_value.value(i).into()),
+            Self::I64(_value) => Ok(_value.value(i).into()),
+            Self::U8(_value) => Ok(_value.value(i).into()),
+            Self::U16(_value) => Ok(_value.value(i).into()),
+            Self::U32(_value) => Ok(_value.value(i).into()),
+            Self::U64(_value) => Ok(_value.value(i).into()),
+            Self::F32(_value) => Ok(_value.value(i).into()),
+            Self::F64(_value) => Ok(_value.value(i).into()),
+            Self::Date32(_value) => Ok(_value.value(i).into()),
+            Self::Date64(_value) => Ok(_value.value(i).into()),
+            Self::String(_value) => Ok(_value.value(i).into()),
+            _ => {
+                todo!()
+            }
+        }
+    }
     #[inline]
     pub fn get_array_ref(self) -> ArrayRef {
         match self {
@@ -179,6 +198,7 @@ impl List {
             }
         }
     }
+
     #[inline]
     pub fn slice(&self, offset: usize, length: usize) -> Result<List, ArrowError> {
         match self {
@@ -357,6 +377,15 @@ impl List {
     }
 }
 impl List {
+    pub fn from_PrimitiveArray<T: NativeType + NaturalDataType, P: AsRef<[Option<T>]>>(
+        slice: P,
+    ) -> Self
+    where
+        List: From<PrimitiveArray<T>>,
+    {
+        PrimitiveArray::<T>::from(slice).into()
+    }
+
     pub fn from_vec<I: TrustedLen<Item = T>, T>(iter: I) -> Arc<List>
     where
         List: From<PrimitiveArray<T>>,
@@ -374,11 +403,12 @@ impl List {
     }
 }
 impl List {
-    pack_to!(pack_to_u128,u128);
-    pack_to!(pack_to_u64,u64);
-    pack_to!(pack_to_u32,u32);
-    pack_to!(pack_to_u8,u8);
+    pack_to!(pack_to_u128, u128);
+    pack_to!(pack_to_u64, u64);
+    pack_to!(pack_to_u32, u32);
+    pack_to!(pack_to_u8, u8);
 }
+
 impl<T> From<Box<T>> for List
 where
     T: Into<Self>,
@@ -490,5 +520,132 @@ impl From<ListArray<i32>> for List {
     #[inline]
     fn from(value: ListArray<i32>) -> Self {
         Self::List(Arc::new(value))
+    }
+}
+impl From<Box<dyn Array>> for List {
+    fn from(_array: Box<dyn Array>) -> Self {
+        match _array.data_type() {
+            DataType::Null => List::Null(Arc::new(
+                _array.as_any().downcast_ref::<NullArray>().unwrap().clone(),
+            )),
+            DataType::Boolean => List::Bool(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<BooleanArray>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::Int8 => List::I8(Arc::new(
+                _array.as_any().downcast_ref::<Int8Array>().unwrap().clone(),
+            )),
+            DataType::Int16 => List::I16(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<Int16Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::Int32
+            | DataType::Date32
+            | DataType::Time32(_)
+            | DataType::Interval(IntervalUnit::YearMonth) => List::I32(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<Int32Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::Int64
+            | DataType::Date64
+            | DataType::Time64(_)
+            | DataType::Timestamp(_, _)
+            | DataType::Duration(_) => List::I64(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<Int64Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+
+            DataType::UInt8 => List::U8(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<UInt8Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::UInt16 => List::U16(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<UInt16Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::UInt32 => List::U32(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<UInt32Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::UInt64 => List::U64(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<UInt64Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::Float16 => unreachable!(),
+            DataType::Float32 => List::F32(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<Float32Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::Float64 => List::F64(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<Float64Array>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::Binary => List::Binary(Arc::new(BinaryArray::<i32>::new_empty())),
+            DataType::LargeBinary => unreachable!(),
+            DataType::FixedSizeBinary(_) => unreachable!(),
+            DataType::Utf8 => List::String(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<Utf8Array<i32>>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::LargeUtf8 => List::Text(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<Utf8Array<i64>>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::List(_) => List::List(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<ListArray<i32>>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::LargeList(_) => unreachable!(),
+            DataType::FixedSizeList(_, _) => unreachable!(),
+            DataType::Struct(fields) => List::Struct(Arc::new(
+                _array
+                    .as_any()
+                    .downcast_ref::<StructArray>()
+                    .unwrap()
+                    .clone(),
+            )),
+            DataType::Union(_) => unimplemented!(),
+            DataType::Dictionary(key_type, value_type) => unimplemented!(),
+            _ => unimplemented!(),
+        }
     }
 }

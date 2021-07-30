@@ -1,13 +1,18 @@
 #![allow(unused_variables, dead_code, missing_docs)]
-pub mod arith;
-pub mod cast;
-pub mod compare;
-pub mod agg;
+mod agg;
+mod arith;
+mod cast;
+mod compare;
 mod hash;
-mod utf8;
 mod logical;
 mod take;
+mod utf8;
 
+pub use agg::*;
 pub use arith::*;
 pub use cast::*;
 pub use compare::*;
+pub use hash::*;
+pub use logical::*;
+pub use take::*;
+pub use utf8::*;

@@ -1,4 +1,4 @@
-use crate::api::types::value::Value;
+use crate::api::Value;
 use crate::api::types::DowncastError;
 pub trait Isval {
     fn is_bool(&self) -> bool;

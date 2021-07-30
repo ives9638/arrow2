@@ -1,8 +1,17 @@
+use crate::api::compute::value::Isval;
+use crate::api::prelude::array::{
+    Float32Array, Float64Array, Int16Array, Int32Array, Int64Array, Int8Array, UInt16Array,
+    UInt32Array, UInt64Array, UInt8Array,
+};
+use crate::api::prelude::DataType;
 
+use crate::array::{BooleanArray, Utf8Array};
+use crate::datatypes::DataType::UInt8;
+use crate::types::NativeType;
 use std::cmp::Ordering;
-use crate::api::compute::cast::value::Isval;
+use crate::api::List;
 
-#[derive(Clone, PartialEq,Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Value {
     Bool(bool),
     U8(u8),
@@ -15,7 +24,7 @@ pub enum Value {
     I64(i64),
     F32(f32),
     F64(f64),
-    Str(String)
+    Str(String),
 }
 
 impl Value {
@@ -36,9 +45,73 @@ impl Value {
         }
     }
 
+    pub fn into_list(&self, size: usize) -> List {
+        match self {
+            Self::Bool(_value) => {
+                BooleanArray::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::U8(_value) => {
+                UInt8Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::I8(_value) => {
+                Int8Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::U16(_value) => {
+                UInt16Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::I16(_value) => {
+                Int16Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::U32(_value) => {
+                UInt32Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::I32(_value) => {
+                Int32Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::U64(_value) => {
+                UInt64Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::I64(_value) => {
+                Int64Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::F32(_value) => {
+                Float32Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::F64(_value) => {
+                Float64Array::from_trusted_len_iter(vec![Some(*_value); size].into_iter()).into()
+            }
+            Self::Str(_value) => {
+                Utf8Array::<i32>::from_trusted_len_iter(vec![Some(_value); size].into_iter()).into()
+            }
+        }
+    }
+
+    #[inline]
+    pub fn data_type(&self) -> &DataType {
+        match self {
+            Self::Bool(_value) => &DataType::Boolean,
+
+            Self::I8(_value) => &DataType::Int8,
+            Self::I16(_value) => &DataType::Int16,
+            Self::I32(_value) => &DataType::Int32,
+            Self::I64(_value) => &DataType::Int64,
+
+            Self::U8(_value) => &DataType::UInt8,
+            Self::U16(_value) => &DataType::UInt16,
+            Self::U32(_value) => &DataType::UInt32,
+            Self::U64(_value) => &DataType::UInt64,
+
+            Self::F32(_value) => &DataType::Float32,
+            Self::F64(_value) => &DataType::Float64,
+
+            Self::Str(_value) => &DataType::Utf8,
+
+            _ => {
+                todo!()
+            }
+        }
+    }
 }
-
-
 
 impl From<bool> for Value {
     fn from(value: bool) -> Self {
@@ -101,7 +174,6 @@ impl From<&str> for Value {
         Self::Str(value.to_string())
     }
 }
-
 
 impl PartialEq<String> for Value {
     fn eq(&self, other: &String) -> bool {

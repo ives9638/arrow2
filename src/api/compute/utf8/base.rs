@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 use crate::api::prelude::substring::{utf8_substring};
 use crate::api::prelude::{ArrowError, Result};
-use crate::api::types::list::List;
+use crate::api::List;
+
 
 impl List {
     pub fn sub_string(&self, start: i64, length: &Option<i64>) -> Result<Self> {

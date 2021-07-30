@@ -1,21 +1,20 @@
-use crate::api::prelude::arithmetics::ArrayAdd;
-use crate::api::prelude::array::{Int32Array, Int8Array, Array};
+use crate::api::prelude::*;
 
-use crate::api::compute::cast::list::Islist;
-use crate::api::compute::cast::value::Isval;
-use crate::api::compute::ArrayComare;
-use crate::api::types::list::List;
+
+
 use crate::compute::cast;
 use crate::datatypes::DataType;
-use itertools::Format;
+use itertools::{Format, Itertools};
 use std::fmt::Display;
 use crate::buffer::bytes::Bytes;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::convert::TryInto;
 use crate::array::BinaryArray;
+use futures::StreamExt;
+use std::collections::HashMap;
 
 #[test]
-fn test_data_block() -> Result<(), ()> {
+fn test_data_block()  {
     let data = vec![Some(8i8), None, Some(9)];
     let data2 = vec![Some(8111112), Some(111111182), Some(111111219)];
 
@@ -45,7 +44,13 @@ fn test_data_block() -> Result<(), ()> {
     packed_value =  packed_value | (c as u128) << (64 + 32);
     let ts = packed_value.to_le_bytes();
 
+    let lookup: HashMap<&i32,Vec<(i32)>>  = [1,2,2,2,1].iter().zip(9..19).into_group_map_by( |x| x.0).into_iter().map(|x|{
+        (x.0, x.1.iter().map(|n| n.1).collect_vec())
+    }).collect();
 
 
-    Ok(())
+    let data2 = vec![Some(8111112), Some(111111182), Some(111111219),Some(1),Some(3),Some(4)];
+    let indices = vec![1, 2, 3, 1, 3, 2,];
+    let f  =List::from_PrimitiveArray(data2.as_slice()).scatter_unchecked(  &mut indices.into_iter(),3 );
+
 }

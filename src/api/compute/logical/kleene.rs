@@ -1,6 +1,6 @@
 use crate::api::compute::cast::list::Islist;
 use crate::api::prelude::{ArrowError, Result};
-use crate::api::types::list::List;
+use crate::api::List;
 use crate::array::BooleanArray;
 use crate::compute;
 

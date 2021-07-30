@@ -15,8 +15,7 @@ mod iterator;
 pub use iterator::*;
 mod mutable;
 pub use mutable::*;
-use crate::api::types::list::List;
-use crate::api::prelude::Arc;
+
 use crate::buffer::bytes::Bytes;
 
 /// A [`PrimitiveArray`] is arrow's equivalent to `Vec<Option<T: NativeType>>`, i.e.

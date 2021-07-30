@@ -1,9 +1,8 @@
 use crate::api::compute::cast::list::Islist;
 use crate::api::compute::cast::value::Isval;
+use crate::api::prelude::*;
 use crate::api::prelude::arithmetics::ArrayMul;
-use crate::api::prelude::ArrowError;
-use crate::api::types::list::List;
-use crate::api::types::value::Value;
+
 
 impl ArrayMul<List> for List {
     type Output = Self;

@@ -1,6 +1,6 @@
 use crate::api::prelude::array::{ UInt64Array};
 use crate::api::prelude::{ArrowError, Result};
-use crate::api::types::list::List;
+use crate::api::List;
 
 use crate::compute::hash::{hash_boolean, hash_primitive, hash_utf8};
 

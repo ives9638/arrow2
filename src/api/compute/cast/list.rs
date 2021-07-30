@@ -1,9 +1,9 @@
-use crate::api::prelude::array::*;
-use crate::api::prelude::cast::*;
-use crate::api::types::list::List;
-use crate::api::types::DowncastError;
 
+use crate::api::prelude::cast::*;
+use crate::api::types::DowncastError;
+use crate::api::prelude::array::*;
 use crate::api::prelude::{Arc, DataType};
+use crate::api::List;
 
 
 pub trait Islist {

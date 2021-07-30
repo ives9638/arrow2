@@ -2,8 +2,8 @@ use crate::api::compute::cast::list::Islist;
 use crate::api::compute::cast::value::Isval;
 use crate::api::prelude::array::BooleanArray;
 use crate::api::prelude::{ArrowError, Result};
-use crate::api::types::list::List;
-use crate::api::types::value::Value;
+use crate::api::List;
+use crate::api::Value;
 use crate::compute::regex_match;
 
 pub trait Regex<RHS> {

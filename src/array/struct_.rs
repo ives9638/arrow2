@@ -8,7 +8,7 @@ use crate::{
 };
 
 use super::{ffi::ToFfi, new_empty_array, new_null_array, Array, FromFfi};
-use crate::api::types::list::List;
+
 
 #[derive(Debug, Clone)]
 pub struct StructArray {
