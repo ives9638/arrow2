@@ -1,4 +1,4 @@
-use crate::api::prelude::array::{ UInt64Array};
+use crate::api::prelude::array::{UInt64Array, Array};
 use crate::api::prelude::{ArrowError, Result};
 use crate::api::List;
 

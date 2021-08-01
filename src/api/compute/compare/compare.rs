@@ -1,7 +1,7 @@
 use crate::api::compute::cast::list::Islist;
 use crate::api::compute::cast::value::Isval;
 use crate::api::compute::compare::ArrayComare;
-use crate::api::prelude::array::BooleanArray;
+use crate::api::prelude::array::{BooleanArray, Array};
 use crate::api::prelude::like::{like_utf8, like_utf8_scalar, nlike_utf8};
 use crate::api::List;
 use crate::api::Value;

@@ -3,6 +3,7 @@ use crate::api::prelude::{ArrowError, Result};
 use crate::api::List;
 use crate::array::BooleanArray;
 use crate::compute;
+use crate::api::prelude::array::Array;
 
 impl List {
     pub fn and(&self, rhs: &Self) -> Result<BooleanArray> {

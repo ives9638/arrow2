@@ -7,6 +7,7 @@ mod hash;
 mod logical;
 mod take;
 mod utf8;
+mod filter;
 
 pub use agg::*;
 pub use arith::*;
@@ -16,3 +17,4 @@ pub use hash::*;
 pub use logical::*;
 pub use take::*;
 pub use utf8::*;
+pub use filter::*;

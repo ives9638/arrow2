@@ -2,6 +2,7 @@
 use crate::api::prelude::substring::{utf8_substring};
 use crate::api::prelude::{ArrowError, Result};
 use crate::api::List;
+use crate::api::prelude::array::Array;
 
 
 impl List {

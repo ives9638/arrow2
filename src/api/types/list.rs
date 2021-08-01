@@ -8,7 +8,9 @@ use crate::trusted_len::TrustedLen;
 use crate::types::{NativeType, NaturalDataType};
 
 use crate::api::types::value::Value;
+use crate::bitmap::Bitmap;
 use itertools::Itertools;
+use std::any::Any;
 
 #[derive(Clone, Debug)]
 pub enum List {
@@ -107,6 +109,232 @@ macro_rules! pack_to {
         }
     };
 }
+impl Array for List {
+    #[inline]
+    fn as_any(&self) -> &dyn Any {
+        match self {
+            Self::Bool(_value) => _value.as_any(),
+
+            Self::I8(_value) => _value.as_any(),
+            Self::I16(_value) => _value.as_any(),
+            Self::I32(_value) => _value.as_any(),
+            Self::I64(_value) => _value.as_any(),
+
+            Self::U8(_value) => _value.as_any(),
+            Self::U16(_value) => _value.as_any(),
+            Self::U32(_value) => _value.as_any(),
+            Self::U64(_value) => _value.as_any(),
+
+            Self::F32(_value) => _value.as_any(),
+            Self::F64(_value) => _value.as_any(),
+
+            Self::String(_value) => _value.as_any(),
+            Self::Text(_value) => _value.as_any(),
+
+            Self::Date32(_value) => _value.as_any(),
+            Self::Date64(_value) => _value.as_any(),
+
+            Self::List(_value) => _value.as_any(),
+            Self::Binary(_value) => _value.as_any(),
+            Self::Null(_value) => _value.as_any(),
+
+            Self::Struct(_value) => _value.as_any(),
+        }
+    }
+    #[inline]
+    fn len(&self) -> usize {
+        match self {
+            Self::Null(_value) => _value.len(),
+            Self::Bool(_value) => _value.len(),
+
+            Self::I8(_value) => _value.len(),
+            Self::I16(_value) => _value.len(),
+            Self::I32(_value) => _value.len(),
+            Self::I64(_value) => _value.len(),
+
+            Self::U8(_value) => _value.len(),
+            Self::U16(_value) => _value.len(),
+            Self::U32(_value) => _value.len(),
+            Self::U64(_value) => _value.len(),
+
+            Self::F32(_value) => _value.len(),
+            Self::F64(_value) => _value.len(),
+
+            Self::String(_value) => _value.len(),
+            Self::Text(_value) => _value.len(),
+
+            Self::Date32(_value) => _value.len(),
+            Self::Date64(_value) => _value.len(),
+
+            Self::List(_value) => _value.len(),
+            Self::Binary(_value) => _value.len(),
+            Self::Struct(_value) => _value.len(),
+        }
+    }
+
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    #[inline]
+    fn data_type(&self) -> &DataType {
+        match self {
+            Self::Bool(_value) => _value.data_type(),
+
+            Self::I8(_value) => _value.data_type(),
+            Self::I16(_value) => _value.data_type(),
+            Self::I32(_value) => _value.data_type(),
+            Self::I64(_value) => _value.data_type(),
+
+            Self::U8(_value) => _value.data_type(),
+            Self::U16(_value) => _value.data_type(),
+            Self::U32(_value) => _value.data_type(),
+            Self::U64(_value) => _value.data_type(),
+
+            Self::F32(_value) => _value.data_type(),
+            Self::F64(_value) => _value.data_type(),
+
+            Self::String(_value) => _value.data_type(),
+            Self::Text(_value) => _value.data_type(),
+
+            Self::Date32(_value) => _value.data_type(),
+            Self::Date64(_value) => _value.data_type(),
+
+            Self::List(_value) => _value.data_type(),
+            Self::Binary(_value) => _value.data_type(),
+            Self::Null(_value) => _value.data_type(),
+
+            Self::Struct(_value) => _value.data_type(),
+        }
+    }
+
+    fn validity(&self) -> &Option<Bitmap> {
+        match self {
+            Self::Bool(_value) => _value.validity(),
+
+            Self::I8(_value) => _value.validity(),
+            Self::I16(_value) => _value.validity(),
+            Self::I32(_value) => _value.validity(),
+            Self::I64(_value) => _value.validity(),
+
+            Self::U8(_value) => _value.validity(),
+            Self::U16(_value) => _value.validity(),
+            Self::U32(_value) => _value.validity(),
+            Self::U64(_value) => _value.validity(),
+
+            Self::F32(_value) => _value.validity(),
+            Self::F64(_value) => _value.validity(),
+
+            Self::String(_value) => _value.validity(),
+            Self::Text(_value) => _value.validity(),
+
+            Self::Date32(_value) => _value.validity(),
+            Self::Date64(_value) => _value.validity(),
+
+            Self::List(_value) => _value.validity(),
+            Self::Binary(_value) => _value.validity(),
+            Self::Null(_value) => _value.validity(),
+
+            Self::Struct(_value) => _value.validity(),
+        }
+    }
+
+    fn null_count(&self) -> usize {
+        match self {
+            Self::Bool(_value) => _value.null_count(),
+
+            Self::I8(_value) => _value.null_count(),
+            Self::I16(_value) => _value.null_count(),
+            Self::I32(_value) => _value.null_count(),
+            Self::I64(_value) => _value.null_count(),
+
+            Self::U8(_value) => _value.null_count(),
+            Self::U16(_value) => _value.null_count(),
+            Self::U32(_value) => _value.null_count(),
+            Self::U64(_value) => _value.null_count(),
+
+            Self::F32(_value) => _value.null_count(),
+            Self::F64(_value) => _value.null_count(),
+
+            Self::String(_value) => _value.null_count(),
+            Self::Text(_value) => _value.null_count(),
+
+            Self::Date32(_value) => _value.null_count(),
+            Self::Date64(_value) => _value.null_count(),
+
+            Self::List(_value) => _value.null_count(),
+            Self::Binary(_value) => _value.null_count(),
+            Self::Null(_value) => _value.null_count(),
+
+            Self::Struct(_value) => _value.null_count(),
+        }
+    }
+    fn is_null(&self, i: usize) -> bool {
+        match self {
+            Self::Bool(_value) => _value.is_null(i),
+
+            Self::I8(_value) => _value.is_null(i),
+            Self::I16(_value) => _value.is_null(i),
+            Self::I32(_value) => _value.is_null(i),
+            Self::I64(_value) => _value.is_null(i),
+
+            Self::U8(_value) => _value.is_null(i),
+            Self::U16(_value) => _value.is_null(i),
+            Self::U32(_value) => _value.is_null(i),
+            Self::U64(_value) => _value.is_null(i),
+
+            Self::F32(_value) => _value.is_null(i),
+            Self::F64(_value) => _value.is_null(i),
+
+            Self::String(_value) => _value.is_null(i),
+            Self::Text(_value) => _value.is_null(i),
+
+            Self::Date32(_value) => _value.is_null(i),
+            Self::Date64(_value) => _value.is_null(i),
+
+            Self::List(_value) => _value.is_null(i),
+            Self::Binary(_value) => _value.is_null(i),
+            Self::Null(_value) => _value.is_null(i),
+
+            Self::Struct(_value) => _value.is_null(i),
+        }
+    }
+    fn is_valid(&self, i: usize) -> bool {
+        match self {
+            Self::Bool(_value) => _value.is_valid(i),
+
+            Self::I8(_value) => _value.is_valid(i),
+            Self::I16(_value) => _value.is_valid(i),
+            Self::I32(_value) => _value.is_valid(i),
+            Self::I64(_value) => _value.is_valid(i),
+
+            Self::U8(_value) => _value.is_valid(i),
+            Self::U16(_value) => _value.is_valid(i),
+            Self::U32(_value) => _value.is_valid(i),
+            Self::U64(_value) => _value.is_valid(i),
+
+            Self::F32(_value) => _value.is_valid(i),
+            Self::F64(_value) => _value.is_valid(i),
+
+            Self::String(_value) => _value.is_valid(i),
+            Self::Text(_value) => _value.is_valid(i),
+
+            Self::Date32(_value) => _value.is_valid(i),
+            Self::Date64(_value) => _value.is_valid(i),
+
+            Self::List(_value) => _value.is_valid(i),
+            Self::Binary(_value) => _value.is_valid(i),
+            Self::Null(_value) => _value.is_valid(i),
+
+            Self::Struct(_value) => _value.is_valid(i),
+        }
+    }
+
+    fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
+        todo!()
+    }
+}
 
 impl List {
     #[inline]
@@ -173,34 +401,7 @@ impl List {
         }
     }
     #[inline]
-    pub fn get_array_ref(self) -> ArrayRef {
-        match self {
-            Self::Bool(_value) => _value as ArrayRef,
-            Self::I8(_value) => _value as ArrayRef,
-            Self::I16(_value) => _value as ArrayRef,
-            Self::I32(_value) => _value as ArrayRef,
-            Self::I64(_value) => _value as ArrayRef,
-            Self::U8(_value) => _value as ArrayRef,
-            Self::U16(_value) => _value as ArrayRef,
-            Self::U32(_value) => _value as ArrayRef,
-            Self::U64(_value) => _value as ArrayRef,
-            Self::F32(_value) => _value as ArrayRef,
-            Self::F64(_value) => _value as ArrayRef,
-            Self::String(_value) => _value as ArrayRef,
-            Self::Text(_value) => _value as ArrayRef,
-            Self::Date32(_value) => _value as ArrayRef,
-            Self::Date64(_value) => _value as ArrayRef,
-            Self::List(_value) => _value as ArrayRef,
-            Self::Struct(_value) => _value as ArrayRef,
-            Self::Binary(_value) => _value as ArrayRef,
-            _ => {
-                todo!()
-            }
-        }
-    }
-
-    #[inline]
-    pub fn slice(&self, offset: usize, length: usize) -> Result<List, ArrowError> {
+    pub fn slices(&self, offset: usize, length: usize) -> Result<List, ArrowError> {
         match self {
             Self::Bool(_value) => Ok(Self::Bool(Arc::new(_value.slice(offset, length)))),
             Self::I8(_value) => Ok(Self::I8(Arc::new(_value.slice(offset, length)))),
@@ -228,38 +429,29 @@ impl List {
         }
     }
     #[inline]
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-    #[inline]
-    pub fn len(&self) -> usize {
+    pub fn get_array_ref(self) -> ArrayRef {
         match self {
-            Self::Null(_value) => _value.len(),
-            Self::Bool(_value) => _value.len(),
-
-            Self::I8(_value) => _value.len(),
-            Self::I16(_value) => _value.len(),
-            Self::I32(_value) => _value.len(),
-            Self::I64(_value) => _value.len(),
-
-            Self::U8(_value) => _value.len(),
-            Self::U16(_value) => _value.len(),
-            Self::U32(_value) => _value.len(),
-            Self::U64(_value) => _value.len(),
-
-            Self::F32(_value) => _value.len(),
-            Self::F64(_value) => _value.len(),
-
-            Self::String(_value) => _value.len(),
-            Self::Text(_value) => _value.len(),
-
-            Self::Date32(_value) => _value.len(),
-            Self::Date64(_value) => _value.len(),
-
-            Self::List(_value) => _value.len(),
-            Self::Binary(_value) => _value.len(),
-            Self::Struct(_value) => _value.len(),
-            _ => 0,
+            Self::Bool(_value) => _value as ArrayRef,
+            Self::I8(_value) => _value as ArrayRef,
+            Self::I16(_value) => _value as ArrayRef,
+            Self::I32(_value) => _value as ArrayRef,
+            Self::I64(_value) => _value as ArrayRef,
+            Self::U8(_value) => _value as ArrayRef,
+            Self::U16(_value) => _value as ArrayRef,
+            Self::U32(_value) => _value as ArrayRef,
+            Self::U64(_value) => _value as ArrayRef,
+            Self::F32(_value) => _value as ArrayRef,
+            Self::F64(_value) => _value as ArrayRef,
+            Self::String(_value) => _value as ArrayRef,
+            Self::Text(_value) => _value as ArrayRef,
+            Self::Date32(_value) => _value as ArrayRef,
+            Self::Date64(_value) => _value as ArrayRef,
+            Self::List(_value) => _value as ArrayRef,
+            Self::Struct(_value) => _value as ArrayRef,
+            Self::Binary(_value) => _value as ArrayRef,
+            _ => {
+                todo!()
+            }
         }
     }
     #[inline]
@@ -290,38 +482,6 @@ impl List {
             Self::Struct(_value) => "Struct",
             Self::Binary(_value) => "Binary",
             Self::Null(_value) => "NULL",
-        }
-    }
-    #[inline]
-    pub fn data_type(&self) -> &DataType {
-        match self {
-            Self::Bool(_value) => _value.data_type(),
-
-            Self::I8(_value) => _value.data_type(),
-            Self::I16(_value) => _value.data_type(),
-            Self::I32(_value) => _value.data_type(),
-            Self::I64(_value) => _value.data_type(),
-
-            Self::U8(_value) => _value.data_type(),
-            Self::U16(_value) => _value.data_type(),
-            Self::U32(_value) => _value.data_type(),
-            Self::U64(_value) => _value.data_type(),
-
-            Self::F32(_value) => _value.data_type(),
-            Self::F64(_value) => _value.data_type(),
-
-            Self::String(_value) => _value.data_type(),
-            Self::Text(_value) => _value.data_type(),
-
-            Self::Date32(_value) => _value.data_type(),
-            Self::Date64(_value) => _value.data_type(),
-
-            Self::List(_value) => _value.data_type(),
-            Self::Binary(_value) => _value.data_type(),
-            Self::Null(_value) => _value.data_type(),
-            _ => {
-                todo!()
-            }
         }
     }
 }
@@ -377,7 +537,7 @@ impl List {
     }
 }
 impl List {
-    pub fn from_PrimitiveArray<T: NativeType + NaturalDataType, P: AsRef<[Option<T>]>>(
+    pub fn from_primitive_array<T: NativeType + NaturalDataType, P: AsRef<[Option<T>]>>(
         slice: P,
     ) -> Self
     where
@@ -407,7 +567,7 @@ impl List {
     pack_to!(pack_to_u64, u64);
     pack_to!(pack_to_u32, u32);
     pack_to!(pack_to_u8, u8);
-    pack_to!(pack_to_u16,u16) ;
+    pack_to!(pack_to_u16, u16);
 }
 
 impl<T> From<Box<T>> for List

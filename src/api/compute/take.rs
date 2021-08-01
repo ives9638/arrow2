@@ -1,4 +1,4 @@
-use crate::api::prelude::array::PrimitiveArray;
+use crate::api::prelude::array::{PrimitiveArray, Array};
 use crate::api::prelude::take;
 use crate::api::prelude::take::{boolean, primitive, utf8};
 use crate::api::prelude::{ArrowError, Result};
