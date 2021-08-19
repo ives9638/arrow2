@@ -4,6 +4,7 @@ use crate::api::types::value::Value;
 use crate::api::List;
 use crate::api::list::Islist;
 use crate::api::prelude::array::Array;
+use std::borrow::Borrow;
 
 #[derive(Clone, Debug)]
 pub enum DataColumn {
@@ -15,10 +16,10 @@ pub enum DataColumn {
 
 impl DataColumn {
     #[inline]
-    pub fn data_type(&self) -> &DataType {
+    pub fn data_type(&self) -> DataType {
         match self {
-            DataColumn::Array(array) => array.data_type(),
-            DataColumn::Constant(v, _) => v.data_type(),
+            DataColumn::Array(array) => array.data_type().clone(),
+            DataColumn::Constant(v, _) => v.data_type() ,
         }
     }
 

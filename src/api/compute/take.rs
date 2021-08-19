@@ -1,6 +1,6 @@
-use crate::api::prelude::array::{PrimitiveArray, Array};
-use crate::api::prelude::take;
+use crate::api::prelude::array::{Array, PrimitiveArray};
 use crate::api::prelude::take::{boolean, primitive, utf8};
+use crate::api::prelude::{take, Index};
 use crate::api::prelude::{ArrowError, Result};
 use crate::api::List;
 use itertools::Itertools;
@@ -8,7 +8,10 @@ use std::borrow::Borrow;
 use std::collections::HashMap;
 
 impl List {
-    pub fn take(&self, idx: &PrimitiveArray<u64>) -> Result<Self> {
+    pub fn take<T>(&self, idx: &PrimitiveArray<T>) -> Result<Self>
+    where
+        T: Index,
+    {
         match self {
             Self::I8(_value) => Ok(primitive::take(_value, idx).into()),
             Self::I16(_value) => Ok(primitive::take(_value, idx).into()),
@@ -30,14 +33,14 @@ impl List {
             ))),
         }
     }
-   pub   fn scatter_unchecked(
+    pub fn scatter_unchecked(
         &self,
         indices: &mut dyn Iterator<Item = u64>,
         scattered_size: usize,
     ) -> Result<Vec<Self>> {
-        let indices = indices.zip((0..self.len())).into_group_map_by(|p| p.0);
+        let indices = indices.zip((0..self.len() as u64)).into_group_map_by(|p| p.0);
 
-        let lookup: HashMap<&u64, Vec<(u64)>> = indices
+        let lookup: HashMap<&u64, Vec<u64>> = indices
             .iter()
             .map(|p| (p.0, p.1.iter().map(|x| x.1 as u64).collect_vec()))
             .collect();

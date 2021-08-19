@@ -1,5 +1,5 @@
 use crate::api::prelude::array::*;
-use crate::api::prelude::{array, Arc, ArrowError, DataType};
+use crate::api::prelude::{  Arc, ArrowError, DataType};
 
 use crate::api::types::lib::DowncastError;
 
@@ -43,63 +43,63 @@ pub enum List {
 macro_rules! pack_to {
     ($name:ident,$ty:ident) => {
         #[inline]
-        pub fn $name(list: &List, packed_value: $ty, pos: usize) -> Vec<$ty> {
+        pub fn $name(list: &List, packed_value: Vec<$ty>, pos: usize) -> Vec<$ty> {
             match list {
                 Self::Bool(_value) => _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (val as $ty) << (pos))
                     .collect_vec(),
-                Self::I8(_value) => _value
+                Self::I8(_value) =>  _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
-                Self::I16(_value) => _value
+                Self::I16(_value) =>  _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
-                Self::I32(_value) => _value
+                Self::I32(_value) =>  _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
-                Self::I64(_value) => _value
+                Self::I64(_value) =>  _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
                 Self::U8(_value) => _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
-                Self::U16(_value) => _value
+                Self::U16(_value) =>  _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
-                Self::U32(_value) => _value
+                Self::U32(_value) =>  _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
-                Self::U64(_value) => _value
+                Self::U64(_value) =>  _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
 
                 Self::Date32(_value) => _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
                 Self::Date64(_value) => _value
                     .values()
-                    .iter()
-                    .map(|val| packed_value | (*val as $ty) << (pos))
+                    .iter().zip( packed_value.iter())
+                    .map(|(val , pack) | pack | (*val as $ty) << (pos))
                     .collect_vec(),
 
                 _ => {
@@ -540,24 +540,24 @@ impl List {
     pub fn from_primitive_array<T: NativeType + NaturalDataType, P: AsRef<[Option<T>]>>(
         slice: P,
     ) -> Self
-    where
-        List: From<PrimitiveArray<T>>,
+        where
+            List: From<PrimitiveArray<T>>,
     {
         PrimitiveArray::<T>::from(slice).into()
     }
 
     pub fn from_vec<I: TrustedLen<Item = T>, T>(iter: I) -> Arc<List>
-    where
-        List: From<PrimitiveArray<T>>,
-        T: NativeType + NaturalDataType,
+        where
+            List: From<PrimitiveArray<T>>,
+            T: NativeType + NaturalDataType,
     {
         Arc::new(PrimitiveArray::<T>::from_trusted_len_values_iter(iter).into())
     }
 
     pub fn from_str<I: TrustedLen<Item = O>, O>(iter: I) -> Arc<List>
-    where
-        List: From<Utf8Array<i32>>,
-        O: AsRef<str>,
+        where
+            List: From<Utf8Array<i32>>,
+            O: AsRef<str>,
     {
         Arc::new(Utf8Array::<i32>::from_trusted_len_values_iter(iter).into())
     }
@@ -571,8 +571,8 @@ impl List {
 }
 
 impl<T> From<Box<T>> for List
-where
-    T: Into<Self>,
+    where
+        T: Into<Self>,
 {
     #[inline]
     fn from(value: Box<T>) -> Self {

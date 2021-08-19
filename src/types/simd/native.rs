@@ -73,6 +73,8 @@ simd!(i64x8, i64, 8, u8);
 simd!(f32x16, f32, 16, u16);
 simd!(f64x8, f64, 8, u8);
 
+
+
 // In the native implementation, a mask is 1 bit wide, as per AVX512.
 impl<T: BitChunk> FromMaskChunk<T> for T {
     #[inline]
@@ -80,3 +82,4 @@ impl<T: BitChunk> FromMaskChunk<T> for T {
         v
     }
 }
+

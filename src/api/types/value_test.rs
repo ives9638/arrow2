@@ -10,7 +10,6 @@ use crate::buffer::bytes::Bytes;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::convert::TryInto;
 use crate::array::BinaryArray;
-use futures::StreamExt;
 use std::collections::HashMap;
 use crate::api::value::Isval;
 
@@ -27,8 +26,8 @@ fn test_data_block()  {
 
     let v = List::from(array2);
 
-    let binArray = List::pack_to_u128(&v,0u128,0);
-
+    let binArray = List::pack_to_u128(&v,vec![0u128;3],0);
+    let binArray = List::pack_to_u128(&v,binArray,32);
     let mut packed_value = 0u128;
     let aa = 32i32;
     let bb = 64i64;
@@ -44,11 +43,11 @@ fn test_data_block()  {
     packed_value =  packed_value | (c as u128) << (64 + 32);
     let ts = packed_value.to_le_bytes();
 
-    let lookup: HashMap<&i32,Vec<(i32)>>  = [1,2,2,2,1].iter().zip(9..19).into_group_map_by( |x| x.0).into_iter().map(|x|{
+    let lookup: HashMap<&i32,Vec<i32>>  = [1,2,2,2,1].iter().zip(9..19).into_group_map_by( |x| x.0).into_iter().map(|x|{
         (x.0, x.1.iter().map(|n| n.1).collect_vec())
     }).collect();
 
-
+ let d  = 21_u8 / 21_u32 ;
     let data2 = vec![Some(8111112), Some(111111182), Some(111111219),Some(1),Some(3),Some(4)];
     let indices = vec![1, 2, 3, 1, 3, 2,];
     let f  =List::from_primitive_array(data2.as_slice()).scatter_unchecked(  &mut indices.into_iter(),3 );

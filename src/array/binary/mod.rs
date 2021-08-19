@@ -12,7 +12,6 @@ mod from;
 mod mutable;
 pub use mutable::*;
 
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct BinaryArray<O: Offset> {

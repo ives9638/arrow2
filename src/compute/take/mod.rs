@@ -24,14 +24,14 @@ use crate::{
     types::{days_ms, Index},
 };
 
-mod binary;
-mod boolean;
-mod dict;
-mod generic_binary;
-mod list;
-mod primitive;
-mod structure;
-mod utf8;
+pub mod binary;
+pub mod boolean;
+pub mod dict;
+pub mod generic_binary;
+pub mod list;
+pub mod primitive;
+pub mod structure;
+pub mod utf8;
 
 macro_rules! downcast_take {
     ($type: ty, $values: expr, $indices: expr) => {{

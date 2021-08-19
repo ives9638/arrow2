@@ -83,6 +83,7 @@ default = [
     "ahash",
     "benchmarks",
     "compute",
+    "simd",
 ]
 merge_sort = ["itertools"]
 io_csv = ["csv", "lazy_static", "regex"]

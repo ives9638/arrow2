@@ -1,4 +1,4 @@
-use arrow2::api::compute::cast::list::Islist;
+use arrow2::api::list::Islist;
 use arrow2::array::*;
 use arrow2::util::bench_util::*;
 use arrow2::{compute::aggregate::*, datatypes::DataType};
@@ -16,13 +16,13 @@ fn add_benchmark(c: &mut Criterion) {
     (10..=20).step_by(2).for_each(|log2_size| {
         let size = 2usize.pow(log2_size) * 10000;
         let arr_a = create_primitive_array::<i32>(size, DataType::Int32, 0.0);
-        let list_a = arrow2::api::types::list::List::from(arr_a.clone());
+        let list_a = arrow2::api::List::from(arr_a.clone());
         let mut packed_value = 0_u128;
         c.bench_function(&format!("sum_list 2^{} f32", log2_size), |b| {
             b.iter(|| {
                 let binArray =
 
-                    arrow2::api::types::list::List::pack_to_u128(criterion::black_box(&list_a),0_u128, 1);
+                    arrow2::api::List::pack_to_u128(criterion::black_box(&list_a),vec![0u128;size], 1);
 
 
             })
@@ -36,7 +36,7 @@ fn add_benchmark(c: &mut Criterion) {
         });
 
         let arr_a = create_primitive_array::<i32>(size, DataType::Int32, 0.1);
-        let list_a = arrow2::api::types::list::List::from(arr_a.clone());
+        let list_a = arrow2::api::List::from(arr_a.clone());
         c.bench_function(&format!("sum null 2^{} f32", log2_size), |b| {
             b.iter(|| criterion::black_box(&list_a).sum())
         });

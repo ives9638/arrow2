@@ -16,7 +16,7 @@ pub use iterator::*;
 mod mutable;
 pub use mutable::*;
 
-use crate::buffer::bytes::Bytes;
+
 
 /// A [`PrimitiveArray`] is arrow's equivalent to `Vec<Option<T: NativeType>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable slots,

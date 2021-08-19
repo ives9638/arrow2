@@ -20,6 +20,8 @@ use crate::{
     error::{ArrowError, Result},
     types::NativeType,
 };
+use crate::api::prelude::prelude::simd::u64x8;
+use packed_simd::Simd;
 
 /// Adds two primitive arrays with the same type.
 /// Panics if the sum of one pair of values overflows.
@@ -45,7 +47,6 @@ where
             "Arrays must have the same logical type".to_string(),
         ));
     }
-
     binary(lhs, rhs, lhs.data_type().clone(), |a, b| a + b)
 }
 
