@@ -126,7 +126,6 @@ mod tests {
         assert_eq!(result, expected);
     }
 
-
     /// tests extending from a primitive array with offset and nulls
     #[test]
     fn test_primitive_null_offset() {
