@@ -100,7 +100,7 @@ impl<'a, T: NativeType> From<GrowablePrimitive<'a, T>> for PrimitiveArray<T> {
 mod tests {
     use super::*;
 
-    use crate::array::{PrimitiveArray, MutablePrimitiveArray};
+    use crate::array::PrimitiveArray;
     use crate::datatypes::DataType;
 
     /// tests extending from a primitive array w/ offset nor nulls
