@@ -12,7 +12,8 @@ use crate::{
 
 use super::PrimitiveArray;
 
-/// The mutable version of [`PrimitiveArray`]. See [`MutableArray`] for more details.
+/// The Arrow's equivalent to `Vec<Option<T>>` where `T` is byte-size (e.g. `i32`).
+/// Converting a [`MutablePrimitiveArray`] into a [`PrimitiveArray`] is `O(1)`.
 #[derive(Debug)]
 pub struct MutablePrimitiveArray<T: NativeType> {
     data_type: DataType,
@@ -173,11 +174,10 @@ impl<T: NativeType> MutablePrimitiveArray<T> {
     }
 
     fn init_validity(&mut self) {
-        self.validity = Some(MutableBitmap::from_trusted_len_iter(
-            std::iter::repeat(true)
-                .take(self.len() - 1)
-                .chain(std::iter::once(false)),
-        ))
+        let mut validity = MutableBitmap::new();
+        validity.extend_constant(self.len(), true);
+        validity.set(self.len() - 1, false);
+        self.validity = Some(validity)
     }
 
     /// Changes the arrays' [`DataType`], returning a new [`MutablePrimitiveArray`].
