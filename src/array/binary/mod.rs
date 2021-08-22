@@ -12,7 +12,6 @@ mod from;
 mod mutable;
 pub use mutable::*;
 
-
 #[derive(Debug, Clone)]
 pub struct BinaryArray<O: Offset> {
     data_type: DataType,
@@ -118,12 +117,9 @@ impl<O: Offset> Array for BinaryArray<O> {
         &self.validity
     }
 
-
-
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-
 }
 
 impl<O: Offset> std::fmt::Display for BinaryArray<O> {
