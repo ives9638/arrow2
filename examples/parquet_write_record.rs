@@ -23,7 +23,7 @@ fn write_batch(path: &str, batch: RecordBatch) -> Result<()> {
     let iter = vec![Ok(batch)];
 
     let row_groups =
-        RowGroupIterator::try_new(iter.into_iter(), &schema, options, vec![Encoding::Plain])?;
+        RowGroupIterator::try_new(iter.into_iter(), &schema, options, vec![Encoding::Plain,Encoding::Plain])?;
 
     // Create a new empty file
     let mut file = File::create(path)?;
@@ -41,6 +41,15 @@ fn write_batch(path: &str, batch: RecordBatch) -> Result<()> {
 }
 
 fn main() -> Result<()> {
+    let array1 = Int32Array::from(&[
+        Some(0),
+        Some(1),
+        Some(2),
+       None,
+        Some(4),
+        Some(5),
+        Some(6),
+    ]);
     let array = Int32Array::from(&[
         Some(0),
         Some(1),
@@ -51,8 +60,9 @@ fn main() -> Result<()> {
         Some(6),
     ]);
     let field = Field::new("c1", array.data_type().clone(), true);
-    let schema = Schema::new(vec![field]);
-    let batch = RecordBatch::try_new(Arc::new(schema), vec![Arc::new(array)])?;
+    let field1 = Field::new("c2", array1.data_type().clone(), true);
+    let schema = Schema::new(vec![field,field1]);
+    let batch = RecordBatch::try_new(Arc::new(schema), vec![Arc::new(array),Arc::new(array1)])?;
 
-    write_batch("test.parquet", batch)
+    write_batch("/media/lidn/data/aaa/test.parquet", batch)
 }

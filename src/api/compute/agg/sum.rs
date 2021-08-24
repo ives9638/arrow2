@@ -32,18 +32,18 @@ impl List {
     #[inline]
     pub fn sum(&self) -> Result<Value> {
         match self {
-            Self::I8(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
-            Self::I16(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
-            Self::I32(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
-            Self::I64(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
+            Self::I8(_value) => Ok(Value::from(sum_primitive(_value.as_ref()).unwrap_or_default())),
+            Self::I16(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
+            Self::I32(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
+            Self::I64(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
 
-            Self::U8(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
-            Self::U16(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
-            Self::U32(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
-            Self::U64(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
+            Self::U8(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
+            Self::U16(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
+            Self::U32(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
+            Self::U64(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
 
-            Self::F32(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
-            Self::F64(_value) => Ok(Value::from(sum(&_value).unwrap_or_default())),
+            Self::F32(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
+            Self::F64(_value) => Ok(Value::from(sum_primitive(&_value).unwrap_or_default())),
 
             _ => Err(ArrowError::InvalidArgumentError(format!(
                 "Type {} does not support logical type {}",

@@ -374,7 +374,7 @@ impl List {
             DataType::Struct(fields) => {
                 List::Struct(Arc::new(StructArray::new_empty(fields.as_slice())))
             }
-            DataType::Union(_) => unimplemented!(),
+            DataType::Union(..) => unimplemented!(),
             DataType::Dictionary(key_type, value_type) => unimplemented!(),
             _ => unimplemented!(),
         }
@@ -804,7 +804,7 @@ impl From<Box<dyn Array>> for List {
                     .unwrap()
                     .clone(),
             )),
-            DataType::Union(_) => unimplemented!(),
+            DataType::Union(..) => unimplemented!(),
             DataType::Dictionary(key_type, value_type) => unimplemented!(),
             _ => unimplemented!(),
         }

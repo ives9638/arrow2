@@ -48,7 +48,7 @@ pub fn  empty_array(data_type: DataType) -> ArrayRef {
         DataType::LargeList(_) => Arc::new(ListArray::<i64>::new_empty(data_type)),
         DataType::FixedSizeList(_, _) => Arc::new(FixedSizeListArray::new_empty(data_type)),
         DataType::Struct(fields) => Arc::new(StructArray::new_empty(&fields)),
-        DataType::Union(_) => unimplemented!(),
+        DataType::Union(_,_,_) => unimplemented!(),
         DataType::Dictionary(key_type, value_type) => match key_type.as_ref() {
             DataType::Int8 => Arc::new(DictionaryArray::<i8>::new_empty(*value_type)),
             DataType::Int16 => Arc::new(DictionaryArray::<i16>::new_empty(*value_type)),
