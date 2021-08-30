@@ -17,7 +17,7 @@
 
 use std::{collections::HashMap, sync::Arc};
 
-use num::NumCast;
+use num_traits::NumCast;
 use serde_json::Value;
 
 use crate::{
@@ -119,7 +119,7 @@ fn to_primitive<T: NativeType + NumCast>(
             .as_ref()
             .unwrap()
             .iter()
-            .map(|value| value.as_f64().and_then(num::cast::cast::<f64, T>).unwrap())
+            .map(|value| value.as_f64().and_then(num_traits::cast::<f64, T>).unwrap())
             .collect()
     } else {
         json_col
@@ -128,11 +128,11 @@ fn to_primitive<T: NativeType + NumCast>(
             .unwrap()
             .iter()
             .map(|value| match value {
-                Value::Number(x) => x.as_i64().and_then(num::cast::cast::<i64, T>).unwrap(),
+                Value::Number(x) => x.as_i64().and_then(num_traits::cast::<i64, T>).unwrap(),
                 Value::String(x) => x
                     .parse::<i64>()
                     .ok()
-                    .and_then(num::cast::cast::<i64, T>)
+                    .and_then(num_traits::cast::<i64, T>)
                     .unwrap(),
                 _ => {
                     panic!()
@@ -304,17 +304,11 @@ pub fn to_array(
             let array = StructArray::from_data(fields.clone(), values, validity);
             Ok(Arc::new(array))
         }
-        DataType::Dictionary(key_type, _) => match key_type.as_ref() {
-            DataType::Int8 => to_dictionary::<i8>(field, json_col, dictionaries),
-            DataType::Int16 => to_dictionary::<i16>(field, json_col, dictionaries),
-            DataType::Int32 => to_dictionary::<i32>(field, json_col, dictionaries),
-            DataType::Int64 => to_dictionary::<i64>(field, json_col, dictionaries),
-            DataType::UInt8 => to_dictionary::<u8>(field, json_col, dictionaries),
-            DataType::UInt16 => to_dictionary::<u16>(field, json_col, dictionaries),
-            DataType::UInt32 => to_dictionary::<u32>(field, json_col, dictionaries),
-            DataType::UInt64 => to_dictionary::<u64>(field, json_col, dictionaries),
-            _ => unreachable!(),
-        },
+        DataType::Dictionary(key_type, _) => {
+            with_match_dictionary_key_type!(key_type.as_ref(), |$T| {
+                to_dictionary::<$T>(field, json_col, dictionaries)
+            })
+        }
         DataType::Float16 => unreachable!(),
         DataType::Union(fields, _, _) => {
             let fields = fields
@@ -330,7 +324,7 @@ pub fn to_array(
                     x.iter()
                         .map(|value| match value {
                             Value::Number(x) => {
-                                x.as_i64().and_then(num::cast::cast::<i64, i8>).unwrap()
+                                x.as_i64().and_then(num_traits::cast::<i64, i8>).unwrap()
                             }
                             Value::String(x) => x.parse::<i8>().ok().unwrap(),
                             _ => {
@@ -349,7 +343,7 @@ pub fn to_array(
                         x.iter()
                             .map(|value| match value {
                                 Value::Number(x) => {
-                                    x.as_i64().and_then(num::cast::cast::<i64, i32>).unwrap()
+                                    x.as_i64().and_then(num_traits::cast::<i64, i32>).unwrap()
                                 }
                                 _ => panic!(),
                             })

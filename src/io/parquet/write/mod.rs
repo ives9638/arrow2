@@ -11,8 +11,6 @@ mod utils;
 
 pub mod stream;
 
-use std::sync::Arc;
-
 use crate::array::*;
 use crate::bitmap::Bitmap;
 use crate::buffer::{Buffer, MutableBuffer};
@@ -105,43 +103,23 @@ pub fn can_encode(data_type: &DataType, encoding: Encoding) -> bool {
 
 /// Returns an iterator of compressed pages,
 pub fn array_to_pages(
-    array: Arc<dyn Array>,
+    array: &dyn Array,
     descriptor: ColumnDescriptor,
     options: WriteOptions,
     encoding: Encoding,
 ) -> Result<DynIter<'static, Result<CompressedPage>>> {
     match array.data_type() {
-        DataType::Dictionary(key, _) => match key.as_ref() {
-            DataType::Int8 => dictionary::array_to_pages::<i8>(
-                array.as_any().downcast_ref().unwrap(),
-                descriptor,
-                options,
-                encoding,
-            ),
-            DataType::Int16 => dictionary::array_to_pages::<i16>(
-                array.as_any().downcast_ref().unwrap(),
-                descriptor,
-                options,
-                encoding,
-            ),
-            DataType::Int32 => dictionary::array_to_pages::<i32>(
-                array.as_any().downcast_ref().unwrap(),
-                descriptor,
-                options,
-                encoding,
-            ),
-            DataType::Int64 => dictionary::array_to_pages::<i64>(
-                array.as_any().downcast_ref().unwrap(),
-                descriptor,
-                options,
-                encoding,
-            ),
-            other => Err(ArrowError::NotYetImplemented(format!(
-                "Writing parquet pages for data type {:?}",
-                other
-            ))),
-        },
-        _ => array_to_page(array.as_ref(), descriptor, options, encoding)
+        DataType::Dictionary(key_type, _) => {
+            with_match_dictionary_key_type!(key_type.as_ref(), |$T| {
+                dictionary::array_to_pages::<$T>(
+                    array.as_any().downcast_ref().unwrap(),
+                    descriptor,
+                    options,
+                    encoding,
+                )
+            })
+        }
+        _ => array_to_page(array, descriptor, options, encoding)
             .map(|page| DynIter::new(std::iter::once(Ok(page)))),
     }
 }

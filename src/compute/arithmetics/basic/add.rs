@@ -1,10 +1,7 @@
 //! Definition of basic add operations with primitive arrays
 use std::ops::Add;
 
-use num::{
-    traits::{ops::overflowing::OverflowingAdd, SaturatingAdd},
-    CheckedAdd, Zero,
-};
+use num_traits::{ops::overflowing::OverflowingAdd, CheckedAdd, SaturatingAdd, Zero};
 
 use crate::{
     array::{Array, PrimitiveArray},
@@ -30,12 +27,11 @@ use packed_simd::Simd;
 /// ```
 /// use arrow2::compute::arithmetics::basic::add::add;
 /// use arrow2::array::PrimitiveArray;
-/// use arrow2::datatypes::DataType;
 ///
-/// let a = PrimitiveArray::from(&vec![None, Some(6), None, Some(6)]).to(DataType::Int32);
-/// let b = PrimitiveArray::from(&vec![Some(5), None, None, Some(6)]).to(DataType::Int32);
+/// let a = PrimitiveArray::from([None, Some(6), None, Some(6)]);
+/// let b = PrimitiveArray::from([Some(5), None, None, Some(6)]);
 /// let result = add(&a, &b).unwrap();
-/// let expected = PrimitiveArray::from(&vec![None, None, None, Some(12)]).to(DataType::Int32);
+/// let expected = PrimitiveArray::from([None, None, None, Some(12)]);
 /// assert_eq!(result, expected)
 /// ```
 pub fn add<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Result<PrimitiveArray<T>>
@@ -57,12 +53,11 @@ where
 /// ```
 /// use arrow2::compute::arithmetics::basic::add::checked_add;
 /// use arrow2::array::PrimitiveArray;
-/// use arrow2::datatypes::DataType;
 ///
-/// let a = PrimitiveArray::from(&vec![Some(100i8), Some(100i8), Some(100i8)]).to(DataType::Int8);
-/// let b = PrimitiveArray::from(&vec![Some(0i8), Some(100i8), Some(0i8)]).to(DataType::Int8);
+/// let a = PrimitiveArray::from([Some(100i8), Some(100i8), Some(100i8)]);
+/// let b = PrimitiveArray::from([Some(0i8), Some(100i8), Some(0i8)]);
 /// let result = checked_add(&a, &b).unwrap();
-/// let expected = PrimitiveArray::from(&vec![Some(100i8), None, Some(100i8)]).to(DataType::Int8);
+/// let expected = PrimitiveArray::from([Some(100i8), None, Some(100i8)]);
 /// assert_eq!(result, expected);
 /// ```
 pub fn checked_add<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Result<PrimitiveArray<T>>
@@ -88,12 +83,11 @@ where
 /// ```
 /// use arrow2::compute::arithmetics::basic::add::saturating_add;
 /// use arrow2::array::PrimitiveArray;
-/// use arrow2::datatypes::DataType;
 ///
-/// let a = PrimitiveArray::from(&vec![Some(100i8)]).to(DataType::Int8);
-/// let b = PrimitiveArray::from(&vec![Some(100i8)]).to(DataType::Int8);
+/// let a = PrimitiveArray::from([Some(100i8)]);
+/// let b = PrimitiveArray::from([Some(100i8)]);
 /// let result = saturating_add(&a, &b).unwrap();
-/// let expected = PrimitiveArray::from(&vec![Some(127)]).to(DataType::Int8);
+/// let expected = PrimitiveArray::from([Some(127)]);
 /// assert_eq!(result, expected);
 /// ```
 pub fn saturating_add<T>(
@@ -123,12 +117,11 @@ where
 /// ```
 /// use arrow2::compute::arithmetics::basic::add::overflowing_add;
 /// use arrow2::array::PrimitiveArray;
-/// use arrow2::datatypes::DataType;
 ///
-/// let a = PrimitiveArray::from(&vec![Some(1i8), Some(100i8)]).to(DataType::Int8);
-/// let b = PrimitiveArray::from(&vec![Some(1i8), Some(100i8)]).to(DataType::Int8);
+/// let a = PrimitiveArray::from([Some(1i8), Some(100i8)]);
+/// let b = PrimitiveArray::from([Some(1i8), Some(100i8)]);
 /// let (result, overflow) = overflowing_add(&a, &b).unwrap();
-/// let expected = PrimitiveArray::from(&vec![Some(2i8), Some(-56i8)]).to(DataType::Int8);
+/// let expected = PrimitiveArray::from([Some(2i8), Some(-56i8)]);
 /// assert_eq!(result, expected);
 /// ```
 pub fn overflowing_add<T>(
@@ -204,11 +197,10 @@ where
 /// ```
 /// use arrow2::compute::arithmetics::basic::add::add_scalar;
 /// use arrow2::array::PrimitiveArray;
-/// use arrow2::datatypes::DataType;
 ///
-/// let a = PrimitiveArray::from(&vec![None, Some(6), None, Some(6)]).to(DataType::Int32);
+/// let a = PrimitiveArray::from([None, Some(6), None, Some(6)]);
 /// let result = add_scalar(&a, &1i32);
-/// let expected = PrimitiveArray::from(&vec![None, Some(7), None, Some(7)]).to(DataType::Int32);
+/// let expected = PrimitiveArray::from([None, Some(7), None, Some(7)]);
 /// assert_eq!(result, expected)
 /// ```
 pub fn add_scalar<T>(lhs: &PrimitiveArray<T>, rhs: &T) -> PrimitiveArray<T>
@@ -251,11 +243,10 @@ where
 /// ```
 /// use arrow2::compute::arithmetics::basic::add::saturating_add_scalar;
 /// use arrow2::array::PrimitiveArray;
-/// use arrow2::datatypes::DataType;
 ///
-/// let a = PrimitiveArray::from(&vec![Some(100i8)]).to(DataType::Int8);
+/// let a = PrimitiveArray::from([Some(100i8)]);
 /// let result = saturating_add_scalar(&a, &100i8);
-/// let expected = PrimitiveArray::from(&vec![Some(127)]).to(DataType::Int8);
+/// let expected = PrimitiveArray::from([Some(127)]);
 /// assert_eq!(result, expected);
 /// ```
 pub fn saturating_add_scalar<T>(lhs: &PrimitiveArray<T>, rhs: &T) -> PrimitiveArray<T>
@@ -277,11 +268,10 @@ where
 /// ```
 /// use arrow2::compute::arithmetics::basic::add::overflowing_add_scalar;
 /// use arrow2::array::PrimitiveArray;
-/// use arrow2::datatypes::DataType;
 ///
-/// let a = PrimitiveArray::from(&vec![Some(1i8), Some(100i8)]).to(DataType::Int8);
+/// let a = PrimitiveArray::from([Some(1i8), Some(100i8)]);
 /// let (result, overflow) = overflowing_add_scalar(&a, &100i8);
-/// let expected = PrimitiveArray::from(&vec![Some(101i8), Some(-56i8)]).to(DataType::Int8);
+/// let expected = PrimitiveArray::from([Some(101i8), Some(-56i8)]);
 /// assert_eq!(result, expected);
 /// ```
 pub fn overflowing_add_scalar<T>(lhs: &PrimitiveArray<T>, rhs: &T) -> (PrimitiveArray<T>, Bitmap)

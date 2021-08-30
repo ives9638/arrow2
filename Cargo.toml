@@ -1,6 +1,6 @@
 [package]
 name = "arrow2"
-version = "0.3.0"
+version = "0.4.0"
 license = "Apache-2.0"
 description = "Unofficial implementation of Apache Arrow spec in safe Rust"
 homepage = "https://github.com/jorgecarleitao/arrow2"
@@ -15,11 +15,11 @@ name = "arrow2"
 bench = false
 
 [dependencies]
-num = "^0.4"
+num-traits = "0.2"
 chrono = "^0.4"
 byteorder="1.4.3"
 # To efficiently cast numbers to strings
-lexical-core = "^0.7"
+lexical-core = { version = "0.7", optional = true }
 # We need to Hash values before sending them to an hasher. This
 # crate provides HashMap that assumes pre-hashed values.
 hash_hasher = "^2.0.3"
@@ -51,8 +51,6 @@ base64 = { version = "0.13.0", optional = true }
 
 packed_simd = { version = "0.3.4", optional = true, package = "packed_simd_2" }
 
-multiversion = "0.6.1"
-
 # to write to parquet as a stream
 futures = { version = "0.3", optional = true }
 
@@ -63,6 +61,7 @@ parquet2 = { version = "0.3", optional = true, default_features = false, feature
 
 # for division/remainder optimization at runtime
 strength_reduce = { version = "0.2", optional = true }
+multiversion = { version = "0.6.1", optional = true }
 
 [dev-dependencies]
 rand = "0.8"
@@ -89,7 +88,7 @@ default = [
     "simd",
 ]
 merge_sort = ["itertools"]
-io_csv = ["csv", "lazy_static", "regex"]
+io_csv = ["csv", "lazy_static", "regex", "lexical-core"]
 io_json = ["serde", "serde_json", "indexmap"]
 io_ipc = ["flatbuffers"]
 io_ipc_compression = ["lz4", "zstd"]
@@ -105,7 +104,7 @@ io_parquet_compression = [
 io_json_integration = ["io_json", "serde_derive", "hex"]
 io_print = ["comfy-table"]
 # the compute kernels. Disabling this significantly reduces compile time.
-compute = ["strength_reduce"]
+compute = ["strength_reduce", "multiversion", "lexical-core"]
 # base64 + io_ipc because arrow schemas are stored as base64-encoded ipc format.
 io_parquet = ["parquet2", "io_ipc", "base64", "futures"]
 benchmarks = ["rand"]
@@ -144,7 +143,7 @@ name = "length_kernel"
 harness = false
 
 [[bench]]
-name = "null_count"
+name = "count_zeros"
 harness = false
 
 [[bench]]
