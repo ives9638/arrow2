@@ -121,7 +121,6 @@ impl<O: Offset> ListArray<O> {
 }
 
 impl<O: Offset> ListArray<O> {
-    #[inline]
     pub fn default_datatype(data_type: DataType) -> DataType {
         let field = Box::new(Field::new("item", data_type, true));
         if O::is_large() {
@@ -131,22 +130,22 @@ impl<O: Offset> ListArray<O> {
         }
     }
 
-    #[inline]
     pub fn get_child_field(data_type: &DataType) -> &Field {
         if O::is_large() {
-            if let DataType::LargeList(child) = data_type {
-                child.as_ref()
-            } else {
-                panic!("Wrong DataType")
+            match data_type {
+                DataType::LargeList(child) => child.as_ref(),
+                DataType::Extension(_, child, _) => Self::get_child_field(child),
+                _ => panic!("Wrong DataType"),
             }
-        } else if let DataType::List(child) = data_type {
-            child.as_ref()
         } else {
-            panic!("Wrong DataType")
+            match data_type {
+                DataType::List(child) => child.as_ref(),
+                DataType::Extension(_, child, _) => Self::get_child_field(child),
+                _ => panic!("Wrong DataType"),
+            }
         }
     }
 
-    #[inline]
     pub fn get_child_type(data_type: &DataType) -> &DataType {
         Self::get_child_field(data_type).data_type()
     }

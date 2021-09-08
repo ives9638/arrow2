@@ -323,6 +323,9 @@ fn to_format(data_type: &DataType) -> String {
         DataType::Duration(TimeUnit::Nanosecond) => "tDn".to_string(),
         DataType::Interval(IntervalUnit::YearMonth) => "tiM".to_string(),
         DataType::Interval(IntervalUnit::DayTime) => "tiD".to_string(),
+        DataType::Interval(IntervalUnit::MonthDayNano) => {
+            todo!("Spec for FFI for MonthDayNano still not defined.")
+        }
         DataType::Timestamp(unit, tz) => {
             let unit = match unit {
                 TimeUnit::Second => "s".to_string(),
@@ -356,6 +359,7 @@ fn to_format(data_type: &DataType) -> String {
             r
         }
         DataType::Dictionary(index, _) => to_format(index.as_ref()),
+        DataType::Extension(_, inner, _) => to_format(inner.as_ref()),
     }
 }
 
