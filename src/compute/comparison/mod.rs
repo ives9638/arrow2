@@ -22,9 +22,9 @@ use crate::datatypes::{DataType, IntervalUnit};
 use crate::error::{ArrowError, Result};
 use crate::scalar::Scalar;
 
-pub mod boolean;
-pub mod primitive;
-pub mod utf8;
+mod boolean;
+mod primitive;
+mod utf8;
 
 mod simd;
 pub use simd::{Simd8, Simd8Lanes};
