@@ -7,6 +7,8 @@ pub use field::Field;
 pub use physical_type::*;
 pub use schema::Schema;
 
+pub(crate) use field::{get_extension, Extension, Metadata};
+
 /// The set of datatypes that are supported by this implementation of Apache Arrow.
 ///
 /// The Arrow specification on data types includes some more types.
@@ -126,8 +128,8 @@ impl std::fmt::Display for DataType {
     }
 }
 
-/// An absolute length of time in seconds, milliseconds, microseconds or nanoseconds.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+/// Time units defined in Arrow.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TimeUnit {
     /// Time in seconds.
     Second,
@@ -139,8 +141,8 @@ pub enum TimeUnit {
     Nanosecond,
 }
 
-/// YEAR_MONTH or DAY_TIME interval in SQL style.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+/// Interval units defined in Arrow
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum IntervalUnit {
     /// Indicates the number of elapsed whole months, stored as 4-byte integers.
     YearMonth,

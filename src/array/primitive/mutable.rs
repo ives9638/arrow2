@@ -164,9 +164,52 @@ impl<T: NativeType> MutablePrimitiveArray<T> {
         if let Some(validity) = self.validity.as_mut() {
             extend_trusted_len_unzip(iterator, validity, &mut self.values)
         } else {
-            let mut validity =
-                MutableBitmap::from_trusted_len_iter(std::iter::repeat(true).take(self.len()));
+            let mut validity = MutableBitmap::new();
+            validity.extend_constant(self.len(), true);
             extend_trusted_len_unzip(iterator, &mut validity, &mut self.values);
+            if validity.null_count() > 0 {
+                self.validity = Some(validity);
+            }
+        }
+    }
+    /// Extends the [`MutablePrimitiveArray`] from an iterator of values of trusted len.
+    /// This differs from `extend_trusted_len` which accepts in iterator of optional values.
+    #[inline]
+    pub fn extend_trusted_len_values<I>(&mut self, iterator: I)
+    where
+        I: TrustedLen<Item = T>,
+    {
+        unsafe { self.extend_trusted_len_values_unchecked(iterator) }
+    }
+
+    /// Extends the [`MutablePrimitiveArray`] from an iterator of values of trusted len.
+    /// This differs from `extend_trusted_len_unchecked` which accepts in iterator of optional values.
+    /// # Safety
+    /// The iterator must be trusted len.
+    #[inline]
+    pub unsafe fn extend_trusted_len_values_unchecked<I>(&mut self, iterator: I)
+    where
+        I: Iterator<Item = T>,
+    {
+        self.values.extend_from_trusted_len_iter_unchecked(iterator);
+        self.update_all_valid();
+    }
+
+    #[inline]
+    /// Extends the [`MutablePrimitiveArray`] from a slice
+    pub fn extend_from_slice(&mut self, items: &[T]) {
+        self.values.extend_from_slice(items);
+        self.update_all_valid();
+    }
+
+    fn update_all_valid(&mut self) {
+        // get len before mutable borrow
+        let len = self.len();
+        if let Some(validity) = self.validity.as_mut() {
+            validity.extend_constant(len - validity.len(), true);
+        } else {
+            let mut validity = MutableBitmap::new();
+            validity.extend_constant(len, true);
             if validity.null_count() > 0 {
                 self.validity = Some(validity);
             }
@@ -449,10 +492,10 @@ pub(crate) unsafe fn extend_trusted_len_unzip<I, P, T>(
     I: Iterator<Item = Option<P>>,
 {
     let (_, upper) = iterator.size_hint();
-    let len = upper.expect("trusted_len_unzip requires an upper limit");
+    let additional = upper.expect("trusted_len_unzip requires an upper limit");
 
-    validity.reserve(len);
-    buffer.reserve(len);
+    validity.reserve(additional);
+    buffer.reserve(additional);
 
     for item in iterator {
         let item = if let Some(item) = item {

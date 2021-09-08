@@ -1,6 +1,7 @@
 use arrow2::array::*;
 use arrow2::datatypes::{DataType, Field, TimeUnit};
 use arrow2::{error::Result, ffi};
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 fn test_round_trip(expected: impl Array + Clone + 'static) -> Result<()> {
@@ -161,6 +162,22 @@ fn schema() -> Result<()> {
     let field = Field::new(
         "a",
         DataType::Dictionary(Box::new(DataType::UInt32), Box::new(DataType::Utf8)),
+        true,
+    );
+    test_round_trip_schema(field)?;
+
+    let field = Field::new("a", DataType::Int32, true);
+    let mut metadata = BTreeMap::new();
+    metadata.insert("some".to_string(), "stuff".to_string());
+    let field = field.with_metadata(metadata);
+    test_round_trip_schema(field)
+}
+
+#[test]
+fn extension() -> Result<()> {
+    let field = Field::new(
+        "a",
+        DataType::Extension("a".to_string(), Box::new(DataType::Int32), None),
         true,
     );
     test_round_trip_schema(field)

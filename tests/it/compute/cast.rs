@@ -154,6 +154,26 @@ fn i32_to_list_f64_nullable_sliced() {
 }
 
 #[test]
+fn i32_to_binary() {
+    let array = Int32Array::from_slice(&[5, 6, 7]);
+    let b = cast(&array, &DataType::Binary).unwrap();
+    let expected = BinaryArray::<i32>::from(&[Some(b"5"), Some(b"6"), Some(b"7")]);
+    let c = b.as_any().downcast_ref::<BinaryArray<i32>>().unwrap();
+    assert_eq!(c, &expected);
+}
+
+#[test]
+fn binary_to_i32() {
+    let array = BinaryArray::<i32>::from_slice(&["5", "6", "seven", "8", "9.1"]);
+    let b = cast(&array, &DataType::Int32).unwrap();
+    let c = b.as_any().downcast_ref::<PrimitiveArray<i32>>().unwrap();
+
+    let expected = &[Some(5), Some(6), None, Some(8), None];
+    let expected = Int32Array::from(expected);
+    assert_eq!(c, &expected);
+}
+
+#[test]
 fn utf8_to_i32() {
     let array = Utf8Array::<i32>::from_slice(&["5", "6", "seven", "8", "9.1"]);
     let b = cast(&array, &DataType::Int32).unwrap();
@@ -187,10 +207,29 @@ fn bool_to_f64() {
 }
 
 #[test]
-#[should_panic(expected = "Casting from Int32 to Timestamp(Microsecond, None) not supported")]
+fn bool_to_utf8() {
+    let array = BooleanArray::from(vec![Some(true), Some(false), None]);
+    let b = cast(&array, &DataType::Utf8).unwrap();
+    let c = b.as_any().downcast_ref::<Utf8Array<i32>>().unwrap();
+
+    let expected = Utf8Array::<i32>::from(&[Some("1"), Some("0"), Some("0")]);
+    assert_eq!(c, &expected);
+}
+
+#[test]
+fn bool_to_binary() {
+    let array = BooleanArray::from(vec![Some(true), Some(false), None]);
+    let b = cast(&array, &DataType::Binary).unwrap();
+    let c = b.as_any().downcast_ref::<BinaryArray<i32>>().unwrap();
+
+    let expected = BinaryArray::<i32>::from(&[Some("1"), Some("0"), Some("0")]);
+    assert_eq!(c, &expected);
+}
+
+#[test]
 fn int32_to_timestamp() {
     let array = Int32Array::from(&[Some(2), Some(10), None]);
-    cast(&array, &DataType::Timestamp(TimeUnit::Microsecond, None)).unwrap();
+    assert!(cast(&array, &DataType::Timestamp(TimeUnit::Microsecond, None)).is_err());
 }
 
 #[test]
@@ -211,6 +250,7 @@ fn consistency() {
         Float64,
         Timestamp(TimeUnit::Second, None),
         Timestamp(TimeUnit::Millisecond, None),
+        Timestamp(TimeUnit::Millisecond, Some("+01:00".to_string())),
         Timestamp(TimeUnit::Microsecond, None),
         Timestamp(TimeUnit::Nanosecond, None),
         Time64(TimeUnit::Microsecond),
@@ -428,6 +468,54 @@ fn list_to_list() {
     let expected: ListArray<i32> = expected.into();
 
     let result = cast(&array, expected.data_type()).unwrap();
+    assert_eq!(expected, result.as_ref());
+}
+
+#[test]
+fn timestamp_with_tz_to_utf8() {
+    let tz = "-02:00".to_string();
+    let expected =
+        Utf8Array::<i32>::from_slice(&["1996-12-19T16:39:57-02:00", "1996-12-19T17:39:57-02:00"]);
+    let array = Int64Array::from_slice(&[851020797000000000, 851024397000000000])
+        .to(DataType::Timestamp(TimeUnit::Nanosecond, Some(tz)));
+
+    let result = cast(&array, expected.data_type()).expect("cast failed");
+    assert_eq!(expected, result.as_ref());
+}
+
+#[test]
+fn utf8_to_timestamp_with_tz() {
+    let tz = "-02:00".to_string();
+    let array =
+        Utf8Array::<i32>::from_slice(&["1996-12-19T16:39:57-02:00", "1996-12-19T17:39:57-02:00"]);
+    // the timezone is used to map the time to UTC.
+    let expected = Int64Array::from_slice(&[851020797000000000, 851024397000000000])
+        .to(DataType::Timestamp(TimeUnit::Nanosecond, Some(tz)));
+
+    let result = cast(&array, expected.data_type()).expect("cast failed");
+    assert_eq!(expected, result.as_ref());
+}
+
+#[test]
+fn utf8_to_naive_timestamp() {
+    let array =
+        Utf8Array::<i32>::from_slice(&["1996-12-19T16:39:57-02:00", "1996-12-19T17:39:57-02:00"]);
+    // the timezone is disregarded from the string and we assume UTC
+    let expected = Int64Array::from_slice(&[851013597000000000, 851017197000000000])
+        .to(DataType::Timestamp(TimeUnit::Nanosecond, None));
+
+    let result = cast(&array, expected.data_type()).expect("cast failed");
+    assert_eq!(expected, result.as_ref());
+}
+
+#[test]
+fn naive_timestamp_to_utf8() {
+    let array = Int64Array::from_slice(&[851013597000000000, 851017197000000000])
+        .to(DataType::Timestamp(TimeUnit::Nanosecond, None));
+
+    let expected = Utf8Array::<i32>::from_slice(&["1996-12-19 16:39:57", "1996-12-19 17:39:57"]);
+
+    let result = cast(&array, expected.data_type()).expect("cast failed");
     assert_eq!(expected, result.as_ref());
 }
 

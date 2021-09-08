@@ -3,6 +3,7 @@ use std::iter::FromIterator;
 use arrow2::{
     array::*,
     bitmap::Bitmap,
+    buffer::Buffer,
     datatypes::*,
     types::{days_ms, months_days_ns},
 };
@@ -182,6 +183,18 @@ fn display_timestamp_ns() {
 }
 
 #[test]
+fn display_timestamp_tz_ns() {
+    let array = Int64Array::from(&[Some(1), None, Some(2)]).to(DataType::Timestamp(
+        TimeUnit::Nanosecond,
+        Some("+02:00".to_string()),
+    ));
+    assert_eq!(
+        format!("{}", array),
+        "Timestamp(Nanosecond, Some(\"+02:00\"))[1970-01-01 02:00:00.000000001 +02:00, , 1970-01-01 02:00:00.000000002 +02:00]"
+    );
+}
+
+#[test]
 fn display_duration_ms() {
     let array =
         Int64Array::from(&[Some(1), None, Some(2)]).to(DataType::Duration(TimeUnit::Millisecond));
@@ -255,4 +268,11 @@ fn months_days_ns() {
 
     let a = array.values().as_slice();
     assert_eq!(a, data.as_ref());
+}
+
+#[test]
+#[should_panic]
+fn wrong_data_type() {
+    let values = Buffer::from(b"abbb");
+    PrimitiveArray::from_data(DataType::Utf8, values, None);
 }

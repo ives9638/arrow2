@@ -27,6 +27,7 @@ fn read_dict_buffer_optional<T, A, F>(
     A: ArrowNativeType,
     F: Fn(T) -> A,
 {
+    let length = additional + values.len();
     let dict_values = dict.values();
 
     // SPEC: Data page format: the bit width used to encode the entry ids stored as 1 byte (max bit width = 32),
@@ -42,7 +43,7 @@ fn read_dict_buffer_optional<T, A, F>(
     for run in validity_iterator {
         match run {
             hybrid_rle::HybridEncoded::Bitpacked(packed) => {
-                let remaining = additional - values.len();
+                let remaining = length - values.len();
                 let len = std::cmp::min(packed.len() * 8, remaining);
                 for is_valid in BitmapIter::new(packed, 0, len) {
                     let value = if is_valid {
@@ -83,6 +84,7 @@ fn read_nullable<T, A, F>(
     A: ArrowNativeType,
     F: Fn(T) -> A,
 {
+    let length = additional + values.len();
     let mut chunks = ExactChunksIter::<T>::new(values_buffer);
 
     let validity_iterator = hybrid_rle::Decoder::new(validity_buffer, 1);
@@ -91,7 +93,7 @@ fn read_nullable<T, A, F>(
         match run {
             hybrid_rle::HybridEncoded::Bitpacked(packed) => {
                 // the pack may contain more items than needed.
-                let remaining = additional - values.len();
+                let remaining = length - values.len();
                 let len = std::cmp::min(packed.len() * 8, remaining);
                 for is_valid in BitmapIter::new(packed, 0, len) {
                     let value = if is_valid {
@@ -168,7 +170,9 @@ where
                 op,
             )
         }
-        (Encoding::Plain, None, true) => read_nullable(
+        // it can happen that there is a dictionary but the encoding is plain because
+        // it falled back.
+        (Encoding::Plain, _, true) => read_nullable(
             validity_buffer,
             values_buffer,
             additional,
@@ -176,7 +180,7 @@ where
             validity,
             op,
         ),
-        (Encoding::Plain, None, false) => read_required(page.buffer(), additional, values, op),
+        (Encoding::Plain, _, false) => read_required(page.buffer(), additional, values, op),
         _ => {
             return Err(other_utils::not_implemented(
                 &page.encoding(),
