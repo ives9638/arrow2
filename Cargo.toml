@@ -17,7 +17,6 @@ bench = false
 [dependencies]
 num-traits = "0.2"
 chrono = "^0.4"
-byteorder="1.4.3"
 # To efficiently cast numbers to strings
 lexical-core = { version = "0.7", optional = true }
 # We need to Hash values before sending them to an hasher. This
@@ -85,7 +84,6 @@ default = [
     "ahash",
     "benchmarks",
     "compute",
-    "simd",
 ]
 merge_sort = ["itertools"]
 io_csv = ["csv", "lazy_static", "regex", "lexical-core"]
