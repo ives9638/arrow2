@@ -199,7 +199,6 @@ impl<O: Offset> Array for Utf8Array<O> {
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
     }
-
 }
 
 impl<O: Offset> std::fmt::Display for Utf8Array<O> {
