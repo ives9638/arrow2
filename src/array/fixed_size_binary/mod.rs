@@ -10,7 +10,7 @@ pub use mutable::*;
 /// Cloning and slicing this struct is `O(1)`.
 #[derive(Debug, Clone)]
 pub struct FixedSizeBinaryArray {
-    size: i32, // this is redundant with `data_type`, but useful to not have to deconstruct the data_type.
+    size: usize, // this is redundant with `data_type`, but useful to not have to deconstruct the data_type.
     data_type: DataType,
     values: Buffer<u8>,
     validity: Option<Bitmap>,
@@ -34,9 +34,9 @@ impl FixedSizeBinaryArray {
 
     /// Returns a new [`FixedSizeBinaryArray`].
     pub fn from_data(data_type: DataType, values: Buffer<u8>, validity: Option<Bitmap>) -> Self {
-        let size = *Self::get_size(&data_type);
+        let size = *Self::get_size(&data_type) as usize;
 
-        assert_eq!(values.len() % (size as usize), 0);
+        assert_eq!(values.len() % size, 0);
 
         Self {
             size,
@@ -83,15 +83,26 @@ impl FixedSizeBinaryArray {
     /// Assumes that the `i < self.len`.
     #[inline]
     pub unsafe fn value_unchecked(&self, i: usize) -> &[u8] {
-        std::slice::from_raw_parts(
-            self.values.as_ptr().add(i * self.size as usize),
-            self.size as usize,
-        )
+        // soundness: invariant of the function.
+        self.values
+            .get_unchecked(i * self.size..(i + 1) * self.size)
     }
 
     /// Returns the size
     pub fn size(&self) -> usize {
-        self.size as usize
+        self.size
+    }
+
+    /// Sets the validity bitmap on this [`FixedSizeBinaryArray`].
+    /// # Panic
+    /// This function panics iff `validity.len() != self.len()`.
+    pub fn with_validity(&self, validity: Option<Bitmap>) -> Self {
+        if matches!(&validity, Some(bitmap) if bitmap.len() != self.len()) {
+            panic!("validity should be as least as large as the array")
+        }
+        let mut arr = self.clone();
+        arr.validity = validity;
+        arr
     }
 }
 
@@ -127,6 +138,9 @@ impl Array for FixedSizeBinaryArray {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn Array> {
+        Box::new(self.with_validity(validity))
     }
 }
 

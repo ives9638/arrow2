@@ -20,15 +20,16 @@ pub use mutable::*;
 
 /// A [`PrimitiveArray`] is arrow's equivalent to `Vec<Option<T: NativeType>>`, i.e.
 /// an array designed for highly performant operations on optionally nullable slots,
-/// backed by a physical type of a physical byte-width, such as `i32` or `f64`.
+/// backed by a physical type of a fixed byte-width, such as `i32` or `f64`.
 /// The size of this struct is `O(1)` as all data is stored behind an [`std::sync::Arc`].
 /// # Example
 /// ```
-/// use arrow2::array::PrimitiveArray;
+/// use arrow2::array::{PrimitiveArray, Array};
+/// use arrow2::bitmap::Bitmap;
 /// # fn main() {
-/// let array = PrimitiveArray::<i32>::from([Some(1), None, Some(2)]);
-/// assert_eq!(array.value(0), 1);
-/// assert_eq!(array.values().as_slice(), &[1, 0, 2]);
+/// let array = PrimitiveArray::from([Some(1), None, Some(10)]);
+/// assert_eq!(array.values().as_slice(), &[1, 0, 10]);
+/// assert_eq!(array.validity(), &Some(Bitmap::from([true, false, true])));
 /// # }
 /// ```
 #[derive(Debug, Clone)]
@@ -96,21 +97,34 @@ impl<T: NativeType> PrimitiveArray<T> {
         }
     }
 
-    /// The values [`Buffer`].
+    /// Sets the validity bitmap on this [`PrimitiveArray`].
+    /// # Panics
+    /// This function panics iff `validity.len() != self.len()`.
+    pub fn with_validity(&self, validity: Option<Bitmap>) -> Self {
+        if matches!(&validity, Some(bitmap) if bitmap.len() != self.len()) {
+            panic!("validity should be as least as large as the array")
+        }
+        let mut arr = self.clone();
+        arr.validity = validity;
+        arr
+    }
+
+    /// The values.
+    /// Values on null slots are undetermined (they can be anything).
     #[inline]
     pub fn values(&self) -> &Buffer<T> {
         &self.values
     }
 
-    /// Safe method to retrieve the value at slot `i`.
-    /// Equivalent to `self.values()[i]`.
+    /// Returns the value at slot `i`. Equivalent to `self.values()[i]`.
+    /// The value on null slots is undetermined (it can be anything).
     #[inline]
     pub fn value(&self, i: usize) -> T {
         self.values()[i]
     }
 
-    /// Returns the element at index `i` as `T`
-    ///
+    /// Returns the element at index `i` as `T`.
+    /// The value on null slots is undetermined (it can be anything).
     /// # Safety
     /// Caller must be sure that `i < self.len()`
     #[inline]
@@ -165,6 +179,9 @@ impl<T: NativeType> Array for PrimitiveArray<T> {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn Array> {
+        Box::new(self.with_validity(validity))
     }
 }
 

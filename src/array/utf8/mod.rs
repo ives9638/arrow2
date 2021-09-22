@@ -2,7 +2,7 @@ use crate::{bitmap::Bitmap, buffer::Buffer, datatypes::DataType};
 
 use super::{
     display_fmt,
-    specification::{check_offsets, check_offsets_and_utf8},
+    specification::{check_offsets_and_utf8, check_offsets_minimal},
     Array, GenericBinaryArray, Offset,
 };
 
@@ -25,6 +25,11 @@ pub use mutable::*;
 /// assert_eq!(array.offsets().as_slice(), &[0, 2, 2, 2 + 5]);
 /// # }
 /// ```
+/// # Safety
+/// The following invariants hold:
+/// * Two consecutives `offsets` casted (`as`) to `usize` are valid slices of `values`.
+/// * A slice of `values` taken from two consecutives `offsets` is valid `utf8`.
+/// * `len` is equal to `validity.len()`, when defined.
 #[derive(Debug, Clone)]
 pub struct Utf8Array<O: Offset> {
     data_type: DataType,
@@ -58,9 +63,9 @@ impl<O: Offset> Utf8Array<O> {
     /// # Panics
     /// This function panics iff:
     /// * The `data_type`'s physical type is not consistent with the offset `O`.
-    /// * The `offsets` and `values` are consistent
+    /// * The `offsets` and `values` are inconsistent
     /// * The `values` between `offsets` are utf8 encoded
-    /// * The validity is not `None` and its length is different from `offsets`'s length minus one.
+    /// * The validity is not `None` and its length is different from `offsets.len() - 1`.
     pub fn from_data(
         data_type: DataType,
         offsets: Buffer<O>,
@@ -94,16 +99,25 @@ impl<O: Offset> Utf8Array<O> {
         }
     }
 
-    /// The same as [`Utf8Array::from_data`] but does not check for utf8.
+    /// The same as [`Utf8Array::from_data`] but does not check for offsets nor utf8 validity.
     /// # Safety
-    /// `values` buffer must contain valid utf8 between every `offset`
+    /// * `offsets` MUST be monotonically increasing; and
+    /// * every slice of `values` constructed from `offsets` MUST be valid utf8
+    /// # Panics
+    /// This function panics iff:
+    /// * The `data_type`'s physical type is not consistent with the offset `O`.
+    /// * The last element of `offsets` is different from `values.len()`.
+    /// * The validity is not `None` and its length is different from `offsets.len() - 1`.
     pub unsafe fn from_data_unchecked(
         data_type: DataType,
         offsets: Buffer<O>,
         values: Buffer<u8>,
         validity: Option<Bitmap>,
     ) -> Self {
-        check_offsets(&offsets, values.len());
+        check_offsets_minimal(&offsets, values.len());
+        if let Some(ref validity) = validity {
+            assert_eq!(offsets.len() - 1, validity.len());
+        }
 
         if data_type.to_physical_type() != Self::default_data_type().to_physical_type() {
             panic!("Utf8Array can only be initialized with DataType::Utf8 or DataType::LargeUtf8")
@@ -120,16 +134,29 @@ impl<O: Offset> Utf8Array<O> {
 
     /// Returns the element at index `i` as &str
     /// # Safety
-    /// This function is safe `iff` `i < self.len`.
+    /// This function is safe iff `i < self.len`.
     pub unsafe fn value_unchecked(&self, i: usize) -> &str {
-        let offset = *self.offsets.as_ptr().add(i);
-        let offset_1 = *self.offsets.as_ptr().add(i + 1);
-        let length = (offset_1 - offset).to_usize();
-        let offset = offset.to_usize();
+        // soundness: the invariant of the function
+        let start = self.offsets.get_unchecked(i).to_usize();
+        let end = self.offsets.get_unchecked(i + 1).to_usize();
 
-        // Soundness: `from_data` verifies that each slot is utf8 and offsets are built correctly.
-        let slice = std::slice::from_raw_parts(self.values.as_ptr().add(offset), length);
+        // soundness: the invariant of the struct
+        let slice = self.values.get_unchecked(start..end);
+
+        // soundness: the invariant of the struct
         std::str::from_utf8_unchecked(slice)
+    }
+
+    /// Returns the element at index `i`
+    pub fn value(&self, i: usize) -> &str {
+        let start = self.offsets[i].to_usize();
+        let end = self.offsets[i + 1].to_usize();
+
+        // soundness: the invariant of the struct
+        let slice = unsafe { self.values.get_unchecked(start..end) };
+
+        // soundness: we always check for utf8 soundness on constructors.
+        unsafe { std::str::from_utf8_unchecked(slice) }
     }
 
     /// Returns a slice of this [`Utf8Array`].
@@ -150,17 +177,16 @@ impl<O: Offset> Utf8Array<O> {
         }
     }
 
-    /// Returns the element at index `i` as &str
-    pub fn value(&self, i: usize) -> &str {
-        let offsets = self.offsets.as_slice();
-        let offset = offsets[i];
-        let offset_1 = offsets[i + 1];
-        let length = (offset_1 - offset).to_usize();
-        let offset = offset.to_usize();
-
-        let slice = &self.values.as_slice()[offset..offset + length];
-        // todo: validate utf8 so that we can use the unsafe version
-        std::str::from_utf8(slice).unwrap()
+    /// Sets the validity bitmap on this [`Utf8Array`].
+    /// # Panic
+    /// This function panics iff `validity.len() != self.len()`.
+    pub fn with_validity(&self, validity: Option<Bitmap>) -> Self {
+        if matches!(&validity, Some(bitmap) if bitmap.len() != self.len()) {
+            panic!("validity should be as least as large as the array")
+        }
+        let mut arr = self.clone();
+        arr.validity = validity;
+        arr
     }
 
     /// Returns the offsets of this [`Utf8Array`].
@@ -198,6 +224,9 @@ impl<O: Offset> Array for Utf8Array<O> {
 
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array> {
         Box::new(self.slice(offset, length))
+    }
+    fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn Array> {
+        Box::new(self.with_validity(validity))
     }
 }
 

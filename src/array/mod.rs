@@ -48,8 +48,7 @@ pub trait Array: std::fmt::Debug + Send + Sync {
     /// When the validity is [`None`], all slots are valid.
     fn validity(&self) -> &Option<Bitmap>;
 
-    /// The number of null slots on this [`Array`]. This is usually used to branch
-    /// implementations to cases where optimizations can be made.
+    /// The number of null slots on this [`Array`].
     /// # Implementation
     /// This is `O(1)`.
     #[inline]
@@ -89,6 +88,11 @@ pub trait Array: std::fmt::Debug + Send + Sync {
     /// # Panic
     /// This function panics iff `offset + length >= self.len()`.
     fn slice(&self, offset: usize, length: usize) -> Box<dyn Array>;
+
+    /// Sets the validity bitmap on this [`Array`].
+    /// # Panic
+    /// This function panics iff `validity.len() < self.len()`.
+    fn with_validity(&self, validity: Option<Bitmap>) -> Box<dyn Array>;
 }
 
 /// A trait describing a mutable array; i.e. an array whose values can be changed.

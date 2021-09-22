@@ -5,7 +5,6 @@ use crate::{
     bitmap::Bitmap,
     compute::arity::unary,
     datatypes::{DataType, TimeUnit},
-    error::ArrowError,
     temporal_conversions::*,
     types::NativeType,
 };
@@ -323,22 +322,16 @@ where
 }
 
 #[cfg(feature = "chrono-tz")]
+#[cfg_attr(docsrs, doc(cfg(feature = "chrono-tz")))]
 fn chrono_tz_timestamp_to_utf8<O: Offset>(
     from: &PrimitiveArray<i64>,
     time_unit: TimeUnit,
     timezone_str: &str,
 ) -> Result<Utf8Array<O>> {
-    let timezone = parse_offset_tz(timezone_str);
-    if let Some(timezone) = timezone {
-        Ok(timestamp_to_utf8_impl::<O, chrono_tz::Tz>(
-            from, time_unit, timezone,
-        ))
-    } else {
-        Err(ArrowError::InvalidArgumentError(format!(
-            "timezone \"{}\" cannot be parsed",
-            timezone_str
-        )))
-    }
+    let timezone = parse_offset_tz(timezone_str)?;
+    Ok(timestamp_to_utf8_impl::<O, chrono_tz::Tz>(
+        from, time_unit, timezone,
+    ))
 }
 
 #[cfg(not(feature = "chrono-tz"))]
@@ -347,6 +340,7 @@ fn chrono_tz_timestamp_to_utf8<O: Offset>(
     _: TimeUnit,
     timezone_str: &str,
 ) -> Result<Utf8Array<O>> {
+    use crate::error::ArrowError;
     Err(ArrowError::InvalidArgumentError(format!(
         "timezone \"{}\" cannot be parsed (feature chrono-tz is not active)",
         timezone_str
