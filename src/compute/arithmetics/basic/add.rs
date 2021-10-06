@@ -3,7 +3,6 @@ use std::ops::Add;
 
 use num_traits::{ops::overflowing::OverflowingAdd, CheckedAdd, SaturatingAdd, Zero};
 
-use crate::compute::arithmetics::basic::check_same_type;
 use crate::{
     array::{Array, PrimitiveArray},
     bitmap::Bitmap,
@@ -15,7 +14,7 @@ use crate::{
             binary, binary_checked, binary_with_bitmap, unary, unary_checked, unary_with_bitmap,
         },
     },
-    error::Result,
+    error::{ArrowError, Result},
     types::NativeType,
 };
 
@@ -24,7 +23,7 @@ use crate::{
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::add;
+/// use arrow2::compute::arithmetics::basic::add::add;
 /// use arrow2::array::PrimitiveArray;
 ///
 /// let a = PrimitiveArray::from([None, Some(6), None, Some(6)]);
@@ -37,7 +36,11 @@ pub fn add<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Result<Primit
 where
     T: NativeType + Add<Output = T>,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     binary(lhs, rhs, lhs.data_type().clone(), |a, b| a + b)
 }
@@ -47,7 +50,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::checked_add;
+/// use arrow2::compute::arithmetics::basic::add::checked_add;
 /// use arrow2::array::PrimitiveArray;
 ///
 /// let a = PrimitiveArray::from([Some(100i8), Some(100i8), Some(100i8)]);
@@ -60,7 +63,11 @@ pub fn checked_add<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Resul
 where
     T: NativeType + CheckedAdd<Output = T> + Zero,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let op = move |a: T, b: T| a.checked_add(&b);
 
@@ -73,7 +80,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::saturating_add;
+/// use arrow2::compute::arithmetics::basic::add::saturating_add;
 /// use arrow2::array::PrimitiveArray;
 ///
 /// let a = PrimitiveArray::from([Some(100i8)]);
@@ -89,7 +96,11 @@ pub fn saturating_add<T>(
 where
     T: NativeType + SaturatingAdd<Output = T>,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let op = move |a: T, b: T| a.saturating_add(&b);
 
@@ -103,7 +114,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::overflowing_add;
+/// use arrow2::compute::arithmetics::basic::add::overflowing_add;
 /// use arrow2::array::PrimitiveArray;
 ///
 /// let a = PrimitiveArray::from([Some(1i8), Some(100i8)]);
@@ -119,7 +130,11 @@ pub fn overflowing_add<T>(
 where
     T: NativeType + OverflowingAdd<Output = T>,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let op = move |a: T, b: T| a.overflowing_add(&b);
 
@@ -179,7 +194,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::add_scalar;
+/// use arrow2::compute::arithmetics::basic::add::add_scalar;
 /// use arrow2::array::PrimitiveArray;
 ///
 /// let a = PrimitiveArray::from([None, Some(6), None, Some(6)]);
@@ -201,7 +216,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::checked_add_scalar;
+/// use arrow2::compute::arithmetics::basic::add::checked_add_scalar;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[None, Some(100), None, Some(100)]);
@@ -225,7 +240,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::saturating_add_scalar;
+/// use arrow2::compute::arithmetics::basic::add::saturating_add_scalar;
 /// use arrow2::array::PrimitiveArray;
 ///
 /// let a = PrimitiveArray::from([Some(100i8)]);
@@ -250,7 +265,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::overflowing_add_scalar;
+/// use arrow2::compute::arithmetics::basic::add::overflowing_add_scalar;
 /// use arrow2::array::PrimitiveArray;
 ///
 /// let a = PrimitiveArray::from([Some(1i8), Some(100i8)]);

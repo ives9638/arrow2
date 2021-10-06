@@ -67,7 +67,7 @@ pub fn write_file<'a, W, I>(
     key_value_metadata: Option<Vec<KeyValue>>,
 ) -> Result<u64>
 where
-    W: std::io::Write,
+    W: std::io::Write + std::io::Seek,
     I: Iterator<Item = Result<RowGroupIter<'a, ArrowError>>>,
 {
     let key_value_metadata = key_value_metadata
@@ -127,7 +127,6 @@ pub fn array_to_pages(
     }
 }
 
-/// Converts an [`Array`] to a [`CompressedPage`] based on options, descriptor and `encoding`.
 pub fn array_to_page(
     array: &dyn Array,
     descriptor: ColumnDescriptor,

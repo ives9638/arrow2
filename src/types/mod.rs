@@ -1,5 +1,4 @@
-//! Traits and implementations to handle _all types_ used in this crate.
-//!
+//! traits to handle _all native types_ used in this crate.
 //! Most physical types used in this crate are native Rust types, like `i32`.
 //! The most important trait is [`NativeType`], the generic trait of [`crate::array::PrimitiveArray`].
 //!
@@ -359,25 +358,21 @@ create_relation!(
 );
 
 impl months_days_ns {
-    /// A new [`months_days_ns`].
     #[inline]
     pub fn new(months: i32, days: i32, nanoseconds: i64) -> Self {
         Self(months, days, nanoseconds)
     }
 
-    /// The number of months
     #[inline]
     pub fn months(&self) -> i32 {
         self.0
     }
 
-    /// The number of days
     #[inline]
     pub fn days(&self) -> i32 {
         self.1
     }
 
-    /// The number of nanoseconds
     #[inline]
     pub fn ns(&self) -> i64 {
         self.2

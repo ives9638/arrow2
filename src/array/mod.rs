@@ -1,22 +1,18 @@
-#![deny(missing_docs)]
-//! Contains the [`Array`] and [`MutableArray`] trait objects declaring arrays,
-//! as well as concrete arrays (such as [`Utf8Array`] and [`MutableUtf8Array`]).
-//!
-//! Fixed-length containers with optional values
+//! fixed-length and immutable containers with optional values
 //! that are layed in memory according to the Arrow specification.
 //! Each array type has its own `struct`. The following are the main array types:
-//! * [`PrimitiveArray`] and [`MutablePrimitiveArray`], an array of values with a fixed length such as integers, floats, etc.
-//! * [`BooleanArray`] and [`MutableBooleanArray`], an array of boolean values (stored as a bitmap)
-//! * [`Utf8Array`] and [`MutableUtf8Array`], an array of variable length utf8 values
-//! * [`BinaryArray`] and [`MutableBinaryArray`], an array of opaque variable length values
-//! * [`ListArray`] and [`MutableListArray`], an array of arrays (e.g. `[[1, 2], None, [], [None]]`)
+//! * [`PrimitiveArray`], an array of values with a fixed length such as integers, floats, etc.
+//! * [`BooleanArray`], an array of boolean values (stored as a bitmap)
+//! * [`Utf8Array`], an array of utf8 values
+//! * [`BinaryArray`], an array of binary values
+//! * [`ListArray`], an array of arrays (e.g. `[[1, 2], None, [], [None]]`)
 //! * [`StructArray`], an array of arrays identified by a string (e.g. `{"a": [1, 2], "b": [true, false]}`)
-//! All immutable arrays implement the trait object [`Array`] and that can be downcasted
-//! to a concrete struct based on [`PhysicalType`](crate::datatypes::PhysicalType) available from [`Array::data_type`].
-//! All immutable arrays are backed by [`Buffer`](crate::buffer::Buffer) and thus cloning and slicing them is `O(1)`.
+//! All arrays implement the trait [`Array`] and are often trait objects that can be downcasted
+//! to a concrete struct based on [`DataType`] available from [`Array::data_type`].
+//! Arrays share memory via [`crate::buffer::Buffer`] and thus cloning and slicing them `O(1)`.
 //!
-//! Most arrays contain a [`MutableArray`] counterpart that is neither clonable nor slicable, but
-//! can be operated in-place.
+//! This module also contains the mutable counterparts of arrays, that are neither clonable nor slicable, but that
+//! can be operated in-place, such as [`MutablePrimitiveArray`] and [`MutableUtf8Array`].
 use std::any::Any;
 use std::fmt::Display;
 
@@ -155,9 +151,6 @@ pub trait MutableArray: std::fmt::Debug {
             .map(|x| x.get(index))
             .unwrap_or(true)
     }
-
-    /// Shrink the array to fit its length.
-    fn shrink_to_fit(&mut self);
 }
 
 macro_rules! general_dyn {
@@ -255,7 +248,6 @@ impl Display for dyn Array {
                     fmt_dyn!(self, DictionaryArray::<$T>, f)
                 })
             }
-            Map => todo!(),
         }
     }
 }
@@ -279,7 +271,6 @@ pub fn new_empty_array(data_type: DataType) -> Box<dyn Array> {
         FixedSizeList => Box::new(FixedSizeListArray::new_empty(data_type)),
         Struct => Box::new(StructArray::new_empty(data_type)),
         Union => Box::new(UnionArray::new_empty(data_type)),
-        Map => Box::new(MapArray::new_empty(data_type)),
         Dictionary(key_type) => {
             with_match_physical_dictionary_key_type!(key_type, |$T| {
                 Box::new(DictionaryArray::<$T>::new_empty(data_type))
@@ -309,7 +300,6 @@ pub fn new_null_array(data_type: DataType, length: usize) -> Box<dyn Array> {
         FixedSizeList => Box::new(FixedSizeListArray::new_null(data_type, length)),
         Struct => Box::new(StructArray::new_null(data_type, length)),
         Union => Box::new(UnionArray::new_null(data_type, length)),
-        Map => Box::new(MapArray::new_null(data_type, length)),
         Dictionary(key_type) => {
             with_match_physical_dictionary_key_type!(key_type, |$T| {
                 Box::new(DictionaryArray::<$T>::new_null(data_type, length))
@@ -347,7 +337,6 @@ pub fn clone(array: &dyn Array) -> Box<dyn Array> {
         FixedSizeList => clone_dyn!(array, FixedSizeListArray),
         Struct => clone_dyn!(array, StructArray),
         Union => clone_dyn!(array, UnionArray),
-        Map => clone_dyn!(array, MapArray),
         Dictionary(key_type) => {
             with_match_physical_dictionary_key_type!(key_type, |$T| {
                 clone_dyn!(array, DictionaryArray::<$T>)
@@ -363,7 +352,6 @@ mod display;
 mod fixed_size_binary;
 mod fixed_size_list;
 mod list;
-mod map;
 mod null;
 mod primitive;
 mod specification;
@@ -385,7 +373,6 @@ pub use dictionary::{DictionaryArray, DictionaryKey, MutableDictionaryArray};
 pub use fixed_size_binary::{FixedSizeBinaryArray, MutableFixedSizeBinaryArray};
 pub use fixed_size_list::{FixedSizeListArray, MutableFixedSizeListArray};
 pub use list::{ListArray, MutableListArray};
-pub use map::MapArray;
 pub use null::NullArray;
 pub use primitive::*;
 pub use specification::Offset;

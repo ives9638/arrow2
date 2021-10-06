@@ -18,8 +18,6 @@ mod list;
 pub use list::GrowableList;
 mod structure;
 pub use structure::GrowableStruct;
-mod fixed_size_list;
-pub use fixed_size_list::GrowableFixedSizeList;
 mod utf8;
 pub use utf8::GrowableUtf8;
 mod dictionary;
@@ -57,7 +55,11 @@ macro_rules! dyn_growable {
             .iter()
             .map(|array| array.as_any().downcast_ref().unwrap())
             .collect::<Vec<_>>();
-        Box::new(<$ty>::new(arrays, $use_validity, $capacity))
+        Box::new(primitive::GrowablePrimitive::<$ty>::new(
+            arrays,
+            $use_validity,
+            $capacity,
+        ))
     }};
 }
 
@@ -97,40 +99,110 @@ pub fn make_growable<'a>(
     use PhysicalType::*;
     match data_type.to_physical_type() {
         Null => Box::new(null::GrowableNull::new(data_type.clone())),
-        Boolean => dyn_growable!(boolean::GrowableBoolean, arrays, use_validity, capacity),
+        Boolean => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(boolean::GrowableBoolean::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
         Primitive(primitive) => with_match_primitive_type!(primitive, |$T| {
-            dyn_growable!(primitive::GrowablePrimitive::<$T>, arrays, use_validity, capacity)
+            dyn_growable!($T, arrays, use_validity, capacity)
         }),
-        Utf8 => dyn_growable!(utf8::GrowableUtf8::<i32>, arrays, use_validity, capacity),
-        LargeUtf8 => dyn_growable!(utf8::GrowableUtf8::<i64>, arrays, use_validity, capacity),
-        Binary => dyn_growable!(
-            binary::GrowableBinary::<i32>,
-            arrays,
-            use_validity,
-            capacity
-        ),
-        LargeBinary => dyn_growable!(
-            binary::GrowableBinary::<i64>,
-            arrays,
-            use_validity,
-            capacity
-        ),
-        FixedSizeBinary => dyn_growable!(
-            fixed_binary::GrowableFixedSizeBinary,
-            arrays,
-            use_validity,
-            capacity
-        ),
-        List => dyn_growable!(list::GrowableList::<i32>, arrays, use_validity, capacity),
-        LargeList => dyn_growable!(list::GrowableList::<i64>, arrays, use_validity, capacity),
-        Struct => dyn_growable!(structure::GrowableStruct, arrays, use_validity, capacity),
-        FixedSizeList => dyn_growable!(
-            fixed_size_list::GrowableFixedSizeList,
-            arrays,
-            use_validity,
-            capacity
-        ),
-        Union | Map => todo!(),
+        Utf8 => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(utf8::GrowableUtf8::<i32>::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        LargeUtf8 => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(utf8::GrowableUtf8::<i64>::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        Binary => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(binary::GrowableBinary::<i32>::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        LargeBinary => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(binary::GrowableBinary::<i64>::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        FixedSizeBinary => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(fixed_binary::GrowableFixedSizeBinary::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        List => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(list::GrowableList::<i32>::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        LargeList => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(list::GrowableList::<i64>::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        Struct => {
+            let arrays = arrays
+                .iter()
+                .map(|array| array.as_any().downcast_ref().unwrap())
+                .collect::<Vec<_>>();
+            Box::new(structure::GrowableStruct::new(
+                arrays,
+                use_validity,
+                capacity,
+            ))
+        }
+        FixedSizeList => todo!(),
+        Union => todo!(),
         Dictionary(key_type) => {
             with_match_physical_dictionary_key_type!(key_type, |$T| {
                 dyn_dict_growable!($T, arrays, use_validity, capacity)

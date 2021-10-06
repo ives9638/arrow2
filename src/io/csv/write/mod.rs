@@ -1,4 +1,3 @@
-//! APIs to write to CSV
 mod iterator;
 mod serialize;
 

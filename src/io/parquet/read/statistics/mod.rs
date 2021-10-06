@@ -1,4 +1,3 @@
-//! APIs exposing `parquet2`'s statistics as arrow's statistics.
 use crate::datatypes::DataType;
 use crate::error::ArrowError;
 use parquet2::schema::types::PhysicalType;
@@ -14,9 +13,8 @@ pub use binary::*;
 mod boolean;
 pub use boolean::*;
 
-/// Trait representing a deserialized parquet statistics into arrow.
+/// Trait denoting a deserialized parquet statistics (into arrow).
 pub trait Statistics: std::fmt::Debug {
-    /// returns the [`DataType`] of the statistics.
     fn data_type(&self) -> &DataType;
 }
 

@@ -18,7 +18,6 @@ pub use iterator::*;
 mod mutable;
 pub use mutable::*;
 
-/// An [`Array`] semantically equivalent to `Vec<Option<Vec<Option<T>>>>` with Arrow's in-memory.
 #[derive(Debug, Clone)]
 pub struct ListArray<O: Offset> {
     data_type: DataType,
@@ -29,13 +28,11 @@ pub struct ListArray<O: Offset> {
 }
 
 impl<O: Offset> ListArray<O> {
-    /// Returns a new empty [`ListArray`].
     pub fn new_empty(data_type: DataType) -> Self {
         let values = new_empty_array(Self::get_child_type(&data_type).clone()).into();
         Self::from_data(data_type, Buffer::from(&[O::zero()]), values, None)
     }
 
-    /// Returns a new null [`ListArray`].
     #[inline]
     pub fn new_null(data_type: DataType, length: usize) -> Self {
         let child = Self::get_child_type(&data_type).clone();
@@ -47,12 +44,6 @@ impl<O: Offset> ListArray<O> {
         )
     }
 
-    /// Returns a new [`ListArray`].
-    /// # Panic
-    /// This function panics iff:
-    /// * The `data_type`'s physical type is not consistent with the offset `O`.
-    /// * The `offsets` and `values` are inconsistent
-    /// * The validity is not `None` and its length is different from `offsets.len() - 1`.
     pub fn from_data(
         data_type: DataType,
         offsets: Buffer<O>,
@@ -129,14 +120,19 @@ impl<O: Offset> ListArray<O> {
     /// Returns the element at index `i`
     #[inline]
     pub fn value(&self, i: usize) -> Box<dyn Array> {
-        let offset = self.offsets[i];
-        let offset_1 = self.offsets[i + 1];
-        let length = (offset_1 - offset).to_usize();
+        if self.is_null(i) {
+            new_empty_array(self.values.data_type().clone())
+        } else {
+            let offsets = self.offsets.as_slice();
+            let offset = offsets[i];
+            let offset_1 = offsets[i + 1];
+            let length = (offset_1 - offset).to_usize();
 
-        // Safety:
-        // One of the invariants of the struct
-        // is that offsets are in bounds
-        unsafe { self.values.slice_unchecked(offset.to_usize(), length) }
+            // Safety:
+            // One of the invariants of the struct
+            // is that offsets are in bounds
+            unsafe { self.values.slice_unchecked(offset.to_usize(), length) }
+        }
     }
 
     /// Returns the element at index `i` as &str
@@ -157,13 +153,11 @@ impl<O: Offset> ListArray<O> {
         self.validity.as_ref()
     }
 
-    /// The offsets [`Buffer`].
     #[inline]
     pub fn offsets(&self) -> &Buffer<O> {
         &self.offsets
     }
 
-    /// The values.
     #[inline]
     pub fn values(&self) -> &Arc<dyn Array> {
         &self.values
@@ -171,7 +165,6 @@ impl<O: Offset> ListArray<O> {
 }
 
 impl<O: Offset> ListArray<O> {
-    /// Returns a default [`DataType`]: inner field is named "item" and is nullable
     pub fn default_datatype(data_type: DataType) -> DataType {
         let field = Box::new(Field::new("item", data_type, true));
         if O::is_large() {
@@ -181,9 +174,6 @@ impl<O: Offset> ListArray<O> {
         }
     }
 
-    /// Returns a the inner [`Field`]
-    /// # Panics
-    /// Panics iff the logical type is not consistent with this struct.
     pub fn get_child_field(data_type: &DataType) -> &Field {
         if O::is_large() {
             match data_type.to_logical_type() {
@@ -198,9 +188,6 @@ impl<O: Offset> ListArray<O> {
         }
     }
 
-    /// Returns a the inner [`DataType`]
-    /// # Panics
-    /// Panics iff the logical type is not consistent with this struct.
     pub fn get_child_type(data_type: &DataType) -> &DataType {
         Self::get_child_field(data_type).data_type()
     }

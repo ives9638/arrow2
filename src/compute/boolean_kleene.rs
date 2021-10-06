@@ -1,4 +1,3 @@
-//! Boolean operators of [Kleene logic](https://en.wikipedia.org/wiki/Three-valued_logic#Kleene_and_Priest_logics).
 use crate::datatypes::DataType;
 use crate::error::{ArrowError, Result};
 use crate::{

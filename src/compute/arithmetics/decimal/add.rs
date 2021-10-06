@@ -16,7 +16,6 @@
 // under the License.
 
 //! Defines the addition arithmetic kernels for Decimal `PrimitiveArrays`.
-use crate::compute::arithmetics::basic::check_same_len;
 use crate::{
     array::{Array, PrimitiveArray},
     buffer::Buffer,
@@ -254,7 +253,12 @@ pub fn adaptive_add(
     lhs: &PrimitiveArray<i128>,
     rhs: &PrimitiveArray<i128>,
 ) -> Result<PrimitiveArray<i128>> {
-    check_same_len(lhs, rhs)?;
+    // Checking if both arrays have the same length
+    if lhs.len() != rhs.len() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same length".to_string(),
+        ));
+    }
 
     if let (DataType::Decimal(lhs_p, lhs_s), DataType::Decimal(rhs_p, rhs_s)) =
         (lhs.data_type(), rhs.data_type())

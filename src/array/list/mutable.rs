@@ -20,14 +20,12 @@ pub struct MutableListArray<O: Offset, M: MutableArray> {
 }
 
 impl<O: Offset, M: MutableArray + Default> MutableListArray<O, M> {
-    /// Creates a new empty [`MutableListArray`].
     pub fn new() -> Self {
         let values = M::default();
         let data_type = ListArray::<O>::default_datatype(values.data_type().clone());
         Self::new_from(values, data_type, 0)
     }
 
-    /// Creates a new [`MutableListArray`] with a capacity.
     pub fn with_capacity(capacity: usize) -> Self {
         let values = M::default();
         let data_type = ListArray::<O>::default_datatype(values.data_type().clone());
@@ -40,15 +38,6 @@ impl<O: Offset, M: MutableArray + Default> MutableListArray<O, M> {
             offsets,
             values,
             validity: None,
-        }
-    }
-
-    /// Shrinks the capacity of the [`MutableList`] to fit its current length.
-    pub fn shrink_to_fit(&mut self) {
-        self.values.shrink_to_fit();
-        self.offsets.shrink_to_fit();
-        if let Some(validity) = &mut self.validity {
-            validity.shrink_to_fit()
         }
     }
 }
@@ -90,7 +79,6 @@ where
     M: MutableArray + TryExtend<Option<T>>,
     I: IntoIterator<Item = Option<T>>,
 {
-    #[inline]
     fn try_push(&mut self, item: Option<I>) -> Result<()> {
         if let Some(items) = item {
             let values = self.mut_values();
@@ -104,7 +92,6 @@ where
 }
 
 impl<O: Offset, M: MutableArray> MutableListArray<O, M> {
-    /// Creates a new [`MutableListArray`] from a [`MutableArray`] and capacity.
     pub fn new_from(values: M, data_type: DataType, capacity: usize) -> Self {
         let mut offsets = MutableBuffer::<O>::with_capacity(capacity + 1);
         offsets.push(O::default());
@@ -118,7 +105,6 @@ impl<O: Offset, M: MutableArray> MutableListArray<O, M> {
         }
     }
 
-    /// Creates a new [`MutableListArray`] from a [`MutableArray`].
     pub fn new_with_field(values: M, name: &str, nullable: bool) -> Self {
         let field = Box::new(Field::new(name, values.data_type().clone(), nullable));
         let data_type = if O::is_large() {
@@ -129,13 +115,11 @@ impl<O: Offset, M: MutableArray> MutableListArray<O, M> {
         Self::new_from(values, data_type, 0)
     }
 
-    /// Creates a new [`MutableListArray`] from a [`MutableArray`] and capacity.
     pub fn new_with_capacity(values: M, capacity: usize) -> Self {
         let data_type = ListArray::<O>::default_datatype(values.data_type().clone());
         Self::new_from(values, data_type, capacity)
     }
 
-    #[inline]
     pub fn try_push_valid(&mut self) -> Result<()> {
         let size = self.values.len();
         let size = O::from_usize(size).ok_or(ArrowError::KeyOverflowError)?; // todo: make this error
@@ -148,7 +132,6 @@ impl<O: Offset, M: MutableArray> MutableListArray<O, M> {
         Ok(())
     }
 
-    #[inline]
     fn push_null(&mut self) {
         self.offsets.push(self.last_offset());
         match &mut self.validity {
@@ -157,12 +140,10 @@ impl<O: Offset, M: MutableArray> MutableListArray<O, M> {
         }
     }
 
-    /// The values
     pub fn mut_values(&mut self) -> &mut M {
         &mut self.values
     }
 
-    /// The values
     pub fn values(&self) -> &M {
         &self.values
     }
@@ -173,12 +154,11 @@ impl<O: Offset, M: MutableArray> MutableListArray<O, M> {
     }
 
     fn init_validity(&mut self) {
-        let len = self.offsets.len() - 1;
-
-        let mut validity = MutableBitmap::new();
-        validity.extend_constant(len, true);
-        validity.set(len - 1, false);
-        self.validity = Some(validity)
+        self.validity = Some(MutableBitmap::from_trusted_len_iter(
+            std::iter::repeat(true)
+                .take(self.offsets.len() - 1 - 1)
+                .chain(std::iter::once(false)),
+        ))
     }
 
     /// Converts itself into an [`Array`].
@@ -188,7 +168,7 @@ impl<O: Offset, M: MutableArray> MutableListArray<O, M> {
     }
 }
 
-impl<O: Offset, M: MutableArray + Default + 'static> MutableArray for MutableListArray<O, M> {
+impl<O: Offset, M: MutableArray + 'static> MutableArray for MutableListArray<O, M> {
     fn len(&self) -> usize {
         self.offsets.len() - 1
     }
@@ -227,11 +207,7 @@ impl<O: Offset, M: MutableArray + Default + 'static> MutableArray for MutableLis
         self
     }
 
-    #[inline]
     fn push_null(&mut self) {
         self.push_null()
-    }
-    fn shrink_to_fit(&mut self) {
-        self.shrink_to_fit();
     }
 }

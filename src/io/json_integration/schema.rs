@@ -57,7 +57,6 @@ impl ToJson for DataType {
             }
             DataType::Struct(_) => json!({"name": "struct"}),
             DataType::Union(_, _, _) => json!({"name": "union"}),
-            DataType::Map(_, _) => json!({"name": "map"}),
             DataType::List(_) => json!({ "name": "list"}),
             DataType::LargeList(_) => json!({ "name": "largelist"}),
             DataType::FixedSizeList(_, length) => {
@@ -407,16 +406,8 @@ fn to_data_type(item: &Value, mut children: Vec<Field>) -> Result<DataType> {
             };
             DataType::Union(children, ids, is_sparse)
         }
-        "map" => {
-            let sorted_keys = if let Some(Value::Bool(sorted_keys)) = item.get("keysSorted") {
-                *sorted_keys
-            } else {
-                return Err(ArrowError::Schema("sorted keys not defined".to_string()));
-            };
-            DataType::Map(Box::new(children.pop().unwrap()), sorted_keys)
-        }
         other => {
-            return Err(ArrowError::NotYetImplemented(format!(
+            return Err(ArrowError::Schema(format!(
                 "invalid json value type \"{}\"",
                 other
             )))

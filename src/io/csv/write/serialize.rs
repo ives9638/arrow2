@@ -11,18 +11,17 @@ use crate::{
 
 use super::iterator::{BufStreamingIterator, StreamingIterator};
 
-/// Options to serialize logical types to CSV
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct SerializeOptions {
-    /// used for [`DataType::Date32`]
+    /// used for date32
     pub date32_format: String,
-    /// used for [`DataType::Date64`]
+    /// used for date64
     pub date64_format: String,
-    /// used for [`DataType::Time32`]
+    /// used for time32
     pub time32_format: String,
-    /// used for [`DataType::Time64`]
+    /// used for time64
     pub time64_format: String,
-    /// used for [`DataType::Timestamp`]
+    /// used for timestamp
     pub timestamp_format: String,
 }
 
@@ -77,7 +76,7 @@ macro_rules! dyn_date {
     }};
 }
 
-/// Returns a [`StreamingIterator`] that yields `&[u8]` serialized from `array` according to `options`.
+/// Returns an Iterator that returns items of `Array` as `Vec<u8>`, according to `options`.
 /// For numeric types, this serializes as usual. For dates, times and timestamps, it uses `options` to
 /// Supported types:
 /// * boolean

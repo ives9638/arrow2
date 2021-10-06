@@ -3,7 +3,6 @@ use std::ops::Div;
 
 use num_traits::{CheckedDiv, NumCast, Zero};
 
-use crate::compute::arithmetics::basic::{check_same_len, check_same_type};
 use crate::datatypes::DataType;
 use crate::{
     array::{Array, PrimitiveArray},
@@ -11,7 +10,7 @@ use crate::{
         arithmetics::{ArrayCheckedDiv, ArrayDiv, NotI128},
         arity::{binary, binary_checked, unary, unary_checked},
     },
-    error::Result,
+    error::{ArrowError, Result},
     types::NativeType,
 };
 use strength_reduce::{
@@ -23,7 +22,7 @@ use strength_reduce::{
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::div;
+/// use arrow2::compute::arithmetics::basic::div::div;
 /// use arrow2::array::Int32Array;
 ///
 /// let a = Int32Array::from(&[Some(10), Some(1), Some(6)]);
@@ -36,12 +35,20 @@ pub fn div<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Result<Primit
 where
     T: NativeType + Div<Output = T>,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     if rhs.null_count() == 0 {
         binary(lhs, rhs, lhs.data_type().clone(), |a, b| a / b)
     } else {
-        check_same_len(lhs, rhs)?;
+        if lhs.len() != rhs.len() {
+            return Err(ArrowError::InvalidArgumentError(
+                "Arrays must have the same length".to_string(),
+            ));
+        }
         let values = lhs.iter().zip(rhs.iter()).map(|(l, r)| match (l, r) {
             (Some(l), Some(r)) => Some(*l / *r),
             _ => None,
@@ -57,7 +64,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::checked_div;
+/// use arrow2::compute::arithmetics::basic::div::checked_div;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[Some(-100i8), Some(10i8)]);
@@ -70,7 +77,11 @@ pub fn checked_div<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Resul
 where
     T: NativeType + CheckedDiv<Output = T> + Zero,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let op = move |a: T, b: T| a.checked_div(&b);
 
@@ -106,7 +117,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::div_scalar;
+/// use arrow2::compute::arithmetics::basic::div::div_scalar;
 /// use arrow2::array::Int32Array;
 ///
 /// let a = Int32Array::from(&[None, Some(6), None, Some(6)]);
@@ -189,7 +200,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::checked_div_scalar;
+/// use arrow2::compute::arithmetics::basic::div::checked_div_scalar;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[Some(-100i8)]);

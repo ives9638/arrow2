@@ -29,8 +29,6 @@ pub enum PhysicalType {
     Struct,
     /// A nested type that represents slots of differing types.
     Union,
-    /// A nested type.
-    Map,
     /// A dictionary encoded array by `DictionaryIndexType`.
     Dictionary(DictionaryIndexType),
 }

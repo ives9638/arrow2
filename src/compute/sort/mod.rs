@@ -1,4 +1,3 @@
-//! Contains operators to sort individual and slices of [`Array`]s.
 use std::cmp::Ordering;
 
 use crate::array::ord;

@@ -104,71 +104,6 @@ impl MutableBooleanArray {
         }
     }
 
-    /// Extends the [`MutableBooleanArray`] from an iterator of values of trusted len.
-    /// This differs from `extend_trusted_len` which accepts in iterator of optional values.
-    #[inline]
-    pub fn extend_trusted_len_values<I>(&mut self, iterator: I)
-    where
-        I: TrustedLen<Item = bool>,
-    {
-        // Safety: `I` is `TrustedLen`
-        unsafe { self.extend_trusted_len_values_unchecked(iterator) }
-    }
-
-    /// Extends the [`MutableBooleanArray`] from an iterator of values of trusted len.
-    /// This differs from `extend_trusted_len_unchecked`, which accepts in iterator of optional values.
-    /// # Safety
-    /// The iterator must be trusted len.
-    #[inline]
-    pub unsafe fn extend_trusted_len_values_unchecked<I>(&mut self, iterator: I)
-    where
-        I: Iterator<Item = bool>,
-    {
-        let (_, upper) = iterator.size_hint();
-        let additional =
-            upper.expect("extend_trusted_len_values_unchecked requires an upper limit");
-
-        if let Some(validity) = self.validity.as_mut() {
-            validity.extend_constant(additional, true);
-        }
-
-        self.values.extend_from_trusted_len_iter_unchecked(iterator)
-    }
-
-    /// Extends the [`MutableBooleanArray`] from an iterator of trusted len.
-    #[inline]
-    pub fn extend_trusted_len<I, P>(&mut self, iterator: I)
-    where
-        P: std::borrow::Borrow<bool>,
-        I: TrustedLen<Item = Option<P>>,
-    {
-        // Safety: `I` is `TrustedLen`
-        unsafe { self.extend_trusted_len_unchecked(iterator) }
-    }
-
-    /// Extends the [`MutableBooleanArray`] from an iterator of trusted len.
-    /// # Safety
-    /// The iterator must be trusted len.
-    #[inline]
-    pub unsafe fn extend_trusted_len_unchecked<I, P>(&mut self, iterator: I)
-    where
-        P: std::borrow::Borrow<bool>,
-        I: Iterator<Item = Option<P>>,
-    {
-        if let Some(validity) = self.validity.as_mut() {
-            extend_trusted_len_unzip(iterator, validity, &mut self.values);
-        } else {
-            let mut validity = MutableBitmap::new();
-            validity.extend_constant(self.len(), true);
-
-            extend_trusted_len_unzip(iterator, &mut validity, &mut self.values);
-
-            if validity.null_count() > 0 {
-                self.validity = Some(validity);
-            }
-        }
-    }
-
     fn init_validity(&mut self) {
         let mut validity = MutableBitmap::new();
         validity.extend_constant(self.len(), true);
@@ -246,6 +181,12 @@ impl MutableBooleanArray {
     {
         let (validity, values) = trusted_len_unzip(iterator);
 
+        let validity = if validity.null_count() > 0 {
+            Some(validity)
+        } else {
+            None
+        };
+
         Self::from_data(DataType::Boolean, values, validity)
     }
 
@@ -256,7 +197,6 @@ impl MutableBooleanArray {
         P: std::borrow::Borrow<bool>,
         I: TrustedLen<Item = Option<P>>,
     {
-        // Safety: `I` is `TrustedLen`
         unsafe { Self::from_trusted_len_iter_unchecked(iterator) }
     }
 
@@ -290,16 +230,7 @@ impl MutableBooleanArray {
         P: std::borrow::Borrow<bool>,
         I: TrustedLen<Item = std::result::Result<Option<P>, E>>,
     {
-        // Safety: `I` is `TrustedLen`
         unsafe { Self::try_from_trusted_len_iter_unchecked(iterator) }
-    }
-
-    /// Shrinks the capacity of the [`MutableBooleanArray`] to fit its current length.
-    pub fn shrink_to_fit(&mut self) {
-        self.values.shrink_to_fit();
-        if let Some(validity) = &mut self.validity {
-            validity.shrink_to_fit()
-        }
     }
 }
 
@@ -309,63 +240,33 @@ impl MutableBooleanArray {
 /// # Safety
 /// The caller must ensure that `iterator` is `TrustedLen`.
 #[inline]
-pub(crate) unsafe fn trusted_len_unzip<I, P>(iterator: I) -> (Option<MutableBitmap>, MutableBitmap)
+pub(crate) unsafe fn trusted_len_unzip<I, P>(iterator: I) -> (MutableBitmap, MutableBitmap)
 where
     P: std::borrow::Borrow<bool>,
     I: Iterator<Item = Option<P>>,
 {
-    let mut validity = MutableBitmap::new();
-    let mut values = MutableBitmap::new();
-
-    extend_trusted_len_unzip(iterator, &mut validity, &mut values);
-
-    let validity = if validity.null_count() > 0 {
-        Some(validity)
-    } else {
-        None
-    };
-
-    (validity, values)
-}
-
-/// Extends validity [`MutableBitmap`] and values [`MutableBitmap`] from an iterator of `Option`.
-/// # Safety
-/// The caller must ensure that `iterator` is `TrustedLen`.
-#[inline]
-pub(crate) unsafe fn extend_trusted_len_unzip<I, P>(
-    iterator: I,
-    validity: &mut MutableBitmap,
-    values: &mut MutableBitmap,
-) where
-    P: std::borrow::Borrow<bool>,
-    I: Iterator<Item = Option<P>>,
-{
     let (_, upper) = iterator.size_hint();
-    let additional = upper.expect("extend_trusted_len_unzip requires an upper limit");
+    let len = upper.expect("trusted_len_unzip requires an upper limit");
 
-    // Length of the array before new values are pushed,
-    // variable created for assertion post operation
-    let pre_length = values.len();
-
-    validity.reserve(additional);
-    values.reserve(additional);
+    let mut validity = MutableBitmap::with_capacity(len);
+    let mut values = MutableBitmap::with_capacity(len);
 
     for item in iterator {
         let item = if let Some(item) = item {
-            validity.push_unchecked(true);
+            validity.push(true);
             *item.borrow()
         } else {
-            validity.push_unchecked(false);
-            bool::default()
+            validity.push(false);
+            false
         };
-        values.push_unchecked(item);
+        values.push(item);
     }
-
-    debug_assert_eq!(
+    assert_eq!(
         values.len(),
-        pre_length + additional,
+        len,
         "Trusted iterator length was not accurately reported"
     );
+    (validity, values)
 }
 
 /// # Safety
@@ -468,10 +369,6 @@ impl MutableArray for MutableBooleanArray {
     #[inline]
     fn push_null(&mut self) {
         self.push(None)
-    }
-
-    fn shrink_to_fit(&mut self) {
-        self.shrink_to_fit()
     }
 }
 

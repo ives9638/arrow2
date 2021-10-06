@@ -8,7 +8,6 @@ mod dictionary;
 mod fixed_size_binary;
 mod fixed_size_list;
 mod list;
-mod map;
 mod null;
 mod primitive;
 mod struct_;
@@ -235,11 +234,6 @@ pub fn equal(lhs: &dyn Array, rhs: &dyn Array) -> bool {
             let lhs = lhs.as_any().downcast_ref().unwrap();
             let rhs = rhs.as_any().downcast_ref().unwrap();
             union::equal(lhs, rhs)
-        }
-        Map => {
-            let lhs = lhs.as_any().downcast_ref().unwrap();
-            let rhs = rhs.as_any().downcast_ref().unwrap();
-            map::equal(lhs, rhs)
         }
     }
 }

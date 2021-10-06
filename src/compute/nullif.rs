@@ -1,7 +1,5 @@
-//! Contains the operator [`nullif`].
 use crate::array::PrimitiveArray;
 use crate::bitmap::Bitmap;
-use crate::compute::arithmetics::basic::check_same_type;
 use crate::compute::comparison::{primitive_compare_values_op, Simd8, Simd8Lanes};
 use crate::datatypes::DataType;
 use crate::error::{ArrowError, Result};
@@ -36,7 +34,11 @@ pub fn nullif_primitive<T: NativeType + Simd8>(
     lhs: &PrimitiveArray<T>,
     rhs: &PrimitiveArray<T>,
 ) -> Result<PrimitiveArray<T>> {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let equal = primitive_compare_values_op(lhs.values(), rhs.values(), |lhs, rhs| lhs.neq(rhs));
     let equal: Option<Bitmap> = equal.into();

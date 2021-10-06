@@ -1,4 +1,3 @@
-//! Contains the operator [`if_then_else`].
 use crate::array::growable;
 use crate::error::{ArrowError, Result};
 use crate::{array::*, bitmap::utils::SlicesIterator};

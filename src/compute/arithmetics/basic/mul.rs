@@ -3,7 +3,6 @@ use std::ops::Mul;
 
 use num_traits::{ops::overflowing::OverflowingMul, CheckedMul, SaturatingMul, Zero};
 
-use crate::compute::arithmetics::basic::check_same_type;
 use crate::{
     array::{Array, PrimitiveArray},
     bitmap::Bitmap,
@@ -15,7 +14,7 @@ use crate::{
             binary, binary_checked, binary_with_bitmap, unary, unary_checked, unary_with_bitmap,
         },
     },
-    error::Result,
+    error::{ArrowError, Result},
     types::NativeType,
 };
 
@@ -24,7 +23,7 @@ use crate::{
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::mul;
+/// use arrow2::compute::arithmetics::basic::mul::mul;
 /// use arrow2::array::Int32Array;
 ///
 /// let a = Int32Array::from(&[None, Some(6), None, Some(6)]);
@@ -37,7 +36,11 @@ pub fn mul<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Result<Primit
 where
     T: NativeType + Mul<Output = T>,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     binary(lhs, rhs, lhs.data_type().clone(), |a, b| a * b)
 }
@@ -48,7 +51,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::checked_mul;
+/// use arrow2::compute::arithmetics::basic::mul::checked_mul;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[Some(100i8), Some(100i8), Some(100i8)]);
@@ -61,7 +64,11 @@ pub fn checked_mul<T>(lhs: &PrimitiveArray<T>, rhs: &PrimitiveArray<T>) -> Resul
 where
     T: NativeType + CheckedMul<Output = T> + Zero,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let op = move |a: T, b: T| a.checked_mul(&b);
 
@@ -74,7 +81,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::saturating_mul;
+/// use arrow2::compute::arithmetics::basic::mul::saturating_mul;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[Some(-100i8)]);
@@ -90,7 +97,11 @@ pub fn saturating_mul<T>(
 where
     T: NativeType + SaturatingMul<Output = T>,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let op = move |a: T, b: T| a.saturating_mul(&b);
 
@@ -104,7 +115,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::overflowing_mul;
+/// use arrow2::compute::arithmetics::basic::mul::overflowing_mul;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[Some(1i8), Some(-100i8)]);
@@ -120,7 +131,11 @@ pub fn overflowing_mul<T>(
 where
     T: NativeType + OverflowingMul<Output = T>,
 {
-    check_same_type(lhs, rhs)?;
+    if lhs.data_type() != rhs.data_type() {
+        return Err(ArrowError::InvalidArgumentError(
+            "Arrays must have the same logical type".to_string(),
+        ));
+    }
 
     let op = move |a: T, b: T| a.overflowing_mul(&b);
 
@@ -179,7 +194,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::mul_scalar;
+/// use arrow2::compute::arithmetics::basic::mul::mul_scalar;
 /// use arrow2::array::Int32Array;
 ///
 /// let a = Int32Array::from(&[None, Some(6), None, Some(6)]);
@@ -201,7 +216,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::checked_mul_scalar;
+/// use arrow2::compute::arithmetics::basic::mul::checked_mul_scalar;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[None, Some(100), None, Some(100)]);
@@ -225,7 +240,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::saturating_mul_scalar;
+/// use arrow2::compute::arithmetics::basic::mul::saturating_mul_scalar;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[Some(-100i8)]);
@@ -250,7 +265,7 @@ where
 ///
 /// # Examples
 /// ```
-/// use arrow2::compute::arithmetics::basic::overflowing_mul_scalar;
+/// use arrow2::compute::arithmetics::basic::mul::overflowing_mul_scalar;
 /// use arrow2::array::Int8Array;
 ///
 /// let a = Int8Array::from(&[Some(1i8), Some(100i8)]);

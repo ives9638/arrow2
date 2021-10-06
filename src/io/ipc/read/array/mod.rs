@@ -20,5 +20,3 @@ mod dictionary;
 pub use dictionary::*;
 mod union;
 pub use union::*;
-mod map;
-pub use map::*;
