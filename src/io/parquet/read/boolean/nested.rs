@@ -4,7 +4,7 @@ use parquet2::{
     encoding::{hybrid_rle::HybridRleDecoder, Encoding},
     metadata::{ColumnChunkMetaData, ColumnDescriptor},
     page::DataPage,
-    read::{levels::get_bit_width, StreamingIterator},
+    read::{levels::get_bit_width},
 };
 
 use super::super::nested_utils::*;
