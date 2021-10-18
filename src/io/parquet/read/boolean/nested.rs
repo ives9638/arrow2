@@ -16,6 +16,7 @@ use crate::{
     datatypes::DataType,
     error::{ArrowError, Result},
 };
+use streaming_iterator::StreamingIterator;
 
 fn read_values<D, G>(
     def_levels: D,
