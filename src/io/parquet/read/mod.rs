@@ -11,8 +11,7 @@ pub use parquet2::{
     page::{CompressedDataPage, DataPage, DataPageHeader},
     read::{
         decompress, get_page_iterator as _get_page_iterator, get_page_stream as _get_page_stream,
-        read_metadata as _read_metadata, read_metadata_async as _read_metadata_async,
-        streaming_iterator, Decompressor, PageFilter, PageIterator, StreamingIterator,
+        read_metadata as _read_metadata, read_metadata_async as _read_metadata_async, Decompressor, PageFilter, PageIterator,
     },
     schema::types::{
         LogicalType, ParquetType, PhysicalType, PrimitiveConvertedType,
@@ -39,6 +38,7 @@ mod utils;
 
 pub use record_batch::RecordReader;
 pub use schema::{get_schema, is_type_nullable, FileMetaData};
+use streaming_iterator::StreamingIterator;
 
 /// Creates a new iterator of compressed pages.
 pub fn get_page_iterator<'b, RR: Read + Seek>(

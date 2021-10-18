@@ -1,8 +1,7 @@
 use futures::{pin_mut, Stream, StreamExt};
 use parquet2::{
     encoding::{hybrid_rle, Encoding},
-    page::{DataPage, FixedLenByteArrayPageDict},
-    read::StreamingIterator,
+    page::{DataPage, FixedLenByteArrayPageDict}
 };
 
 use super::{ColumnChunkMetaData, ColumnDescriptor};
@@ -15,6 +14,7 @@ use crate::{
 };
 
 use super::utils;
+use streaming_iterator::StreamingIterator;
 
 /// Assumptions: No rep levels
 #[allow(clippy::too_many_arguments)]

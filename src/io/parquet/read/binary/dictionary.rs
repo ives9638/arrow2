@@ -4,7 +4,6 @@ use parquet2::{
     encoding::{hybrid_rle, Encoding},
     metadata::{ColumnChunkMetaData, ColumnDescriptor},
     page::{BinaryPageDict, DataPage},
-    read::StreamingIterator,
 };
 
 use super::super::utils as other_utils;
@@ -15,6 +14,7 @@ use crate::{
     datatypes::DataType,
     error::{ArrowError, Result},
 };
+use streaming_iterator::StreamingIterator;
 
 #[allow(clippy::too_many_arguments)]
 fn read_dict_optional<K, O>(
