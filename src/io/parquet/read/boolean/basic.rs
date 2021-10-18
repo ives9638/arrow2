@@ -12,8 +12,8 @@ use parquet2::{
     encoding::{hybrid_rle, Encoding},
     metadata::{ColumnChunkMetaData, ColumnDescriptor},
     page::DataPage,
-    read::StreamingIterator,
 };
+use streaming_iterator::StreamingIterator;
 
 pub(super) fn read_required(buffer: &[u8], additional: usize, values: &mut MutableBitmap) {
     // in PLAIN, booleans are LSB bitpacked and thus we can read them as if they were a bitmap.

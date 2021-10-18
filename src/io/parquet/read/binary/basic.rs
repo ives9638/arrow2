@@ -3,9 +3,8 @@ use parquet2::{
     encoding::{delta_length_byte_array, hybrid_rle, Encoding},
     metadata::{ColumnChunkMetaData, ColumnDescriptor},
     page::{BinaryPageDict, DataPage},
-    read::StreamingIterator,
 };
-
+use streaming_iterator::StreamingIterator;
 use crate::{
     array::{Array, BinaryArray, Offset, Utf8Array},
     bitmap::{utils::BitmapIter, MutableBitmap},

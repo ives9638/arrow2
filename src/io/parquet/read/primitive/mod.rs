@@ -4,9 +4,9 @@ mod nested;
 mod utils;
 
 use std::sync::Arc;
-
+use streaming_iterator::StreamingIterator;
 use futures::{pin_mut, Stream, StreamExt};
-use parquet2::{page::DataPage, read::StreamingIterator, types::NativeType};
+use parquet2::{page::DataPage, types::NativeType};
 
 use super::nested_utils::*;
 use super::{ColumnChunkMetaData, ColumnDescriptor};

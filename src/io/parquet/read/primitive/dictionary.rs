@@ -3,10 +3,10 @@ use std::sync::Arc;
 use parquet2::{
     encoding::{hybrid_rle, Encoding},
     page::{DataPage, PrimitivePageDict},
-    read::StreamingIterator,
+
     types::NativeType,
 };
-
+use streaming_iterator::StreamingIterator;
 use super::super::utils;
 use super::{ColumnChunkMetaData, ColumnDescriptor};
 use crate::{
